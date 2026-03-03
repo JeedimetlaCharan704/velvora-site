@@ -107,6 +107,42 @@ async function loadStats() {
     }
 }
 
+// Load Customers
+async function loadCustomers() {
+    try {
+        const users = await apiCall('/users');
+        renderCustomers(users);
+        document.getElementById('totalCustomers').textContent = users.length;
+    } catch (error) {
+        console.error('Error loading customers:', error);
+    }
+}
+
+// Render Customers
+function renderCustomers(users) {
+    const grid = document.getElementById('customersGrid');
+    if (!grid) return;
+    
+    if (users.length === 0) {
+        grid.innerHTML = '<p class="no-data">No customers yet</p>';
+        return;
+    }
+    
+    grid.innerHTML = users.map(user => `
+        <div class="customer-card">
+            <div class="customer-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="customer-info">
+                <h4>${user.name}</h4>
+                <p>${user.email}</p>
+                <p>${user.phone || 'No phone'}</p>
+                <span class="customer-date">Joined: ${new Date(user.createdAt).toLocaleDateString()}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
 // Render Recent Orders (Dashboard)
 function renderOrders() {
     const tbody = document.getElementById('ordersTableBody');
@@ -124,10 +160,10 @@ function renderOrders() {
         tbody.innerHTML = recentOrders.map(order => `
             <tr>
                 <td>${order.orderId}</td>
-                <td>${order.customerName}</td>
+                <td>${order.customerName || order.customer?.name || 'N/A'}</td>
                 <td>${new Date(order.createdAt).toLocaleDateString()}</td>
                 <td>$${order.total?.toFixed(2) || '0.00'}</td>
-                <td><span class="status-badge ${order.status.toLowerCase()}">${order.status}</span></td>
+                <td><span class="status-badge ${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span></td>
                 <td><button class="action-btn" onclick="viewOrder('${order._id}')"><i class="fas fa-eye"></i></button></td>
             </tr>
         `).join('');
@@ -146,11 +182,11 @@ function renderOrders() {
             <div class="recent-order-card">
                 <div class="recent-order-info">
                     <strong>${order.orderId}</strong>
-                    <span>${order.customerName}</span>
+                    <span>${order.customerName || order.customer?.name || 'N/A'}</span>
                 </div>
                 <div class="recent-order-info">
                     <span>$${order.total?.toFixed(2) || '0.00'}</span>
-                    <span class="status-badge ${order.status.toLowerCase()}">${order.status}</span>
+                    <span class="status-badge ${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span>
                 </div>
             </div>
         `).join('');
@@ -167,7 +203,7 @@ function renderAllOrders() {
         tbody.innerHTML = allOrders.map(order => `
             <tr>
                 <td>${order.orderId}</td>
-                <td>${order.customerName}</td>
+                <td>${order.customerName || order.customer?.name || 'N/A'}</td>
                 <td>${order.items?.length || 0} items</td>
                 <td>${new Date(order.createdAt).toLocaleDateString()}</td>
                 <td>$${order.total?.toFixed(2) || '0.00'}</td>
@@ -200,10 +236,10 @@ function renderAllOrders() {
             <div class="order-card-admin">
                 <div class="order-card-header">
                     <strong>${order.orderId}</strong>
-                    <span class="status-badge ${order.status.toLowerCase()}">${order.status}</span>
+                    <span class="status-badge ${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span>
                 </div>
                 <div class="order-card-info">
-                    <p>${order.customerName}</p>
+                    <p>${order.customerName || order.customer?.name || 'N/A'}</p>
                     <p>${new Date(order.createdAt).toLocaleDateString()} • ${order.items?.length || 0} items</p>
                 </div>
                 <div class="order-card-total">
@@ -480,17 +516,17 @@ async function viewOrder(orderId) {
     document.getElementById('orderDetails').innerHTML = `
         <div class="order-detail-header">
             <span>Order #${order.orderId}</span>
-            <span class="status-badge ${order.status.toLowerCase()}">${order.status}</span>
+            <span class="status-badge ${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span>
         </div>
         <div class="order-detail-info">
             <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-            <p><strong>Customer:</strong> ${order.customerName}</p>
-            <p><strong>Email:</strong> ${order.customerEmail}</p>
+            <p><strong>Customer:</strong> ${order.customerName || order.customer?.name || 'N/A'}</p>
+            <p><strong>Email:</strong> ${order.customerEmail || order.customer?.email || 'N/A'}</p>
             <p><strong>Phone:</strong> ${order.shippingAddress?.phone || 'N/A'}</p>
             <p><strong>Address:</strong> ${order.shippingAddress?.address || 'N/A'}, ${order.shippingAddress?.city || ''}</p>
         </div>
         <div class="order-items-list">
-            ${order.items?.map(item => `
+            ${(order.items || []).map(item => `
                 <div class="order-item-detail">
                     <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/50'">
                     <div>
@@ -498,7 +534,7 @@ async function viewOrder(orderId) {
                         <p>Qty: ${item.quantity} × $${item.price}</p>
                         ${item.size ? `<p>Size: ${item.size}</p>` : ''}
                     </div>
-                    <span>$${(item.quantity * item.price).toFixed(2)}</span>
+                    <span>$${((item.quantity || 1) * (item.price || 0)).toFixed(2)}</span>
                 </div>
             `).join('')}
         </div>
@@ -525,6 +561,11 @@ async function updateOrderStatus(orderId, status) {
     } catch (error) {
         alert('Error updating order: ' + error.message);
     }
+}
+
+// Close Order Modal
+function closeOrderModal() {
+    document.getElementById('orderModal').style.display = 'none';
 }
 
 // Delete Order
@@ -561,6 +602,11 @@ function showAdminSection(section) {
     
     const titles = { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', customers: 'Customers', analytics: 'Analytics' };
     document.getElementById('pageTitle').textContent = titles[section];
+    
+    // Load customers when clicking customers tab
+    if (section === 'customers') {
+        loadCustomers();
+    }
     
     // Close sidebar on mobile
     if (window.innerWidth <= 768) {
