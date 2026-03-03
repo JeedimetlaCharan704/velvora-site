@@ -330,11 +330,11 @@ async function addProduct(event) {
     
     const productData = {
         name: document.getElementById('prodName').value,
-        price: document.getElementById('prodPrice').value,
-        originalPrice: document.getElementById('prodOriginalPrice').value || null,
+        price: parseFloat(document.getElementById('prodPrice').value),
+        originalPrice: document.getElementById('prodOriginalPrice').value ? parseFloat(document.getElementById('prodOriginalPrice').value) : null,
         category: document.getElementById('prodCategory').value,
         image: document.getElementById('prodImage').value,
-        stock: document.getElementById('prodStock').value,
+        stock: parseInt(document.getElementById('prodStock').value),
         sizes: document.getElementById('prodSizes').value.split(',').map(s => s.trim()).filter(s => s),
         tag: document.getElementById('prodTag').value,
         description: document.getElementById('prodDescription').value
@@ -405,11 +405,11 @@ async function updateProduct(event, productId) {
     
     const productData = {
         name: document.getElementById('prodName').value,
-        price: document.getElementById('prodPrice').value,
-        originalPrice: document.getElementById('prodOriginalPrice').value || null,
+        price: parseFloat(document.getElementById('prodPrice').value),
+        originalPrice: document.getElementById('prodOriginalPrice').value ? parseFloat(document.getElementById('prodOriginalPrice').value) : null,
         category: document.getElementById('prodCategory').value,
         image: document.getElementById('prodImage').value,
-        stock: document.getElementById('prodStock').value,
+        stock: parseInt(document.getElementById('prodStock').value),
         sizes: document.getElementById('prodSizes').value.split(',').map(s => s.trim()).filter(s => s),
         tag: document.getElementById('prodTag').value,
         description: document.getElementById('prodDescription').value
