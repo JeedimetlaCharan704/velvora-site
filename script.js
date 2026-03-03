@@ -76,6 +76,7 @@ function createProductCard(product) {
     const productId = product._id || product.id;
     const isInWishlist = wishlist.includes(productId);
     const stars = '★'.repeat(product.rating || 0) + '☆'.repeat(5 - (product.rating || 0));
+    const placeholderImg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LWZhbWlseT0iYXJpYWwiIGZvbnQtc2l6ZT0iMjAiPkltYWdlPC90ZXh0Pjwvc3ZnPg==';
     
     return `
         <div class="product-card" data-category="${product.category}">
@@ -84,7 +85,7 @@ function createProductCard(product) {
                 <i class="${isInWishlist ? 'fas' : 'far'} fa-heart"></i>
             </span>
             <div class="product-image" onclick="openProductModal('${productId}')">
-                <img src="${product.image}" alt="${product.name}">
+                <img src="${product.image}" alt="${product.name}" onerror="this.src='${placeholderImg}'">
                 <div class="product-overlay">
                     <button class="quick-view-btn" onclick="openProductModal('${productId}')">
                         <i class="fas fa-eye"></i> Quick View
