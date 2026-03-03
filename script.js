@@ -9,7 +9,9 @@ async function loadProducts() {
     try {
         const response = await fetch(`${API_URL}/products`);
         const data = await response.json();
+        console.log('API Response:', data);
         products = data.products || data;
+        console.log('Loaded products:', products);
     } catch (error) {
         console.error('Failed to load products:', error);
         products = [];
@@ -110,7 +112,9 @@ function createProductCard(product) {
 function renderNewArrivals() {
     const grid = document.getElementById('newArrivalsGrid');
     if (!grid) return;
+    console.log('All products:', products);
     const newProducts = products.filter(p => p.tag === 'new').slice(0, 4);
+    console.log('New products:', newProducts);
     if (newProducts.length === 0) {
         grid.innerHTML = '<p class="no-products">No new arrivals yet</p>';
     } else {
