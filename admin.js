@@ -237,7 +237,7 @@ function renderProducts() {
     if (tbody) {
         tbody.innerHTML = allProducts.map((p, index) => `
             <tr>
-                <td><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.src='https://via.placeholder.com/50'"></td>
+                <td><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'"></td>
                 <td>${p.name}</td>
                 <td>${p.category}</td>
                 <td>$${p.price.toFixed(2)}</td>
@@ -269,7 +269,7 @@ function renderProducts() {
         
         mobileCards.innerHTML = allProducts.map((p, index) => `
             <div class="product-card-admin">
-                <img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/70'">
+                <img src="${p.image}" alt="${p.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'">
                 <div>
                     <strong>${p.name}</strong>
                     <p>$${p.price.toFixed(2)}</p>
