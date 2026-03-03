@@ -230,7 +230,7 @@
             customerEmail: email,
             customerName: firstName + ' ' + lastName,
             items: cart.map(item => ({
-                productId: item.id || item._id,
+                productId: item._id || item.id,
                 name: item.name,
                 price: item.price,
                 quantity: item.quantity,

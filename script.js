@@ -73,31 +73,32 @@ function renderProducts(filter = 'all', searchTerm = '', limit = 4) {
 }
 
 function createProductCard(product) {
-    const isInWishlist = wishlist.includes(product.id);
-    const stars = '★'.repeat(product.rating) + '☆'.repeat(5 - product.rating);
+    const productId = product._id || product.id;
+    const isInWishlist = wishlist.includes(productId);
+    const stars = '★'.repeat(product.rating || 0) + '☆'.repeat(5 - (product.rating || 0));
     
     return `
         <div class="product-card" data-category="${product.category}">
             ${product.tag ? `<span class="product-tag ${product.tag}">${product.tag.toUpperCase()}</span>` : ''}
-            <span class="wishlist-btn ${isInWishlist ? 'active' : ''}" onclick="toggleWishlistItem(${product.id}, event)">
+            <span class="wishlist-btn ${isInWishlist ? 'active' : ''}" onclick="toggleWishlistItem('${productId}', event)">
                 <i class="${isInWishlist ? 'fas' : 'far'} fa-heart"></i>
             </span>
-            <div class="product-image" onclick="openProductModal(${product.id})">
+            <div class="product-image" onclick="openProductModal('${productId}')">
                 <img src="${product.image}" alt="${product.name}">
                 <div class="product-overlay">
-                    <button class="quick-view-btn" onclick="openProductModal(${product.id})">
+                    <button class="quick-view-btn" onclick="openProductModal('${productId}')">
                         <i class="fas fa-eye"></i> Quick View
                     </button>
                 </div>
             </div>
             <div class="product-info">
-                <h3 onclick="openProductModal(${product.id})">${product.name}</h3>
+                <h3 onclick="openProductModal('${productId}')">${product.name}</h3>
                 <div class="product-rating">${stars}</div>
                 <div class="product-price">
-                    <span class="price">$${product.price.toFixed(2)}</span>
+                    <span class="price">$${(product.price || 0).toFixed(2)}</span>
                     ${product.originalPrice ? `<span class="original-price">$${product.originalPrice.toFixed(2)}</span>` : ''}
                 </div>
-                <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
+                <button class="add-to-cart-btn" onclick="addToCart('${productId}')">
                     <i class="fas fa-shopping-bag"></i> Add to Bag
                 </button>
             </div>
@@ -112,13 +113,13 @@ function renderNewArrivals() {
 }
 
 function addToCart(productId, quantity = 1) {
-    const product = products.find(p => p.id === productId);
-    const existingItem = cart.find(item => item.id === productId);
+    const product = products.find(p => (p._id || p.id) == productId);
+    const existingItem = cart.find(item => (item._id || item.id) == productId);
 
     if (existingItem) {
         existingItem.quantity += quantity;
     } else {
-        cart.push({ ...product, quantity });
+        cart.push({ ...product, quantity, id: productId });
     }
 
     saveCart();
@@ -127,7 +128,7 @@ function addToCart(productId, quantity = 1) {
 }
 
 function addToCartFromModal(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => (p._id || p.id) == productId);
     const categorySizes = getModalSizes(product);
     const hasSizes = categorySizes.length > 0;
     
@@ -145,11 +146,11 @@ function addToCartFromModal(productId) {
     
     const quantity = parseInt(document.getElementById('modalQuantityValue').textContent);
     
-    const existingItem = cart.find(item => item.id === productId);
+    const existingItem = cart.find(item => (item._id || item.id) == productId);
     if (existingItem) {
         existingItem.quantity += quantity;
     } else {
-        cart.push({ ...product, quantity });
+        cart.push({ ...product, quantity, id: productId });
     }
     
     saveCart();
@@ -159,14 +160,14 @@ function addToCartFromModal(productId) {
 }
 
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
+    cart = cart.filter(item => (item._id || item.id) != productId);
     saveCart();
     updateCartCount();
     renderCartItems();
 }
 
 function updateQuantity(productId, change) {
-    const item = cart.find(item => item.id === productId);
+    const item = cart.find(item => (item._id || item.id) == productId);
     if (item) {
         item.quantity += change;
         if (item.quantity <= 0) {
@@ -231,7 +232,7 @@ function toggleCart() {
 function toggleWishlistItem(productId, event) {
     event.stopPropagation();
     const index = wishlist.indexOf(productId);
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => (p._id || p.id) == productId);
 
     if (index > -1) {
         wishlist.splice(index, 1);
@@ -261,22 +262,27 @@ function renderWishlistItems() {
         return;
     }
 
-    const wishlistProducts = products.filter(p => wishlist.includes(p.id));
-    container.innerHTML = wishlistProducts.map(product => `
+    const wishlistProducts = products.filter(p => {
+        const pid = p._id || p.id;
+        return wishlist.includes(pid);
+    });
+    container.innerHTML = wishlistProducts.map(product => {
+        const productId = product._id || product.id;
+        return `
         <div class="wishlist-item">
             <img src="${product.image}" alt="${product.name}">
             <div class="wishlist-item-info">
                 <h4>${product.name}</h4>
                 <p>$${product.price.toFixed(2)}</p>
-                <button onclick="addToCart(${product.id}); toggleWishlistItem(${product.id}, event)">
+                <button onclick="addToCart('${productId}'); toggleWishlistItem('${productId}', event)">
                     <i class="fas fa-shopping-bag"></i> Add to Bag
                 </button>
             </div>
-            <span onclick="toggleWishlistItem(${product.id}, event)">
+            <span onclick="toggleWishlistItem('${productId}', event)">
                 <i class="fas fa-times"></i>
             </span>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function toggleWishlist() {
@@ -287,10 +293,10 @@ function toggleWishlist() {
 }
 
 function openProductModal(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => (p._id || p.id) == productId);
     const modal = document.getElementById('productModal');
     const modalBody = document.getElementById('modalBody');
-    const stars = '★'.repeat(product.rating) + '☆'.repeat(5 - product.rating);
+    const stars = '★'.repeat(product.rating || 0) + '☆'.repeat(5 - (product.rating || 0));
     const categorySizes = getModalSizes(product);
     const hasSizes = categorySizes.length > 0;
     
@@ -323,7 +329,7 @@ function openProductModal(productId) {
             <h2>${product.name}</h2>
             <div class="modal-rating">${stars}</div>
             <p class="modal-price">
-                <span class="current-price">$${product.price.toFixed(2)}</span>
+                <span class="current-price">$${(product.price || 0).toFixed(2)}</span>
                 ${product.originalPrice ? `<span class="original-price">$${product.originalPrice.toFixed(2)}</span>` : ''}
             </p>
             ${sizeSection}
@@ -337,10 +343,10 @@ function openProductModal(productId) {
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="add-to-cart-modal" onclick="addToCartFromModal(${product.id})">
+                <button class="add-to-cart-modal" onclick="addToCartFromModal('${productId}')">
                     <i class="fas fa-shopping-bag"></i> Add to Bag
                 </button>
-                <button class="wishlist-modal" onclick="toggleWishlistItem(${product.id}, event)">
+                <button class="wishlist-modal" onclick="toggleWishlistItem('${productId}', event)">
                     <i class="far fa-heart"></i>
                 </button>
             </div>
