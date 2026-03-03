@@ -357,7 +357,7 @@ async function addProduct(event) {
 
 // Edit Product
 async function editProduct(productId) {
-    const product = allProducts.find(p => p._id === productId);
+    const product = allProducts.find(p => String(p._id) === String(productId));
     if (!product) return;
 
     const formHtml = `
