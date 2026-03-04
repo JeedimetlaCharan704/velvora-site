@@ -164,9 +164,14 @@
     <div class="admin-section" id="products">
         <div class="section-header">
             <h3>Products Management</h3>
-            <button class="add-btn" onclick="showAddProduct()">
-                <i class="fas fa-plus"></i> Add Product
-            </button>
+            <div class="header-buttons">
+                <button class="reset-btn" onclick="resetDemoData()" title="Reset to default products">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+                <button class="add-btn" onclick="showAddProduct()">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+            </div>
         </div>
         <div class="products-table">
             <table>
@@ -175,6 +180,7 @@
                         <th>Image</th>
                         <th>Name</th>
                         <th>Category</th>
+                        <th>Tag</th>
                         <th>Price</th>
                         <th>Stock</th>
                         <th>Actions</th>

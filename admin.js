@@ -1,7 +1,7 @@
 // API Configuration
 const API_URL = 'https://velvora-backend.onrender.com/api';
 let authToken = localStorage.getItem('velvoraAdminToken');
-let allProducts = [];
+let allProducts = getStoredProducts();
 let allOrders = [];
 let cropper = null;
 let currentImageCallback = null;
@@ -65,6 +65,22 @@ const sampleProducts = [
     }
 ];
 
+function getStoredProducts() {
+    const stored = localStorage.getItem('velvoraProducts');
+    if (stored) {
+        try {
+            return JSON.parse(stored);
+        } catch (e) {
+            return [...sampleProducts];
+        }
+    }
+    return [...sampleProducts];
+}
+
+function saveStoredProducts(products) {
+    localStorage.setItem('velvoraProducts', JSON.stringify(products));
+}
+
 const sampleOrders = [
     { _id: "1", orderId: "ORD-001", customer: { name: "John Doe", email: "john@example.com" }, total: 299.99, status: "Pending", createdAt: new Date() },
     { _id: "2", orderId: "ORD-002", customer: { name: "Jane Smith", email: "jane@example.com" }, total: 449.99, status: "Shipped", createdAt: new Date() },
@@ -87,30 +103,42 @@ async function apiCall(endpoint, options = {}) {
 
     // Demo mode - return sample data
     if (authToken === 'demo-token') {
+        // Get products from localStorage
+        let demoProducts = getStoredProducts();
+        
         // Handle POST/PUT/DELETE in demo mode
         if (options.method === 'PUT' && endpoint.includes('/products/')) {
             const productId = endpoint.split('/products/')[1];
-            const idx = sampleProducts.findIndex(p => p._id === productId);
+            const idx = demoProducts.findIndex(p => p._id === productId);
             if (idx !== -1) {
                 const updated = JSON.parse(options.body);
-                sampleProducts[idx] = { ...sampleProducts[idx], ...updated };
+                demoProducts[idx] = { ...demoProducts[idx], ...updated };
+                saveStoredProducts(demoProducts);
+                allProducts = demoProducts;
             }
             return { success: true };
         }
         if (options.method === 'POST' && endpoint === '/products') {
             const newProduct = JSON.parse(options.body);
-            newProduct._id = String(sampleProducts.length + 1);
-            sampleProducts.push(newProduct);
+            newProduct._id = String(demoProducts.length + 1);
+            demoProducts.push(newProduct);
+            saveStoredProducts(demoProducts);
+            allProducts = demoProducts;
             return newProduct;
         }
         if (options.method === 'DELETE' && endpoint.includes('/products/')) {
             const productId = endpoint.split('/products/')[1];
-            const idx = sampleProducts.findIndex(p => p._id === productId);
-            if (idx !== -1) sampleProducts.splice(idx, 1);
+            const idx = demoProducts.findIndex(p => p._id === productId);
+            if (idx !== -1) {
+                demoProducts.splice(idx, 1);
+                saveStoredProducts(demoProducts);
+                allProducts = demoProducts;
+            }
             return { success: true };
         }
         if (endpoint.includes('products')) {
-            return sampleProducts;
+            allProducts = demoProducts;
+            return demoProducts;
         }
         if (endpoint.includes('orders')) {
             return { orders: sampleOrders, total: sampleOrders.length };
@@ -142,7 +170,9 @@ async function apiCall(endpoint, options = {}) {
     } catch (e) {
         // Return demo data on error
         if (endpoint.includes('products')) {
-            return sampleProducts;
+            const fallbackProducts = getStoredProducts();
+            allProducts = fallbackProducts;
+            return fallbackProducts;
         }
         if (endpoint.includes('orders')) {
             return { orders: sampleOrders, total: sampleOrders.length };
@@ -186,9 +216,9 @@ async function loadProducts() {
     } catch (error) {
         console.error('Error loading products:', error);
         console.log('Using sample products as fallback');
-        allProducts = sampleProducts;
+        allProducts = getStoredProducts();
         renderProducts();
-        document.getElementById('totalProducts').textContent = sampleProducts.length;
+        document.getElementById('totalProducts').textContent = allProducts.length;
     }
 }
 
@@ -725,6 +755,16 @@ function logoutAdmin() {
     localStorage.removeItem('velvoraAdminToken');
     localStorage.removeItem('velvoraAdminUser');
     window.location.href = 'login.html';
+}
+
+function resetDemoData() {
+    if (confirm('Reset all demo data to defaults? This will clear all your product changes.')) {
+        localStorage.removeItem('velvoraProducts');
+        allProducts = getStoredProducts();
+        renderProducts();
+        document.getElementById('totalProducts').textContent = allProducts.length;
+        alert('Demo data has been reset!');
+    }
 }
 
 // Navigation
