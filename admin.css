@@ -1953,3 +1953,42 @@
         height: 40px;
     }
 }
+
+
+/* Product Tags */
+.tag-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tag-new {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.tag-sale {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.tag-hot {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.stock-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.stock-badge.low {
+    background: #ffebee;
+    color: #c62828;
+}
+

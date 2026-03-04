@@ -409,6 +409,7 @@ function renderProducts() {
                 <td><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'"></td>
                 <td>${p.name}</td>
                 <td>${p.category}</td>
+                <td>${p.tag ? `<span class="tag-badge tag-${p.tag}">${p.tag}</span>` : '-'}</td>
                 <td>$${p.price.toFixed(2)}</td>
                 <td><span class="stock-badge ${p.stock < 20 ? 'low' : ''}">${p.stock}</span></td>
                 <td>
@@ -442,6 +443,7 @@ function renderProducts() {
                 <div>
                     <strong>${p.name}</strong>
                     <p>$${p.price.toFixed(2)}</p>
+                    <p>${p.tag ? `<span class="tag-badge tag-${p.tag}">${p.tag}</span>` : ''}</p>
                     <span class="stock-badge ${p.stock < 20 ? 'low' : ''}">${p.stock} in stock</span>
                     <div class="action-buttons">
                         <button class="action-btn" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
