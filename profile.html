@@ -56,16 +56,16 @@
         </div>
         
         <ul class="profile-menu">
-            <li class="active" data-section="dashboard">
+            <li class="active" onclick="showSection('dashboard')">
                 <i class="fas fa-th-large"></i> Dashboard
             </li>
-            <li data-section="orders">
+            <li onclick="showSection('orders')">
                 <i class="fas fa-box"></i> My Orders
             </li>
-            <li data-section="addresses">
+            <li onclick="showSection('addresses')">
                 <i class="fas fa-map-marker-alt"></i> Addresses
             </li>
-            <li data-section="account">
+            <li onclick="showSection('account')">
                 <i class="fas fa-cog"></i> Account Settings
             </li>
             <li class="logout" onclick="logout()">
@@ -378,6 +378,7 @@
     }
 
     function logout() {
+        console.log('Logout clicked');
         localStorage.removeItem('velvoraUser');
         localStorage.removeItem('velvoraToken');
         localStorage.removeItem('velvoraAdminUser');
@@ -385,19 +386,13 @@
         window.location.href = 'index.html';
     }
 
-    // Click handlers for menu items
-    document.querySelectorAll('.profile-menu li[data-section]').forEach(li => {
-        li.addEventListener('click', function() {
-            showSection(this.dataset.section);
-        });
-    });
-
     function showSection(section) {
+        console.log('Section:', section);
+        if (!section) return;
         document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.profile-menu li').forEach(l => l.classList.remove('active'));
         
         document.getElementById(section).classList.add('active');
-        document.querySelector(`.profile-menu li[data-section="${section}"]`)?.classList.add('active');
     }
 
     // Initialize on load

@@ -31,8 +31,9 @@
     position: sticky;
     top: 100px;
     height: fit-content;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+    z-index: 100;
 }
 
 .profile-user{
