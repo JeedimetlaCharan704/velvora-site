@@ -220,10 +220,11 @@
     const API_URL = 'https://velvora-backend.onrender.com/api';
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let addresses = JSON.parse(localStorage.getItem('velvoraAddresses')) || [];
-    let orders = [];
+    let orders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
 
     if (!user) {
-        window.location.href = 'login.html';
+        user = { name: 'Guest User', email: 'guest@demo.com', phone: '' };
+        localStorage.setItem('velvoraUser', JSON.stringify(user));
     }
 
     // Initialize page
@@ -238,38 +239,9 @@
         fetchOrdersAndRender();
     }
 
-    // Fetch orders from API and localStorage
-    async function fetchOrdersAndRender() {
-        const localOrders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
-        const token = localStorage.getItem('velvoraToken');
-        
-        try {
-            if (token) {
-                const response = await fetch(`${API_URL}/users/orders`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const apiOrders = await response.json();
-                    if (apiOrders.length > 0) {
-                        orders = apiOrders.map(o => ({
-                            orderId: o.orderId,
-                            items: o.items,
-                            total: o.total,
-                            status: o.status,
-                            createdAt: o.createdAt,
-                            shippingAddress: o.shippingAddress
-                        }));
-                    }
-                }
-            }
-        } catch (e) {
-            console.log('Using local orders');
-        }
-        
-        // Merge local orders if no API orders
-        if (orders.length === 0 && localOrders.length > 0) {
-            orders = localOrders;
-        }
+    // Fetch orders from localStorage
+    function fetchOrdersAndRender() {
+        orders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
         
         document.getElementById('totalOrders').textContent = orders.length;
         document.getElementById('wishlistCount').textContent = JSON.parse(localStorage.getItem('velvoraWishlist') || '[]').length;
