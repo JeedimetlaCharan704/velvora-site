@@ -87,6 +87,28 @@ async function apiCall(endpoint, options = {}) {
 
     // Demo mode - return sample data
     if (authToken === 'demo-token') {
+        // Handle POST/PUT/DELETE in demo mode
+        if (options.method === 'PUT' && endpoint.includes('/products/')) {
+            const productId = endpoint.split('/products/')[1];
+            const idx = sampleProducts.findIndex(p => p._id === productId);
+            if (idx !== -1) {
+                const updated = JSON.parse(options.body);
+                sampleProducts[idx] = { ...sampleProducts[idx], ...updated };
+            }
+            return { success: true };
+        }
+        if (options.method === 'POST' && endpoint === '/products') {
+            const newProduct = JSON.parse(options.body);
+            newProduct._id = String(sampleProducts.length + 1);
+            sampleProducts.push(newProduct);
+            return newProduct;
+        }
+        if (options.method === 'DELETE' && endpoint.includes('/products/')) {
+            const productId = endpoint.split('/products/')[1];
+            const idx = sampleProducts.findIndex(p => p._id === productId);
+            if (idx !== -1) sampleProducts.splice(idx, 1);
+            return { success: true };
+        }
         if (endpoint.includes('products')) {
             return sampleProducts;
         }
