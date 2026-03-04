@@ -121,21 +121,23 @@ const sampleProducts = [
 ];
 
 async function loadProducts() {
+    products = sampleProducts;
+    
     try {
         const response = await fetch(`${API_URL}/products`);
         if (!response.ok) throw new Error('API not available');
         const data = await response.json();
         console.log('API Response:', data);
-        products = data.products || data;
-        console.log('Loaded products:', products);
+        const apiProducts = data.products || data;
+        if (apiProducts && apiProducts.length > 0) {
+            products = apiProducts;
+        }
     } catch (error) {
         console.error('Failed to load products:', error);
         console.log('Using sample products as fallback');
     }
     
-    if (!products || products.length === 0) {
-        products = sampleProducts;
-    }
+    console.log('Final products:', products);
 }
 
 async function init() {
