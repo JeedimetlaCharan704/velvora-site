@@ -55,20 +55,20 @@
             <p id="userEmail">user@email.com</p>
         </div>
         
-        <ul class="profile-menu" id="profileMenu">
-            <li class="active" id="menu-dashboard">
+        <ul class="profile-menu">
+            <li class="active" id="menu-dashboard" style="cursor:pointer" onclick="clickMenu('dashboard')">
                 <i class="fas fa-th-large"></i> Dashboard
             </li>
-            <li id="menu-orders">
+            <li id="menu-orders" style="cursor:pointer" onclick="clickMenu('orders')">
                 <i class="fas fa-box"></i> My Orders
             </li>
-            <li id="menu-addresses">
+            <li id="menu-addresses" style="cursor:pointer" onclick="clickMenu('addresses')">
                 <i class="fas fa-map-marker-alt"></i> Addresses
             </li>
-            <li id="menu-account">
+            <li id="menu-account" style="cursor:pointer" onclick="clickMenu('account')">
                 <i class="fas fa-cog"></i> Account Settings
             </li>
-            <li class="logout" id="menu-logout">
+            <li class="logout" id="menu-logout" style="cursor:pointer" onclick="window.location.href='index.html'">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </li>
         </ul>
@@ -395,12 +395,9 @@
         document.getElementById('menu-' + section).classList.add('active');
     }
 
-    // Menu click handlers
-    document.getElementById('menu-dashboard').onclick = function() { showSection('dashboard'); };
-    document.getElementById('menu-orders').onclick = function() { showSection('orders'); };
-    document.getElementById('menu-addresses').onclick = function() { showSection('addresses'); };
-    document.getElementById('menu-account').onclick = function() { showSection('account'); };
-    document.getElementById('menu-logout').onclick = function() { logout(); };
+    function clickMenu(section) {
+        showSection(section);
+    }
 
     // Initialize on load
     initProfile();
