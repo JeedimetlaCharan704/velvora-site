@@ -220,7 +220,7 @@
         
         <div class="box">
             <div class="box-title">Server Connection</div>
-            <input type="text" id="serverUrl" value="https://velvora-backend.onrender.com" placeholder="https://your-app.onrender.com">
+            <input type="text" id="serverUrl" value="" placeholder="https://your-app.onrender.com">
             <button class="btn-secondary" onclick="testServer()">
                 <i class="fas fa-wifi"></i> Test Connection
             </button>
@@ -375,7 +375,7 @@
     </div>
 
     <script>
-        var API_URL = 'https://velvora-backend.onrender.com/api';
+        var API_URL = localStorage.getItem('apiUrl') || 'http://localhost:5000/api';
         var authToken = localStorage.getItem('velvoraAdminToken');
         
         // Initialize
