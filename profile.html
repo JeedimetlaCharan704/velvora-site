@@ -68,7 +68,7 @@
             <li id="menu-account" style="cursor:pointer" onclick="clickMenu('account')">
                 <i class="fas fa-cog"></i> Account Settings
             </li>
-            <li class="logout" id="menu-logout" style="cursor:pointer" onclick="window.location.href='index.html'">
+            <li class="logout" id="menu-logout" style="cursor:pointer" onclick="doLogout()">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </li>
         </ul>
@@ -377,12 +377,15 @@
     }
 
     function logout() {
-        console.log('Logout clicked');
         localStorage.removeItem('velvoraUser');
         localStorage.removeItem('velvoraToken');
         localStorage.removeItem('velvoraAdminUser');
         localStorage.removeItem('velvoraAdminToken');
         window.location.href = 'index.html';
+    }
+
+    function doLogout() {
+        logout();
     }
 
     function showSection(section) {
