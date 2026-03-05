@@ -39,119 +39,22 @@ async function apiCall(endpoint, options = {}) {
         throw e;
     }
 }
-        rating: 4
-    },
-    {
-        _id: "4",
-        name: "Cashmere Sweater",
-        description: "100% cashmere sweater for ultimate comfort",
-        price: 199.99,
-        originalPrice: 279.99,
-        category: "women",
-        image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
-        stock: 25,
-        sizes: ["XS", "S", "M", "L", "XL"],
-        colors: ["Cream", "Gray", "Pink", "Blue"],
-        tag: "new",
-        rating: 5
-    }
-];
-
-function getStoredProducts() {
-    const stored = localStorage.getItem('velvoraProducts');
-    if (stored) {
-        try {
-            return JSON.parse(stored);
-        } catch (e) {
-            return [...sampleProducts];
-        }
-    }
-    return [...sampleProducts];
-}
-
-function saveStoredProducts(products) {
-    localStorage.setItem('velvoraProducts', JSON.stringify(products));
-}
-
-const sampleOrders = [
-    { _id: "1", orderId: "ORD-001", customer: { name: "John Doe", email: "john@example.com" }, total: 299.99, status: "Pending", createdAt: new Date() },
-    { _id: "2", orderId: "ORD-002", customer: { name: "Jane Smith", email: "jane@example.com" }, total: 449.99, status: "Shipped", createdAt: new Date() },
-    { _id: "3", orderId: "ORD-003", customer: { name: "Bob Wilson", email: "bob@example.com" }, total: 189.99, status: "Delivered", createdAt: new Date() }
-];
-
-const sampleUsers = [
-    { _id: "1", name: "John Doe", email: "john@example.com", createdAt: new Date() },
-    { _id: "2", name: "Jane Smith", email: "jane@example.com", createdAt: new Date() },
-    { _id: "3", name: "Bob Wilson", email: "bob@example.com", createdAt: new Date() }
-];
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
     const headers = {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         ...(authToken && { Authorization: `Bearer ${authToken}` }),
         ...options.headers
     };
 
-    // Demo mode - return sample data
-    if (authToken === 'demo-token') {
-        // Get products from localStorage
-        let demoProducts = getStoredProducts();
-        
-        // Handle POST/PUT/DELETE in demo mode
-        if (options.method === 'PUT' && endpoint.includes('/products/')) {
-            const productId = endpoint.split('/products/')[1];
-            const idx = demoProducts.findIndex(p => p._id === productId);
-            if (idx !== -1) {
-                const updated = JSON.parse(options.body);
-                demoProducts[idx] = { ...demoProducts[idx], ...updated };
-                saveStoredProducts(demoProducts);
-                allProducts = demoProducts;
-            }
-            return { success: true };
-        }
-        if (options.method === 'POST' && endpoint === '/products') {
-            const newProduct = JSON.parse(options.body);
-            newProduct._id = String(demoProducts.length + 1);
-            demoProducts.push(newProduct);
-            saveStoredProducts(demoProducts);
-            allProducts = demoProducts;
-            return newProduct;
-        }
-        if (options.method === 'DELETE' && endpoint.includes('/products/')) {
-            const productId = endpoint.split('/products/')[1];
-            const idx = demoProducts.findIndex(p => p._id === productId);
-            if (idx !== -1) {
-                demoProducts.splice(idx, 1);
-                saveStoredProducts(demoProducts);
-                allProducts = demoProducts;
-            }
-            return { success: true };
-        }
-        if (endpoint.includes('products')) {
-            allProducts = demoProducts;
-            return demoProducts;
-        }
-        if (endpoint.includes('orders')) {
-            return { orders: sampleOrders, total: sampleOrders.length };
-        }
-        if (endpoint.includes('stats')) {
-            return { totalOrders: 156, totalRevenue: 45678, totalUsers: 89 };
-        }
-        if (endpoint.includes('users')) {
-            return sampleUsers;
-        }
-    }
-
     try {
         const response = await fetch(`${API_URL}${endpoint}?t=${Date.now()}`, {
             ...options,
-            headers: {
-                ...headers,
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            }
+            headers
         });
 
         if (response.status === 401) {
@@ -165,21 +68,7 @@ async function apiCall(endpoint, options = {}) {
         }
         return data;
     } catch (e) {
-        // Return demo data on error
-        if (endpoint.includes('products')) {
-            const fallbackProducts = getStoredProducts();
-            allProducts = fallbackProducts;
-            return fallbackProducts;
-        }
-        if (endpoint.includes('orders')) {
-            return { orders: sampleOrders, total: sampleOrders.length };
-        }
-        if (endpoint.includes('stats')) {
-            return { totalOrders: 156, totalRevenue: 45678, totalUsers: 89 };
-        }
-        if (endpoint.includes('users')) {
-            return sampleUsers;
-        }
+        console.error('API Error:', e.message);
         throw e;
     }
 }
@@ -244,7 +133,6 @@ async function loadProducts() {
         console.error('Error loading products:', error);
         alert('Failed to load products. Please refresh the page.');
     }
-}
     }
 }
 
