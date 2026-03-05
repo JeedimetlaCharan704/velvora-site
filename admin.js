@@ -120,6 +120,11 @@ async function initAdmin() {
         loadOrders(),
         loadStats()
     ]);
+    
+    // Initialize charts after data is loaded
+    if (typeof initCharts === 'function') {
+        initCharts();
+    }
 }
 
 // Load Products from API
@@ -151,11 +156,6 @@ async function loadOrders() {
         
         const avgOrderValue = data.total > 0 ? (totalRevenue / data.total) : 0;
         document.getElementById('avgOrderValue').textContent = '$' + avgOrderValue.toFixed(2);
-        
-        // Reinitialize charts with new data
-        if (typeof initCharts === 'function') {
-            initCharts();
-        }
     } catch (error) {
         console.error('Error loading orders:', error);
     }
@@ -173,11 +173,6 @@ async function loadStats() {
             ? (stats.totalRevenue / stats.totalOrders) 
             : 0;
         document.getElementById('avgOrderValue').textContent = '$' + avgOrderValue.toFixed(2);
-        
-        // Update charts
-        if (typeof Chart !== 'undefined') {
-            initCharts();
-        }
     } catch (error) {
         console.error('Error loading stats:', error);
     }
@@ -861,7 +856,6 @@ function closeImageModal() {
 
 // Initialize Charts
 let revenueChart = null;
-let revenueChart = null;
 let ordersChart = null;
 
 function initCharts() {
@@ -872,21 +866,17 @@ function initCharts() {
     if (revenueCtx) {
         if (revenueChart) {
             revenueChart.destroy();
-            revenueChart = null;
         }
-        // Clear canvas
-        revenueCtx.getContext('2d').clearRect(0, 0, revenueCtx.width, revenueCtx.height);
+        revenueChart = null;
     }
     if (ordersCtx) {
         if (ordersChart) {
             ordersChart.destroy();
-            ordersChart = null;
         }
-        ordersCtx.getContext('2d').clearRect(0, 0, ordersCtx.width, ordersCtx.height);
+        ordersChart = null;
     }
     
     // Revenue Chart
-    const revenueCtx = document.getElementById('revenueChart');
     if (revenueCtx) {
         revenueChart = new Chart(revenueCtx, {
             type: 'line',
