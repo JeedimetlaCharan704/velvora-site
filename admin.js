@@ -343,33 +343,41 @@ function updateOrderStatusFromCard(orderId) {
 // Render Products (Desktop Table + Mobile Cards)
 function renderProducts() {
     const tbody = document.getElementById('productsTableBody');
-    const container = tbody?.parentElement;
+    if (!tbody) return;
+    
+    console.log('Rendering products:', allProducts.length);
     
     // Desktop table
-    if (tbody) {
-        tbody.innerHTML = allProducts.map((p, index) => `
-            <tr>
-                <td><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'"></td>
-                <td>${p.name}</td>
-                <td>${p.category}</td>
-                <td>${p.tag ? `<span class="tag-badge tag-${p.tag}">${p.tag}</span>` : '-'}</td>
-                <td>$${p.price.toFixed(2)}</td>
-                <td><span class="stock-badge ${p.stock < 20 ? 'low' : ''}">${p.stock}</span></td>
-                <td>
-                    <button class="action-btn" data-index="${index}"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete" data-index="${index}"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `).join('');
-        
-        // Add click handlers
-        tbody.querySelectorAll('.action-btn:not(.delete)').forEach(btn => {
-            btn.onclick = () => editProduct(parseInt(btn.dataset.index));
-        });
-        tbody.querySelectorAll('.action-btn.delete').forEach(btn => {
-            btn.onclick = () => deleteProduct(parseInt(btn.dataset.index));
-        });
-    }
+    tbody.innerHTML = allProducts.map((p, index) => `
+        <tr>
+            <td><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'"></td>
+            <td>${p.name}</td>
+            <td>${p.category}</td>
+            <td>${p.tag ? `<span class="tag-badge tag-${p.tag}">${p.tag}</span>` : '-'}</td>
+            <td>$${p.price.toFixed(2)}</td>
+            <td><span class="stock-badge ${p.stock < 20 ? 'low' : ''}">${p.stock}</span></td>
+            <td>
+                <button class="action-btn edit-btn" data-index="${index}"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Add click handlers
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.onclick = function() {
+            const idx = parseInt(this.dataset.index);
+            console.log('Edit clicked, index:', idx);
+            editProduct(idx);
+        };
+    });
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = function() {
+            const idx = parseInt(this.dataset.index);
+            deleteProduct(idx);
+        };
+    });
+}
     
     // Mobile cards
     if (container) {
@@ -487,12 +495,14 @@ async function addProduct(event) {
 
 // Edit Product
 async function editProduct(index) {
+    console.log('editProduct called with index:', index);
     const product = allProducts[index];
     if (!product) {
         alert('Product not found');
         return;
     }
     
+    console.log('Editing product:', product.name);
     const productId = product._id;
 
     const formHtml = `
