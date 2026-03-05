@@ -982,9 +982,3 @@ function animateValue(elementId, start, end, duration = 1000) {
         }
     }, 16);
 }
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('SW registered'))
-        .catch(err => console.log('SW registration failed'));
-}
