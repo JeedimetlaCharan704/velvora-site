@@ -133,7 +133,6 @@ async function loadProducts() {
         console.error('Error loading products:', error);
         alert('Failed to load products. Please refresh the page.');
     }
-    }
 }
 
 // Load Orders from API
