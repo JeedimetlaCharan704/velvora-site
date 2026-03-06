@@ -844,21 +844,16 @@ let revenueChart = null;
 let ordersChart = null;
 
 function initCharts() {
-    // Destroy existing charts first
+    // Get canvas elements
     const revenueCtx = document.getElementById('revenueChart');
     const ordersCtx = document.getElementById('ordersStatusChart');
     
-    if (revenueCtx) {
-        if (revenueChart) {
-            revenueChart.destroy();
-        }
-        revenueChart = null;
+    // Destroy existing charts if they exist
+    if (revenueCtx && Chart.getChart(revenueCtx)) {
+        Chart.getChart(revenueCtx).destroy();
     }
-    if (ordersCtx) {
-        if (ordersChart) {
-            ordersChart.destroy();
-        }
-        ordersChart = null;
+    if (ordersCtx && Chart.getChart(ordersCtx)) {
+        Chart.getChart(ordersCtx).destroy();
     }
     
     // Revenue Chart
@@ -907,7 +902,7 @@ function initCharts() {
             Delivered: allOrders.filter(o => o.status === 'Delivered').length
         };
         
-        new Chart(ordersCtx, {
+        ordersChart = new Chart(ordersCtx, {
             type: 'doughnut',
             data: {
                 labels: ['Pending', 'Processing', 'Shipped', 'Delivered'],
