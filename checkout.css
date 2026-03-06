@@ -470,6 +470,255 @@
         font-size: 13px;
     }
 }
+
+.checkout-steps{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 35px;
+}
+
+.step{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.step-number{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.step.active .step-number,
+.step.active-number{
+    background: linear-gradient(135deg, #c9a86c, #e0c992);
+    color: white;
+}
+
+.step-label{
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+}
+
+.step.active .step-label,
+.step.active-label{
+    color: #c9a86c;
+}
+
+.step-line{
+    width: 80px;
+    height: 2px;
+    background: #e0e0e0;
+    margin: 0 15px;
+    margin-bottom: 25px;
+}
+
+.checkout-step{
+    display: none;
+}
+
+.checkout-step.active-step{
+    display: block;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+    from{ opacity: 0; transform: translateY(10px); }
+    to{ opacity: 1; transform: translateY(0); }
+}
+
+.saved-address{
+    background: #fdfcfa;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #f0e8d8;
+}
+
+.saved-address p{
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 14px;
+}
+
+.edit-btn{
+    background: none;
+    border: none;
+    color: #c9a86c;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.edit-btn:hover{
+    text-decoration: underline;
+}
+
+.button-group{
+    display: flex;
+    gap: 15px;
+}
+
+.button-group .place-order-btn{
+    flex: 2;
+}
+
+.back-btn{
+    flex: 1;
+    padding: 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    background: white;
+    color: #666;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.back-btn:hover{
+    border-color: #c9a86c;
+    color: #c9a86c;
+}
+
+.payment-processing{
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.processing-icon{
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 25px;
+    background: linear-gradient(135deg, #c9a86c, #e0c992);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.processing-icon i{
+    font-size: 36px;
+    color: white;
+}
+
+.payment-processing h3{
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.payment-processing p{
+    color: #888;
+    font-size: 14px;
+}
+
+.order-success-message{
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.success-animation{
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 25px;
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: successPop 0.5s ease;
+}
+
+@keyframes successPop{
+    0%{ transform: scale(0); }
+    50%{ transform: scale(1.2); }
+    100%{ transform: scale(1); }
+}
+
+.success-animation i{
+    font-size: 50px;
+    color: white;
+}
+
+.order-success-message h3{
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.order-success-message > p{
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 30px;
+}
+
+.order-details-box{
+    background: #fdfcfa;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.order-details-box p{
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.order-details-box strong{
+    color: #333;
+}
+
+.success-actions{
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.primary-btn{
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #c9a86c, #e0c992);
+    color: #1a1a1a;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.primary-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(201,168,108,0.4);
+}
+
+.secondary-btn{
+    padding: 15px 30px;
+    border: 2px solid #c9a86c;
+    color: #c9a86c;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.secondary-btn:hover{
+    background: #c9a86c;
+    color: white;
+}
     
     .checkout-form{
         padding: 25px 20px;

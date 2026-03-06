@@ -42,102 +42,174 @@
         <div class="checkout-form">
             <h2>Checkout</h2>
             
-            <div class="checkout-section">
-                <h3><span>1</span> Contact Information</h3>
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="checkoutEmail" placeholder="Your email" required>
+            <div class="checkout-steps">
+                <div class="step active" id="step1-indicator">
+                    <span class="step-number">1</span>
+                    <span class="step-label">Address</span>
                 </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="checkoutPhone" placeholder="Your phone" required>
+                <div class="step-line"></div>
+                <div class="step" id="step2-indicator">
+                    <span class="step-number">2</span>
+                    <span class="step-label">Payment</span>
                 </div>
-            </div>
-
-            <div class="checkout-section">
-                <h3><span>2</span> Shipping Address</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" id="firstName" placeholder="First name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" id="lastName" placeholder="Last name" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Street Address</label>
-                    <input type="text" id="address" placeholder="Street address" required>
-                </div>
-                <div class="form-group">
-                    <label>Apartment, suite, etc. (optional)</label>
-                    <input type="text" id="address2" placeholder="Apartment, suite, etc.">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>City</label>
-                        <input type="text" id="city" placeholder="City" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Postal Code</label>
-                        <input type="text" id="postalCode" placeholder="Postal code" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Country</label>
-                    <select id="country">
-                        <option value="US">United States</option>
-                        <option value="UK">United Kingdom</option>
-                        <option value="CA">Canada</option>
-                        <option value="AU">Australia</option>
-                        <option value="IN">India</option>
-                    </select>
+                <div class="step-line"></div>
+                <div class="step" id="step3-indicator">
+                    <span class="step-number">3</span>
+                    <span class="step-label">Confirm</span>
                 </div>
             </div>
 
-            <div class="checkout-section">
-                <h3><span>3</span> Payment Method</h3>
-                <div class="payment-methods">
-                    <label class="payment-option">
-                        <input type="radio" name="payment" value="card" checked>
-                        <div class="payment-card">
-                            <i class="fas fa-credit-card"></i>
-                            <span>Credit / Debit Card</span>
-                        </div>
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment" value="paypal">
-                        <div class="payment-card">
-                            <i class="fab fa-paypal"></i>
-                            <span>PayPal</span>
-                        </div>
-                    </label>
-                </div>
-                
-                <div class="card-details" id="cardDetails">
+            <div id="step1" class="checkout-step active-step">
+                <div class="checkout-section">
+                    <h3><span>1</span> Contact Information</h3>
                     <div class="form-group">
-                        <label>Card Number</label>
-                        <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+                        <label>Email Address</label>
+                        <input type="email" id="checkoutEmail" placeholder="Your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="checkoutPhone" placeholder="Your phone" required>
+                    </div>
+                </div>
+
+                <div class="checkout-section">
+                    <h3><span>2</span> Shipping Address</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" id="firstName" placeholder="First name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" placeholder="Last name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input type="text" id="address" placeholder="Street address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Apartment, suite, etc. (optional)</label>
+                        <input type="text" id="address2" placeholder="Apartment, suite, etc.">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Expiry Date</label>
-                            <input type="text" placeholder="MM/YY" maxlength="5">
+                            <label>City</label>
+                            <input type="text" id="city" placeholder="City" required>
                         </div>
                         <div class="form-group">
-                            <label>CVV</label>
-                            <input type="text" placeholder="123" maxlength="3">
+                            <label>Postal Code</label>
+                            <input type="text" id="postalCode" placeholder="Postal code" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Name on Card</label>
-                        <input type="text" placeholder="Name on card">
+                        <label>Country</label>
+                        <select id="country">
+                            <option value="US">United States</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="IN">India</option>
+                        </select>
                     </div>
+                </div>
+
+                <button class="place-order-btn" onclick="goToPayment()">Continue to Payment</button>
+            </div>
+
+            <div id="step2" class="checkout-step">
+                <div class="checkout-section">
+                    <h3><span>1</span> Shipping Address</h3>
+                    <div class="saved-address">
+                        <p><strong id="summaryName"></strong></p>
+                        <p id="summaryAddress"></p>
+                        <p id="summaryCity"></p>
+                        <button class="edit-btn" onclick="editAddress()"><i class="fas fa-edit"></i> Edit</button>
+                    </div>
+                </div>
+
+                <div class="checkout-section">
+                    <h3><span>2</span> Payment Method</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="card" checked onchange="updatePaymentMethod()">
+                            <div class="payment-card">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Credit / Debit Card</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="paypal" onchange="updatePaymentMethod()">
+                            <div class="payment-card">
+                                <i class="fab fa-paypal"></i>
+                                <span>PayPal</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="cod" onchange="updatePaymentMethod()">
+                            <div class="payment-card">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Cash on Delivery</span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="card-details" id="cardDetails">
+                        <div class="form-group">
+                            <label>Card Number</label>
+                            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Expiry Date</label>
+                                <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV</label>
+                                <input type="text" id="cardCvv" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Name on Card</label>
+                            <input type="text" id="cardName" placeholder="Name on card">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="back-btn" onclick="goBackToAddress()">Back</button>
+                    <button class="place-order-btn" onclick="processPayment()">Pay Now</button>
                 </div>
             </div>
 
-            <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+            <div id="step3" class="checkout-step">
+                <div class="payment-processing">
+                    <div class="processing-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <h3>Processing Payment...</h3>
+                    <p>Please wait while we process your payment</p>
+                </div>
+            </div>
+
+            <div id="step4" class="checkout-step">
+                <div class="order-success-message">
+                    <div class="success-animation">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Order Placed Successfully!</h3>
+                    <p>Thank you for your order. Your order has been confirmed.</p>
+                    <div class="order-details-box">
+                        <p><strong>Order ID:</strong> <span id="finalOrderId"></span></p>
+                        <p><strong>Amount Paid:</strong> <span id="finalTotal"></span></p>
+                        <p><strong>Payment Method:</strong> <span id="finalPaymentMethod"></span></p>
+                    </div>
+                    <div class="success-actions">
+                        <a href="profile.html" class="primary-btn">View Orders</a>
+                        <a href="index.html" class="secondary-btn">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="checkout-summary">
@@ -161,10 +233,6 @@
                     <span id="summaryTotal">$0.00</span>
                 </div>
             </div>
-            <div class="summary-coupon">
-                <input type="text" placeholder="Coupon code">
-                <button>Apply</button>
-            </div>
         </div>
     </div>
 </div>
@@ -178,6 +246,8 @@
     const API_URL = 'https://velvora-backend.onrender.com/api';
     let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
+    let currentStep = 1;
+    let orderTotal = 0;
 
     if (user) {
         document.getElementById('checkoutEmail').value = user.email || '';
@@ -204,28 +274,112 @@
 
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const tax = subtotal * 0.08;
-        const total = subtotal + tax;
+        orderTotal = subtotal + tax;
 
         document.getElementById('summarySubtotal').textContent = `$${subtotal.toFixed(2)}`;
         document.getElementById('summaryTax').textContent = `$${tax.toFixed(2)}`;
-        document.getElementById('summaryTotal').textContent = `$${total.toFixed(2)}`;
+        document.getElementById('summaryTotal').textContent = `$${orderTotal.toFixed(2)}`;
     }
 
-    async function placeOrder() {
-        if (cart.length === 0) {
-            alert('Your cart is empty!');
-            return;
-        }
+    function updateStepIndicator() {
+        document.getElementById('step1-indicator').classList.toggle('active', currentStep >= 1);
+        document.getElementById('step2-indicator').classList.toggle('active', currentStep >= 2);
+        document.getElementById('step3-indicator').classList.toggle('active', currentStep >= 3);
+    }
 
+    function goToPayment() {
         const email = document.getElementById('checkoutEmail').value;
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
         const address = document.getElementById('address').value;
+        const city = document.getElementById('city').value;
+        const postalCode = document.getElementById('postalCode').value;
 
-        if (!email || !firstName || !lastName || !address) {
-            alert('Please fill in all required fields!');
+        if (!email || !firstName || !lastName || !address || !city || !postalCode) {
+            showNotification('Please fill in all required fields!');
             return;
         }
+
+        document.getElementById('summaryName').textContent = firstName + ' ' + lastName;
+        document.getElementById('summaryAddress').textContent = document.getElementById('address').value;
+        document.getElementById('summaryCity').textContent = city + ', ' + postalCode + ', ' + document.getElementById('country').value;
+
+        document.getElementById('step1').classList.remove('active-step');
+        document.getElementById('step2').classList.add('active-step');
+        currentStep = 2;
+        updateStepIndicator();
+    }
+
+    function goBackToAddress() {
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('step1').classList.add('active-step');
+        currentStep = 1;
+        updateStepIndicator();
+    }
+
+    function editAddress() {
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('step1').classList.add('active-step');
+        currentStep = 1;
+        updateStepIndicator();
+    }
+
+    function updatePaymentMethod() {
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+        const cardDetails = document.getElementById('cardDetails');
+        
+        if (paymentMethod === 'card') {
+            cardDetails.style.display = 'block';
+        } else {
+            cardDetails.style.display = 'none';
+        }
+    }
+
+    function getPaymentMethodName() {
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+        switch(paymentMethod) {
+            case 'card': return 'Credit/Debit Card';
+            case 'paypal': return 'PayPal';
+            case 'cod': return 'Cash on Delivery';
+            default: return 'Credit/Debit Card';
+        }
+    }
+
+    async function processPayment() {
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+        if (paymentMethod === 'card') {
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCvv = document.getElementById('cardCvv').value;
+            const cardName = document.getElementById('cardName').value;
+
+            if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
+                showNotification('Please fill in all card details!');
+                return;
+            }
+
+            if (cardNumber.replace(/\s/g, '').length < 16) {
+                showNotification('Please enter a valid card number!');
+                return;
+            }
+        }
+
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('step3').classList.add('active-step');
+        currentStep = 3;
+        updateStepIndicator();
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        await placeOrder(paymentMethod);
+    }
+
+    async function placeOrder(paymentMethod) {
+        const email = document.getElementById('checkoutEmail').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const address = document.getElementById('address').value;
 
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const tax = subtotal * 0.08;
@@ -246,6 +400,7 @@
             tax: tax,
             shipping: 0,
             total: total,
+            paymentMethod: paymentMethod,
             shippingAddress: {
                 address: address,
                 city: document.getElementById('city').value,
@@ -268,38 +423,56 @@
 
             const data = await response.json();
 
+            document.getElementById('step3').classList.remove('active-step');
+
             if (!response.ok) {
-                alert(data.message || 'Failed to place order');
+                showNotification(data.message || 'Failed to place order');
+                document.getElementById('step2').classList.add('active-step');
+                currentStep = 2;
+                updateStepIndicator();
                 return;
             }
 
+            document.getElementById('finalOrderId').textContent = data.order.orderId || 'ORD-' + Date.now();
+            document.getElementById('finalTotal').textContent = '$' + total.toFixed(2);
+            document.getElementById('finalPaymentMethod').textContent = getPaymentMethodName();
+
             localStorage.removeItem('velvoraCart');
             
-            // Save order to localStorage for profile/order pages
             const existingOrders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
             existingOrders.unshift({
-                id: data.order.orderId,
+                orderId: data.order.orderId,
                 items: orderData.items,
                 total: total,
                 status: 'Pending',
                 date: new Date().toLocaleDateString(),
-                shippingAddress: orderData.shippingAddress
+                shippingAddress: orderData.shippingAddress,
+                paymentMethod: paymentMethod
             });
             localStorage.setItem('velvoraOrders', JSON.stringify(existingOrders));
             
-            window.location.href = 'order-success.html?orderId=' + data.order.orderId;
+            document.getElementById('step4').classList.add('active-step');
+            currentStep = 4;
+            updateStepIndicator();
+            
         } catch (error) {
-            alert('Connection error. Please try again.');
-            console.error(error);
+            showNotification('Connection error. Please try again.');
+            document.getElementById('step2').classList.add('active-step');
+            currentStep = 2;
+            updateStepIndicator();
         }
     }
 
-    document.querySelectorAll('input[name="payment"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const cardDetails = document.getElementById('cardDetails');
-            cardDetails.style.display = this.value === 'card' ? 'block' : 'none';
-        });
-    });
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        const text = document.getElementById('notificationText');
+        text.textContent = message;
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
 
     renderSummary();
 </script>
