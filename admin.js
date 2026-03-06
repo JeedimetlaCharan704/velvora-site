@@ -150,10 +150,10 @@ async function initAdmin() {
 
 // Sample products for demo mode
 const sampleAdminProducts = [
-    { _id: "1", name: "Silk Evening Gown", price: 299.99, category: "women", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", stock: 15, tag: "new" },
-    { _id: "2", name: "Premium Leather Jacket", price: 449.99, category: "men", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", stock: 20, tag: "new" },
-    { _id: "3", name: "Designer Sunglasses", price: 189.99, category: "accessories", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400", stock: 50, tag: "sale" },
-    { _id: "4", name: "Cashmere Sweater", price: 199.99, category: "women", image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400", stock: 25, tag: "hot" }
+    { _id: "1", name: "Silk Evening Gown", price: 299.99, category: "women", image: "https://images.pexels.com/photos/291762/pexels-photo-291762.jpeg?w=400", stock: 15, tag: "new" },
+    { _id: "2", name: "Premium Leather Jacket", price: 449.99, category: "men", image: "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg?w=400", stock: 20, tag: "new" },
+    { _id: "3", name: "Designer Sunglasses", price: 189.99, category: "accessories", image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?w=400", stock: 50, tag: "sale" },
+    { _id: "4", name: "Kids Dress", price: 89.99, category: "kids", image: "https://images.pexels.com/photos/3605916/pexels-photo-3605916.jpeg?w=400", stock: 25, tag: "hot" }
 ];
 
 // Load Products from API
@@ -376,7 +376,7 @@ function renderProducts() {
     // Desktop table
     tbody.innerHTML = allProducts.map((p, index) => `
         <tr>
-            <td><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'"></td>
+            <td><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.style.display='none'"></td>
             <td>${p.name}</td>
             <td>${p.category}</td>
             <td>${p.tag ? `<span class="tag-badge tag-${p.tag}">${p.tag}</span>` : '-'}</td>
@@ -407,7 +407,7 @@ function renderProducts() {
         
         mobileCards.innerHTML = allProducts.map((p, index) => `
             <div class="product-card-admin" style="background: white; border-radius: 16px; padding: 14px; display: flex; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                <img src="${p.image}" alt="${p.name}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'">
+                <img src="${p.image}" alt="${p.name}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.style.display='none'">
                 <div style="flex: 1;">
                     <strong style="font-size: 14px; color: #2b2b2b; display: block; margin-bottom: 4px;">${p.name}</strong>
                     <p style="font-size: 13px; color: #c8a96a; font-weight: 600; margin-bottom: 8px;">$${p.price.toFixed(2)}</p>
