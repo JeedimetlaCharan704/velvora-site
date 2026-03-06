@@ -889,7 +889,8 @@ function initCharts() {
     revenueChart = null;
     ordersChart = null;
     
-    // Revenue Chart
+    // Try to initialize charts with error handling
+    try {
     if (revenueCtx) {
         revenueChart = new Chart(revenueCtx, {
             type: 'line',
@@ -961,6 +962,9 @@ function initCharts() {
     
     // Top Products
     renderTopProducts();
+    } catch (chartError) {
+        console.log('Chart initialization skipped:', chartError);
+    }
 }
 
 function renderTopProducts() {
