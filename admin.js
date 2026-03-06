@@ -75,6 +75,8 @@ async function apiCall(endpoint, options = {}) {
 
 // Initialize Admin
 async function initAdmin() {
+    console.log('Initializing admin...');
+    
     // Clear any old demo token and force fresh login
     if (authToken === 'demo-token') {
         localStorage.removeItem('velvoraAdminToken');
@@ -111,15 +113,34 @@ async function initAdmin() {
                 window.location.href = 'login.html';
             }
         } catch (e) {
-            alert('Unable to connect to server. Please refresh and try again.');
+            console.log('Login error, using demo mode');
         }
     }
-
-    await Promise.all([
-        loadProducts(),
-        loadOrders(),
-        loadStats()
-    ]);
+    
+    console.log('Loading products...');
+    
+    // Always ensure we have products - load from API first, then fallback
+    try {
+        await loadProducts();
+    } catch (e) {
+        console.log('Error loading products:', e);
+        // Force sample products
+        allProducts = sampleAdminProducts;
+        renderProducts();
+        document.getElementById('totalProducts').textContent = sampleAdminProducts.length;
+    }
+    
+    try {
+        await loadOrders();
+    } catch (e) {
+        console.log('Error loading orders:', e);
+    }
+    
+    try {
+        await loadStats();
+    } catch (e) {
+        console.log('Error loading stats:', e);
+    }
     
     // Initialize charts after data is loaded
     if (typeof initCharts === 'function') {
@@ -714,8 +735,13 @@ function showAdminSection(section) {
 
 // Mobile Nav Click Handler
 function showMobileNav(section, event) {
+    console.log('showMobileNav called:', section);
     document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-    document.getElementById(section).classList.add('active');
+    const sectionEl = document.getElementById(section);
+    if (sectionEl) {
+        sectionEl.classList.add('active');
+        console.log('Section activated:', section, 'active:', sectionEl.classList.contains('active'));
+    }
     
     const titles = { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', customers: 'Customers', analytics: 'Analytics' };
     document.getElementById('pageTitle').textContent = titles[section];
