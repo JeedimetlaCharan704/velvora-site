@@ -1499,13 +1499,28 @@
         padding: 8px 14px;
         border-radius: 20px;
         font-size: 12px;
-        background: #f6f2ec;
-        color: #666;
+        background: #c8a96a;
+        color: #1a1a1a;
+        font-weight: 600;
+        flex: 1;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .product-card-admin .action-btn:hover {
+        background: #b8985a;
     }
     
     .product-card-admin .action-btn.delete {
         background: #fee;
         color: #e74c3c;
+        flex: 0;
+    }
+    
+    .product-card-admin .action-btn.delete:hover {
+        background: #fdd;
     }
     
     /* Orders as Cards */
