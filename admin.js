@@ -338,6 +338,7 @@ function updateOrderStatusFromCard(orderId) {
 // Render Products (Desktop Table + Mobile Cards)
 function renderProducts() {
     const tbody = document.getElementById('productsTableBody');
+    const container = tbody?.parentElement;
     if (!tbody) return;
     
     // Desktop table
@@ -355,7 +356,6 @@ function renderProducts() {
             </td>
         </tr>
     `).join('');
-}
     
     // Mobile cards
     if (container) {
@@ -899,7 +899,6 @@ function initCharts() {
     }
     
     // Orders Status Chart
-    const ordersCtx = document.getElementById('ordersStatusChart');
     if (ordersCtx) {
         const statusCounts = {
             Pending: allOrders.filter(o => o.status === 'Pending').length,
