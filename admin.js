@@ -848,13 +848,35 @@ function initCharts() {
     const revenueCtx = document.getElementById('revenueChart');
     const ordersCtx = document.getElementById('ordersStatusChart');
     
-    // Destroy existing charts if they exist
-    if (revenueCtx && Chart.getChart(revenueCtx)) {
-        Chart.getChart(revenueCtx).destroy();
+    // Destroy existing charts if they exist using multiple methods for compatibility
+    try {
+        if (revenueCtx) {
+            // Method 1: Chart.getChart() (Chart.js 3+)
+            if (typeof Chart !== 'undefined' && Chart.getChart) {
+                const existingRevenue = Chart.getChart(revenueCtx);
+                if (existingRevenue) existingRevenue.destroy();
+            }
+            // Method 2: Check for chart property on the canvas
+            if (revenueCtx.chart) {
+                revenueCtx.chart.destroy();
+            }
+        }
+        if (ordersCtx) {
+            if (typeof Chart !== 'undefined' && Chart.getChart) {
+                const existingOrders = Chart.getChart(ordersCtx);
+                if (existingOrders) existingOrders.destroy();
+            }
+            if (ordersCtx.chart) {
+                ordersCtx.chart.destroy();
+            }
+        }
+    } catch (e) {
+        console.log('Chart cleanup:', e);
     }
-    if (ordersCtx && Chart.getChart(ordersCtx)) {
-        Chart.getChart(ordersCtx).destroy();
-    }
+    
+    // Clear chart variables
+    revenueChart = null;
+    ordersChart = null;
     
     // Revenue Chart
     if (revenueCtx) {

@@ -1,10 +1,11 @@
-const CACHE_NAME = 'velvora-admin-v2';
+const CACHE_NAME = 'velvora-admin-v3';
 const urlsToCache = [
   '/',
   '/admin.html',
   '/admin.js',
   '/admin.css',
-  '/style.css'
+  '/style.css',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
