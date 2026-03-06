@@ -149,6 +149,12 @@ const sampleProducts = [
 ];
 
 function loadProducts() {
+    // Show sample products immediately for fast loading
+    products = sampleProducts;
+    renderProducts();
+    renderNewArrivals();
+    
+    // Then fetch from API to get latest products
     fetch(`${API_URL}/products?t=${Date.now()}`, {
         headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -158,15 +164,14 @@ function loadProducts() {
     })
     .then(res => res.json())
     .then(data => {
-        products = data;
-        renderProducts();
-        renderNewArrivals();
+        if (data && data.length > 0) {
+            products = data;
+            renderProducts();
+            renderNewArrivals();
+        }
     })
     .catch(err => {
         console.log('Using local products:', err);
-        products = sampleProducts;
-        renderProducts();
-        renderNewArrivals();
     });
 }
 
