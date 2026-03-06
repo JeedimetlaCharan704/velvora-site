@@ -349,7 +349,7 @@ function updateOrderStatusFromCard(orderId) {
 // Render Products (Desktop Table + Mobile Cards)
 function renderProducts() {
     const tbody = document.getElementById('productsTableBody');
-    const container = tbody?.parentElement;
+    const productsTable = document.querySelector('.products-table');
     if (!tbody) return;
     
     // Desktop table
@@ -368,44 +368,49 @@ function renderProducts() {
         </tr>
     `).join('');
     
-    // Mobile cards
-    if (container) {
-        let mobileCards = container.querySelector('.mobile-cards');
-        if (!mobileCards) {
-            mobileCards = document.createElement('div');
-            mobileCards.className = 'mobile-cards';
-            mobileCards.style.display = 'flex';
-            mobileCards.style.flexDirection = 'column';
-            mobileCards.style.gap = '12px';
-            mobileCards.style.visibility = 'visible';
-            mobileCards.style.opacity = '1';
-            container.appendChild(mobileCards);
+    // Mobile cards - always recreate to ensure visibility
+    if (productsTable) {
+        // Remove old mobile cards if any
+        let mobileCards = productsTable.querySelector('.mobile-cards');
+        if (mobileCards) {
+            mobileCards.remove();
         }
         
+        // Create new mobile cards
+        mobileCards = document.createElement('div');
+        mobileCards.className = 'mobile-cards';
+        mobileCards.style.display = 'flex';
+        mobileCards.style.flexDirection = 'column';
+        mobileCards.style.gap = '12px';
+        mobileCards.style.padding = '10px';
+        
         mobileCards.innerHTML = allProducts.map((p, index) => `
-            <div class="product-card-admin">
-                <img src="${p.image}" alt="${p.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'">
-                <div>
-                    <strong>${p.name}</strong>
-                    <p>$${p.price.toFixed(2)}</p>
-                    <p>${p.tag ? `<span class="tag-badge tag-${p.tag}">${p.tag}</span>` : ''}</p>
-                    <span class="stock-badge ${p.stock < 20 ? 'low' : ''}">${p.stock} in stock</span>
-                    <div class="action-buttons">
-                        <button class="action-btn" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="action-btn delete" data-index="${index}"><i class="fas fa-trash"></i></button>
+            <div class="product-card-admin" style="background: white; border-radius: 16px; padding: 14px; display: flex; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <img src="${p.image}" alt="${p.name}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjZjFmNWY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiIGZvbnQtZmFtaWx5PSJhcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2U8L3RleHQ+PC9zdmc+'">
+                <div style="flex: 1;">
+                    <strong style="font-size: 14px; color: #2b2b2b; display: block; margin-bottom: 4px;">${p.name}</strong>
+                    <p style="font-size: 13px; color: #c8a96a; font-weight: 600; margin-bottom: 8px;">$${p.price.toFixed(2)}</p>
+                    <span class="stock-badge ${p.stock < 20 ? 'low' : ''}" style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; background: ${p.stock < 20 ? '#fee' : '#f0f0f0'}; color: ${p.stock < 20 ? '#e74c3c' : '#666'};">${p.stock} in stock</span>
+                    <div style="display: flex; gap: 8px; margin-top: 8px;">
+                        <button class="action-btn" data-index="${index}" style="padding: 8px 14px; border-radius: 20px; font-size: 12px; background: #c8a96a; color: #1a1a1a; font-weight: 600; flex: 1; justify-content: center; display: flex; align-items: center; gap: 5px; border: none; cursor: pointer;"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn delete" data-index="${index}" style="padding: 8px 14px; border-radius: 20px; font-size: 12px; background: #fee; color: #e74c3c; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             </div>
         `).join('');
         
-        // Add click handlers for mobile
+        // Add click handlers
         mobileCards.querySelectorAll('.action-btn:not(.delete)').forEach(btn => {
             btn.onclick = () => editProduct(parseInt(btn.dataset.index));
         });
         mobileCards.querySelectorAll('.action-btn.delete').forEach(btn => {
             btn.onclick = () => deleteProduct(parseInt(btn.dataset.index));
         });
+        
+        productsTable.appendChild(mobileCards);
     }
+    
+    console.log('Products rendered:', allProducts.length, 'Mobile cards created:', productsTable ? 'yes' : 'no');
 }
 
 // Show Add Product Form
