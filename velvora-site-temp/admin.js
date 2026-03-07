@@ -7,6 +7,50 @@ let allOrders = [];
 let cropper = null;
 let currentImageCallback = null;
 
+// Show API URL configuration modal
+function showApiConfigModal() {
+    const savedUrl = localStorage.getItem('apiUrl') || '';
+    const modal = document.createElement('div');
+    modal.id = 'apiConfigModal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+        <div style="background:white;padding:40px;border-radius:20px;max-width:500px;width:90%;text-align:center;">
+            <h2 style="color:#c9a86c;margin-bottom:20px;">Configure API URL</h2>
+            <p style="color:#666;margin-bottom:20px;">The backend API is not accessible. Please enter your backend URL:</p>
+            <input type="text" id="apiUrlInput" placeholder="https://your-backend.onrender.com/api" 
+                style="width:100%;padding:15px;border:2px solid #ddd;border-radius:10px;margin-bottom:20px;font-size:14px;"
+                value="${savedUrl}">
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button onclick="saveApiUrl()" style="background:#c9a86c;color:white;border:none;padding:15px 30px;border-radius:10px;cursor:pointer;font-size:16px;">Save & Reload</button>
+                <button onclick="location.reload()" style="background:#ddd;color:#333;border:none;padding:15px 30px;border-radius:10px;cursor:pointer;font-size:16px;">Cancel</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function saveApiUrl() {
+    const url = document.getElementById('apiUrlInput').value.trim();
+    if (url) {
+        localStorage.setItem('apiUrl', url);
+        location.reload();
+    }
+}
+
+// Test API connection
+async function testApiConnection() {
+    try {
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        console.log('API Connected:', data);
+        return true;
+    } catch (e) {
+        console.error('API Connection Failed:', e);
+        showApiConfigModal();
+        return false;
+    }
+}
+
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
     const headers = {
@@ -20,7 +64,6 @@ async function apiCall(endpoint, options = {}) {
 
     try {
         const url = `${API_URL}${endpoint}?t=${Date.now()}`;
-        console.log('API Call:', options.method || 'GET', url);
         
         const response = await fetch(url, {
             ...options,
@@ -33,10 +76,14 @@ async function apiCall(endpoint, options = {}) {
         }
 
         const text = await response.text();
-        console.log('API Response:', response.status, text.substring(0, 200));
         
         if (!text.trim()) {
             return { success: true };
+        }
+        
+        // Check if response is HTML (error page)
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+            throw new Error(`API returned error page. Check your API URL (${API_URL})`);
         }
         
         const data = JSON.parse(text);
@@ -46,6 +93,9 @@ async function apiCall(endpoint, options = {}) {
         return data;
     } catch (e) {
         console.error('API Error:', e.message);
+        if (e.message.includes('returned error page') || e.message.includes('Failed to fetch')) {
+            showApiConfigModal();
+        }
         throw e;
     }
 }
@@ -53,6 +103,10 @@ async function apiCall(endpoint, options = {}) {
 // Initialize Admin
 async function initAdmin() {
     console.log('Initializing Admin with API URL:', API_URL);
+    
+    // Test API connection first
+    const connected = await testApiConnection();
+    if (!connected) return;
     
     // Clear any old demo token and force fresh login
     if (authToken === 'demo-token') {
@@ -91,11 +145,7 @@ async function initAdmin() {
             }
         } catch (e) {
             console.error('Connection error:', e);
-            const apiUrl = prompt('Unable to connect to server. Please enter your backend API URL:', API_URL);
-            if (apiUrl) {
-                localStorage.setItem('apiUrl', apiUrl);
-                location.reload();
-            }
+            showApiConfigModal();
             return;
         }
     }
