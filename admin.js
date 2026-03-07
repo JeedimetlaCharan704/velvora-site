@@ -2,7 +2,7 @@
 // Auto-detect API URL based on current domain
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:5000/api' 
-    : 'https://velvora-backend.vercel.app/api';
+    : 'https://velvora-backend.onrender.com/api';
 let authToken = localStorage.getItem('velvoraAdminToken');
 let allProducts = [];
 let allOrders = [];
