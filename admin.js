@@ -1,6 +1,6 @@
 // API Configuration
 // Change this to your production URL when deploying
-const API_URL = 'https://velvora-backend.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
 let authToken = localStorage.getItem('velvoraAdminToken');
 let allProducts = [];
 let allOrders = [];
@@ -76,11 +76,12 @@ async function initAdmin() {
                 localStorage.setItem('velvoraAdminToken', data.token);
                 authToken = data.token;
             } else {
-                alert('Please login to admin panel');
-                window.location.href = 'login.html';
+                // Backend available but login failed - use demo mode
+                enableDemoMode();
             }
         } catch (e) {
-            console.log('Login error, using demo mode');
+            console.log('Backend unavailable, using demo mode');
+            enableDemoMode();
         }
     }
     
@@ -115,12 +116,26 @@ async function initAdmin() {
     }
 }
 
+function enableDemoMode() {
+    console.log('Enabling demo mode...');
+    const demoUser = { id: 'demo', name: 'Admin', email: 'admin@velvora.com', role: 'admin' };
+    localStorage.setItem('velvoraAdminUser', JSON.stringify(demoUser));
+    localStorage.setItem('velvoraAdminToken', 'demo-token');
+    authToken = 'demo-token';
+}
+
 // Sample products for demo mode
 const sampleAdminProducts = [
     { _id: "1", name: "Silk Evening Gown", price: 299.99, category: "women", image: "https://images.pexels.com/photos/291762/pexels-photo-291762.jpeg?w=400", stock: 15, tag: "new" },
     { _id: "2", name: "Premium Leather Jacket", price: 449.99, category: "men", image: "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg?w=400", stock: 20, tag: "new" },
     { _id: "3", name: "Designer Sunglasses", price: 189.99, category: "accessories", image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?w=400", stock: 50, tag: "sale" },
     { _id: "4", name: "Kids Dress", price: 89.99, category: "kids", image: "https://images.pexels.com/photos/3605916/pexels-photo-3605916.jpeg?w=400", stock: 25, tag: "hot" }
+];
+
+const sampleOrders = [
+    { _id: "1", orderId: "VEL-001", customerName: "John Doe", createdAt: new Date(), total: 299.99, status: "Pending", items: [{ name: "Silk Evening Gown", price: 299.99, quantity: 1 }] },
+    { _id: "2", orderId: "VEL-002", customerName: "Jane Smith", createdAt: new Date(Date.now() - 86400000), total: 449.99, status: "Processing", items: [{ name: "Premium Leather Jacket", price: 449.99, quantity: 1 }] },
+    { _id: "3", orderId: "VEL-003", customerName: "Mike Johnson", createdAt: new Date(Date.now() - 172800000), total: 189.99, status: "Delivered", items: [{ name: "Designer Sunglasses", price: 189.99, quantity: 1 }] }
 ];
 
 // Load Products from API
@@ -157,6 +172,14 @@ async function loadOrders() {
         document.getElementById('avgOrderValue').textContent = '$' + avgOrderValue.toFixed(2);
     } catch (error) {
         console.error('Error loading orders:', error);
+        // Use sample orders in demo mode
+        allOrders = sampleOrders;
+        renderOrders();
+        renderAllOrders();
+        animateValue('totalOrders', 0, sampleOrders.length);
+        const totalRevenue = sampleOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        animateValue('totalRevenue', 0, totalRevenue);
+        document.getElementById('avgOrderValue').textContent = '$' + (totalRevenue / sampleOrders.length).toFixed(2);
     }
 }
 
@@ -662,7 +685,12 @@ async function deleteOrder(orderId) {
 function logoutAdmin() {
     localStorage.removeItem('velvoraAdminToken');
     localStorage.removeItem('velvoraAdminUser');
-    window.location.href = 'login.html';
+    // In demo mode, just reload to reinitialize
+    if (authToken === 'demo-token') {
+        location.reload();
+    } else {
+        window.location.href = 'login.html';
+    }
 }
 
 function resetDemoData() {
