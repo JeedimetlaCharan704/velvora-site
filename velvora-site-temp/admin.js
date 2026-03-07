@@ -654,6 +654,13 @@ async function viewOrder(orderId) {
 // Update Order Status
 async function updateOrderStatus(orderId, status) {
     console.log('Updating order:', orderId, 'to status:', status);
+    console.log('Using API URL:', API_URL);
+    
+    if (!orderId || orderId === 'undefined') {
+        alert('Error: Order ID is missing. Please refresh the page and try again.');
+        return;
+    }
+    
     try {
         const result = await apiCall(`/orders/${orderId}/status`, {
             method: 'PUT',
@@ -665,7 +672,7 @@ async function updateOrderStatus(orderId, status) {
         alert('Order status updated to ' + status + '!');
     } catch (error) {
         console.error('Error updating order:', error);
-        alert('Error updating order: ' + error.message);
+        alert('Error updating order: ' + error.message + '\n\nCurrent API: ' + API_URL);
     }
 }
 
