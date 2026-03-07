@@ -60,10 +60,10 @@ app.get('/api/health', async (req, res) => {
 
 app.get('/api/test-mongo', async (req, res) => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
+    await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000, authSource: 'admin' });
     res.json({ status: 'connected', message: 'MongoDB working!' });
   } catch (err) {
-    res.json({ status: 'error', message: err.message });
+    res.json({ status: 'error', message: err.message, code: err.code });
   }
 });
 
@@ -71,10 +71,12 @@ const JWT_SECRET = 'velvora_admin_secret_key_2024';
 
 console.log('Connecting to MongoDB...');
 console.log('MongoDB URI set:', !!process.env.MONGODB_URI);
+console.log('MongoDB URI:', process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/\/\/.*:.*@/, '//***:***@') : 'NOT SET');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/velvora', {
+mongoose.connect(process.env.MONGODB_URI, {
   serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
+  authSource: 'admin'
 })
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => {
