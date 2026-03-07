@@ -6,7 +6,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-app.use(cors());
+
+// Configure CORS to allow Vercel and other domains
+app.use(cors({
+  origin: ['https://velvora-site.vercel.app', 'http://localhost:3000', 'http://localhost:5000'],
+  credentials: true
+}));
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
@@ -227,13 +232,16 @@ app.post('/api/orders', async (req, res) => {
 
 app.put('/api/orders/:id/status', adminAuth, async (req, res) => {
   try {
+    console.log('Updating order:', req.params.id, 'to status:', req.body.status);
     const order = await Order.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+    console.log('Order updated:', order);
     res.json(order);
   } catch (err) {
-    res.status(400).json({ message: 'Invalid order ID format' });
+    console.error('Order update error:', err);
+    res.status(400).json({ message: 'Invalid order ID format: ' + err.message });
   }
 });
 
