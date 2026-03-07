@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
   const mongoState = mongoose.connection.readyState;
   const mongoStates = {
     0: 'disconnected',
@@ -37,12 +37,24 @@ app.get('/api/health', (req, res) => {
     2: 'connecting',
     3: 'disconnecting'
   };
+  
+  // Try to reconnect if disconnected
+  let connectionError = null;
+  if (mongoState === 0 && process.env.MONGODB_URI) {
+    try {
+      await mongoose.connect(process.env.MONGODB_URI);
+    } catch (err) {
+      connectionError = err.message;
+    }
+  }
+  
   res.json({ 
     status: 'ok', 
     message: 'Velvora API running',
     mongoDB: mongoStates[mongoState],
     mongoUriSet: !!process.env.MONGODB_URI,
-    mongoUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/\/\/.*:.*@/, '//***:***@') : null
+    mongoUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/\/\/.*:.*@/, '//***:***@') : null,
+    connectionError: connectionError
   });
 });
 
@@ -64,8 +76,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/velvora',
   serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
 })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('MongoDB Error:', err.message));
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch(err => {
+    console.log('MongoDB Error:', err.message);
+    console.log('Error code:', err.code);
+    console.log('Error name:', err.name);
+  });
 
 const productSchema = new mongoose.Schema({
   name: String,
