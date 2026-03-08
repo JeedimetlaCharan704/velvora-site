@@ -257,8 +257,7 @@
     let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
 
     if (!user) {
-        user = { name: 'Guest User', email: 'guest@demo.com', phone: '' };
-        localStorage.setItem('velvoraUser', JSON.stringify(user));
+        window.location.href = 'login.html';
     }
 
     // Initialize page

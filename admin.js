@@ -142,11 +142,20 @@ function loadStats() {
 }
 
 function loadCustomers() {
-    const storedUsers = localStorage.getItem('velvoraUsers');
-    if (storedUsers) {
-        allUsers = JSON.parse(storedUsers);
-    } else {
-        allUsers = [];
+    try {
+        const data = await apiCall('/users');
+        if (data && Array.isArray(data)) {
+            allUsers = data;
+            useOnlineMode = true;
+        }
+    } catch (e) {
+        console.log('Using local customers');
+        const storedUsers = localStorage.getItem('velvoraUsers');
+        if (storedUsers) {
+            allUsers = JSON.parse(storedUsers);
+        } else {
+            allUsers = [];
+        }
     }
     renderCustomers(allUsers);
     const totalCustomersEl = document.getElementById('totalCustomers');

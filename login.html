@@ -100,7 +100,7 @@
 </div>
 
 <script>
-    const API_URL = '';
+    const API_URL = window.location.hostname === 'localhost' ? '/api' : '';
 
     function getUsers() {
         return JSON.parse(localStorage.getItem('velvoraUsers')) || [];
@@ -128,9 +128,34 @@
         const email = e.target.querySelector('input[type="email"]').value;
         const password = e.target.querySelector('input[type="password"]').value;
         
+        try {
+            const response = await fetch(`${API_URL}/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'login', email, password })
+            });
+            
+            if (response.ok) {
+                const user = await response.json();
+                localStorage.setItem('velvoraUser', JSON.stringify(user));
+                localStorage.setItem('velvoraToken', 'online-token');
+                
+                if (user.role === 'admin') {
+                    localStorage.setItem('velvoraAdminUser', JSON.stringify(user));
+                    localStorage.setItem('velvoraAdminToken', 'online-token');
+                    window.location.href = 'admin.html';
+                } else {
+                    showNotification('Welcome back! Login successful.');
+                    setTimeout(() => window.location.href = 'index.html', 1000);
+                }
+                return;
+            }
+        } catch (err) {
+            console.log('API unavailable, using localStorage');
+        }
+        
         const users = getUsers();
         
-        // Check for admin login
         if (email === 'admin@velvora.com' && password === 'admin123') {
             const adminUser = { id: 'admin', name: 'Admin', email: 'admin@velvora.com', role: 'admin' };
             localStorage.setItem('velvoraUser', JSON.stringify(adminUser));
@@ -140,11 +165,11 @@
             return;
         }
         
-        // Check for user login
         const user = users.find(u => u.email === email && u.password === password);
         
         if (user) {
             localStorage.setItem('velvoraUser', JSON.stringify(user));
+            localStorage.setItem('velvoraToken', 'local-token');
             showNotification('Welcome back! Login successful.');
             setTimeout(() => window.location.href = 'index.html', 1000);
         } else {
@@ -158,6 +183,29 @@
         const email = e.target.querySelector('input[type="email"]').value;
         const password = e.target.querySelector('input[type="password"]').value;
         
+        try {
+            const response = await fetch(`${API_URL}/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'register', name, email, password })
+            });
+            
+            if (response.ok) {
+                const user = await response.json();
+                localStorage.setItem('velvoraUser', JSON.stringify(user));
+                localStorage.setItem('velvoraToken', 'online-token');
+                showNotification('Account created successfully!');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+                return;
+            }
+            
+            const error = await response.json();
+            showNotification(error.error || 'Registration failed');
+            return;
+        } catch (err) {
+            console.log('API unavailable, using localStorage');
+        }
+        
         const users = getUsers();
         
         if (users.find(u => u.email === email)) {
@@ -165,11 +213,12 @@
             return;
         }
         
-        const newUser = { id: Date.now().toString(), name, email, password, role: 'user' };
+        const newUser = { id: Date.now().toString(), name, email, password, role: 'user', createdAt: new Date().toISOString() };
         users.push(newUser);
         saveUsers(users);
         
         localStorage.setItem('velvoraUser', JSON.stringify(newUser));
+        localStorage.setItem('velvoraToken', 'local-token');
         showNotification('Account created successfully!');
         setTimeout(() => window.location.href = 'index.html', 1000);
     }
@@ -178,6 +227,7 @@
         const notif = document.createElement('div');
         notif.className = 'notification show';
         notif.textContent = message;
+        notif.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:15px 30px;border-radius:10px;z-index:9999;';
         document.body.appendChild(notif);
         setTimeout(() => notif.remove(), 3000);
     }
