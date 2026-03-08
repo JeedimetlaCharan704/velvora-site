@@ -100,7 +100,7 @@
 </div>
 
 <script>
-    const API_URL = window.location.hostname === 'localhost' ? '/api' : '';
+    const API_URL = window.location.hostname === 'localhost' ? '/api' : '/api';
 
     function getUsers() {
         return JSON.parse(localStorage.getItem('velvoraUsers')) || [];
@@ -154,8 +154,7 @@
             console.log('API unavailable, using localStorage');
         }
         
-        const users = getUsers();
-        
+        // Fallback to localStorage - always works
         if (email === 'admin@velvora.com' && password === 'admin123') {
             const adminUser = { id: 'admin', name: 'Admin', email: 'admin@velvora.com', role: 'admin' };
             localStorage.setItem('velvoraUser', JSON.stringify(adminUser));
@@ -165,6 +164,7 @@
             return;
         }
         
+        const users = getUsers();
         const user = users.find(u => u.email === email && u.password === password);
         
         if (user) {
@@ -206,6 +206,7 @@
             console.log('API unavailable, using localStorage');
         }
         
+        // Fallback to localStorage
         const users = getUsers();
         
         if (users.find(u => u.email === email)) {
