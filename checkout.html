@@ -243,9 +243,7 @@
 
 <script src="script.js"></script>
 <script>
-    const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api' 
-        : 'https://velvora-backend.onrender.com/api';
+    const API_URL = window.location.hostname === 'localhost' ? '/api' : '';
     let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let currentStep = 1;
@@ -386,6 +384,8 @@
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const tax = subtotal * 0.08;
         const total = subtotal + tax;
+        
+        const orderId = 'VEL-' + Date.now();
 
         const orderData = {
             customerEmail: email,
@@ -412,57 +412,45 @@
             }
         };
 
+        document.getElementById('step3').classList.remove('active-step');
+        
         try {
-            const token = localStorage.getItem('velvoraToken');
             const response = await fetch(`${API_URL}/orders`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `Bearer ${token}` })
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
             });
-
-            const data = await response.json();
-
-            document.getElementById('step3').classList.remove('active-step');
-
-            if (!response.ok) {
-                showNotification(data.message || 'Failed to place order');
-                document.getElementById('step2').classList.add('active-step');
-                currentStep = 2;
-                updateStepIndicator();
-                return;
+            const result = await response.json();
+            if (result.order) {
+                orderId = result.order.orderId;
             }
-
-            document.getElementById('finalOrderId').textContent = data.order.orderId || 'ORD-' + Date.now();
-            document.getElementById('finalTotal').textContent = '$' + total.toFixed(2);
-            document.getElementById('finalPaymentMethod').textContent = getPaymentMethodName();
-
-            localStorage.removeItem('velvoraCart');
-            
-            const existingOrders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
-            existingOrders.unshift({
-                orderId: data.order.orderId,
-                items: orderData.items,
-                total: total,
-                status: 'Pending',
-                date: new Date().toLocaleDateString(),
-                shippingAddress: orderData.shippingAddress,
-                paymentMethod: paymentMethod
-            });
-            localStorage.setItem('velvoraOrders', JSON.stringify(existingOrders));
-            
-            document.getElementById('step4').classList.add('active-step');
-            currentStep = 4;
-            updateStepIndicator();
-            
-        } catch (error) {
-            showNotification('Connection error. Please try again.');
-            document.getElementById('step2').classList.add('active-step');
-            currentStep = 2;
-            updateStepIndicator();
+        } catch (e) {
+            console.log('API unavailable, saving locally');
         }
+        
+        const existingOrders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
+        existingOrders.unshift({
+            _id: orderId,
+            orderId: orderId,
+            customer: { name: firstName + ' ' + lastName, email: email, phone: document.getElementById('checkoutPhone').value },
+            items: orderData.items,
+            total: total,
+            status: 'Pending',
+            createdAt: new Date().toISOString(),
+            shippingAddress: orderData.shippingAddress,
+            paymentMethod: paymentMethod
+        });
+        localStorage.setItem('velvoraOrders', JSON.stringify(existingOrders));
+        
+        localStorage.removeItem('velvoraCart');
+        
+        document.getElementById('finalOrderId').textContent = orderId;
+        document.getElementById('finalTotal').textContent = '$' + total.toFixed(2);
+        document.getElementById('finalPaymentMethod').textContent = getPaymentMethodName();
+        
+        document.getElementById('step4').classList.add('active-step');
+        currentStep = 4;
+        updateStepIndicator();
     }
 
     function showNotification(message) {

@@ -1,6 +1,4 @@
-const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000/api' 
-    : 'https://velvora-backend.onrender.com/api';
+const API_URL = window.location.hostname === 'localhost' ? '/api' : '';
 let products = [];
 let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
 let wishlist = JSON.parse(localStorage.getItem('velvoraWishlist')) || [];
@@ -150,31 +148,25 @@ const sampleProducts = [
     }
 ];
 
-function loadProducts() {
-    // Show sample products immediately for fast loading
-    products = sampleProducts;
-    renderProducts();
-    renderNewArrivals();
-    
-    // Then fetch from API to get latest products
-    fetch(`${API_URL}/products?t=${Date.now()}`, {
-        headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
+async function loadProducts() {
+    try {
+        const data = await fetch(`${API_URL}/products`).then(res => res.json());
         if (data && data.length > 0) {
             products = data;
-            renderProducts();
-            renderNewArrivals();
+        } else {
+            products = sampleProducts;
         }
-    })
-    .catch(err => {
-        console.log('Using local products:', err);
-    });
+    } catch (e) {
+        const storedProducts = localStorage.getItem('velvoraProducts');
+        if (storedProducts) {
+            products = JSON.parse(storedProducts);
+        } else {
+            products = sampleProducts;
+            localStorage.setItem('velvoraProducts', JSON.stringify(sampleProducts));
+        }
+    }
+    renderProducts();
+    renderNewArrivals();
 }
 
 function init() {

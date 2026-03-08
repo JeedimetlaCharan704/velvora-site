@@ -100,9 +100,15 @@
 </div>
 
 <script>
-    const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api' 
-        : 'https://velvora-backend.onrender.com/api';
+    const API_URL = '';
+
+    function getUsers() {
+        return JSON.parse(localStorage.getItem('velvoraUsers')) || [];
+    }
+
+    function saveUsers(users) {
+        localStorage.setItem('velvoraUsers', JSON.stringify(users));
+    }
 
     function switchTab(tab) {
         document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -122,44 +128,27 @@
         const email = e.target.querySelector('input[type="email"]').value;
         const password = e.target.querySelector('input[type="password"]').value;
         
-        try {
-            // Try admin login first
-            let response = await fetch(`${API_URL}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            
-            let data = await response.json();
-            
-            // If not admin, try user login
-            if (!response.ok) {
-                response = await fetch(`${API_URL}/auth/user/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                data = await response.json();
-            }
-            
-            if (!response.ok) {
-                showNotification(data.message || 'Login failed');
-                return;
-            }
-            
-            localStorage.setItem('velvoraUser', JSON.stringify(data.user));
-            localStorage.setItem('velvoraToken', data.token);
-            
-            if (data.user.role === 'admin') {
-                localStorage.setItem('velvoraAdminUser', JSON.stringify(data.user));
-                localStorage.setItem('velvoraAdminToken', data.token);
-                window.location.href = 'admin.html';
-            } else {
-                showNotification('Welcome back! Login successful.');
-                setTimeout(() => window.location.href = 'index.html', 1000);
-            }
-        } catch (error) {
-            showNotification('Connection error. Please try again.');
+        const users = getUsers();
+        
+        // Check for admin login
+        if (email === 'admin@velvora.com' && password === 'admin123') {
+            const adminUser = { id: 'admin', name: 'Admin', email: 'admin@velvora.com', role: 'admin' };
+            localStorage.setItem('velvoraUser', JSON.stringify(adminUser));
+            localStorage.setItem('velvoraAdminUser', JSON.stringify(adminUser));
+            localStorage.setItem('velvoraAdminToken', 'demo-token');
+            window.location.href = 'admin.html';
+            return;
+        }
+        
+        // Check for user login
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (user) {
+            localStorage.setItem('velvoraUser', JSON.stringify(user));
+            showNotification('Welcome back! Login successful.');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        } else {
+            showNotification('Invalid email or password');
         }
     }
 
@@ -169,27 +158,20 @@
         const email = e.target.querySelector('input[type="email"]').value;
         const password = e.target.querySelector('input[type="password"]').value;
         
-        try {
-            const response = await fetch(`${API_URL}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                showNotification(data.message || 'Registration failed');
-                return;
-            }
-            
-            localStorage.setItem('velvoraUser', JSON.stringify(data.user));
-            localStorage.setItem('velvoraToken', data.token);
-            showNotification('Account created successfully!');
-            setTimeout(() => window.location.href = 'index.html', 1000);
-        } catch (error) {
-            showNotification('Connection error. Please try again.');
+        const users = getUsers();
+        
+        if (users.find(u => u.email === email)) {
+            showNotification('Email already registered');
+            return;
         }
+        
+        const newUser = { id: Date.now().toString(), name, email, password, role: 'user' };
+        users.push(newUser);
+        saveUsers(users);
+        
+        localStorage.setItem('velvoraUser', JSON.stringify(newUser));
+        showNotification('Account created successfully!');
+        setTimeout(() => window.location.href = 'index.html', 1000);
     }
 
     function showNotification(message) {

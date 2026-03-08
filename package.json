@@ -1,18 +1,14 @@
 {
   "name": "velvora-luxury",
   "version": "1.0.0",
-  "description": "",
+  "description": "Velvora Luxury E-commerce Store",
   "scripts": {
-    "start": "live-server --port=3000",
-    "server": "cd server && node server.js",
-    "dev": "npm run server & npm run start",
-    "both": "npm run server & npm run start"
-  },
-  "devDependencies": {
-    "live-server": "^1.2.2"
+    "start": "live-server --port=3000"
   },
   "dependencies": {
-    "@capacitor/android": "^8.1.0",
-    "@capacitor/cli": "^8.1.0"
+    "mongodb": "^6.3.0"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.0.0"
   }
 }

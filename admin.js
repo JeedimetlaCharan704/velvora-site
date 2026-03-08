@@ -1,120 +1,60 @@
-// API Configuration
-// Auto-detect API URL based on current domain
-const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000/api' 
-    : 'https://velvora-backend.onrender.com/api';
+const API_URL = window.location.hostname === 'localhost' ? '/api' : '';
 let authToken = localStorage.getItem('velvoraAdminToken');
 let allProducts = [];
 let allOrders = [];
+let allUsers = [];
 let cropper = null;
 let currentImageCallback = null;
+let isDemoMode = false;
+let useOnlineMode = true;
 
-// Helper function for API calls
 async function apiCall(endpoint, options = {}) {
-    const headers = {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        ...(authToken && { Authorization: `Bearer ${authToken}` }),
-        ...options.headers
-    };
-
+    const url = `${API_URL}${endpoint}`;
     try {
-        const response = await fetch(`${API_URL}${endpoint}?t=${Date.now()}`, {
+        const response = await fetch(url, {
             ...options,
-            headers
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
-
-        if (response.status === 401) {
-            logoutAdmin();
-            throw new Error('Session expired');
-        }
-
         const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.message || 'Something went wrong');
-        }
+        if (!response.ok) throw new Error(data.error || 'API Error');
         return data;
     } catch (e) {
-        console.error('API Error:', e.message);
+        console.warn('API unavailable, using localStorage:', e.message);
+        useOnlineMode = false;
         throw e;
     }
+}
+
+function getStoredData(key, defaultValue) {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+}
+
+function setStoredData(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
 }
 
 // Initialize Admin
 async function initAdmin() {
     console.log('Initializing admin...');
     
-    // Clear any old demo token and force fresh login
-    if (authToken === 'demo-token') {
-        localStorage.removeItem('velvoraAdminToken');
-        localStorage.removeItem('velvoraAdminUser');
-        authToken = null;
-    }
-    
     const user = JSON.parse(localStorage.getItem('velvoraAdminUser'));
     
-    // Check if user is logged in with valid admin token
     if (!authToken || !user || user.role !== 'admin') {
-        // Try to setup and auto-login with default admin credentials
-        try {
-            // First try to create admin if not exists
-            await fetch(`${API_URL}/auth/setup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            // Then try to login
-            const response = await fetch(`${API_URL}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: 'admin@velvora.com', password: 'admin123' })
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('velvoraAdminUser', JSON.stringify(data.user));
-                localStorage.setItem('velvoraAdminToken', data.token);
-                authToken = data.token;
-            } else {
-                // Backend available but login failed - use demo mode
-                enableDemoMode();
-            }
-        } catch (e) {
-            console.log('Backend unavailable, using demo mode');
-            enableDemoMode();
-        }
+        enableDemoMode();
     }
     
     console.log('Loading products...');
+    await loadProducts();
+    await loadOrders();
+    loadStats();
+    loadCustomers();
     
-    // Always ensure we have products - load from API first, then fallback
-    try {
-        await loadProducts();
-    } catch (e) {
-        console.log('Error loading products:', e);
-        // Force sample products
-        allProducts = sampleAdminProducts;
-        renderProducts();
-        document.getElementById('totalProducts').textContent = sampleAdminProducts.length;
-    }
-    
-    try {
-        await loadOrders();
-    } catch (e) {
-        console.log('Error loading orders:', e);
-    }
-    
-    try {
-        await loadStats();
-    } catch (e) {
-        console.log('Error loading stats:', e);
-    }
-    
-    // Initialize charts after data is loaded
     if (typeof initCharts === 'function') {
-        initCharts();
+        setTimeout(initCharts, 100);
     }
 }
 
@@ -126,91 +66,91 @@ function enableDemoMode() {
     authToken = 'demo-token';
 }
 
-// Sample products for demo mode
 const sampleAdminProducts = [
-    { _id: "1", name: "Silk Evening Gown", price: 299.99, category: "women", image: "https://images.pexels.com/photos/291762/pexels-photo-291762.jpeg?w=400", stock: 15, tag: "new" },
-    { _id: "2", name: "Premium Leather Jacket", price: 449.99, category: "men", image: "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg?w=400", stock: 20, tag: "new" },
-    { _id: "3", name: "Designer Sunglasses", price: 189.99, category: "accessories", image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?w=400", stock: 50, tag: "sale" },
-    { _id: "4", name: "Kids Dress", price: 89.99, category: "kids", image: "https://images.pexels.com/photos/3605916/pexels-photo-3605916.jpeg?w=400", stock: 25, tag: "hot" }
+    { _id: "1", name: "Silk Evening Gown", price: 299.99, category: "women", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", stock: 15, tag: "new" },
+    { _id: "2", name: "Premium Leather Jacket", price: 449.99, category: "men", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", stock: 20, tag: "new" },
+    { _id: "3", name: "Designer Sunglasses", price: 189.99, category: "accessories", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400", stock: 50, tag: "sale" },
+    { _id: "4", name: "Kids Dress", price: 89.99, category: "kids", image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400", stock: 25, tag: "hot" }
 ];
 
 const sampleOrders = [
-    { _id: "1", orderId: "VEL-001", customerName: "John Doe", createdAt: new Date(), total: 299.99, status: "Pending", items: [{ name: "Silk Evening Gown", price: 299.99, quantity: 1 }] },
-    { _id: "2", orderId: "VEL-002", customerName: "Jane Smith", createdAt: new Date(Date.now() - 86400000), total: 449.99, status: "Processing", items: [{ name: "Premium Leather Jacket", price: 449.99, quantity: 1 }] },
-    { _id: "3", orderId: "VEL-003", customerName: "Mike Johnson", createdAt: new Date(Date.now() - 172800000), total: 189.99, status: "Delivered", items: [{ name: "Designer Sunglasses", price: 189.99, quantity: 1 }] }
+    { _id: "1", orderId: "VEL-001", customer: { name: "John Doe", email: "john@example.com" }, createdAt: new Date(), total: 299.99, status: "Pending", items: [{ name: "Silk Evening Gown", price: 299.99, quantity: 1 }] },
+    { _id: "2", orderId: "VEL-002", customer: { name: "Jane Smith", email: "jane@example.com" }, createdAt: new Date(Date.now() - 86400000), total: 449.99, status: "Processing", items: [{ name: "Premium Leather Jacket", price: 449.99, quantity: 1 }] },
+    { _id: "3", orderId: "VEL-003", customer: { name: "Mike Johnson", email: "mike@example.com" }, createdAt: new Date(Date.now() - 172800000), total: 189.99, status: "Delivered", items: [{ name: "Designer Sunglasses", price: 189.99, quantity: 1 }] }
 ];
 
-// Load Products from API
 async function loadProducts() {
     try {
-        const data = await apiCall('/products/admin/all');
-        allProducts = data;
-        renderProducts();
-        document.getElementById('totalProducts').textContent = data.length;
-    } catch (error) {
-        console.log('Using sample products:', error);
-        // Fallback to sample products if API fails
-        allProducts = sampleAdminProducts;
-        renderProducts();
-        document.getElementById('totalProducts').textContent = sampleAdminProducts.length;
+        const data = await apiCall('/products');
+        if (data && Array.isArray(data)) {
+            allProducts = data;
+            useOnlineMode = true;
+        }
+    } catch (e) {
+        console.log('Using local products');
+        const storedProducts = localStorage.getItem('velvoraProducts');
+        if (storedProducts) {
+            allProducts = JSON.parse(storedProducts);
+        } else {
+            allProducts = sampleAdminProducts;
+            localStorage.setItem('velvoraProducts', JSON.stringify(sampleAdminProducts));
+        }
     }
+    renderProducts();
+    document.getElementById('totalProducts').textContent = allProducts.length;
 }
 
-// Load Orders from API
 async function loadOrders() {
     try {
         const data = await apiCall('/orders');
-        allOrders = data.orders;
-        renderOrders();
-        renderAllOrders();
-        
-        // Update dashboard stats
-        animateValue('totalOrders', 0, data.total || 0);
-        
-        const totalRevenue = data.orders.reduce((sum, o) => sum + (o.total || 0), 0);
-        animateValue('totalRevenue', 0, totalRevenue);
-        
-        const avgOrderValue = data.total > 0 ? (totalRevenue / data.total) : 0;
-        document.getElementById('avgOrderValue').textContent = '$' + avgOrderValue.toFixed(2);
-    } catch (error) {
-        console.error('Error loading orders:', error);
-        // Use sample orders in demo mode
-        allOrders = sampleOrders;
-        renderOrders();
-        renderAllOrders();
-        animateValue('totalOrders', 0, sampleOrders.length);
-        const totalRevenue = sampleOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-        animateValue('totalRevenue', 0, totalRevenue);
-        document.getElementById('avgOrderValue').textContent = '$' + (totalRevenue / sampleOrders.length).toFixed(2);
+        if (data && data.orders) {
+            allOrders = data.orders;
+            useOnlineMode = true;
+        }
+    } catch (e) {
+        console.log('Using local orders');
+        const storedOrders = localStorage.getItem('velvoraOrders');
+        if (storedOrders) {
+            allOrders = JSON.parse(storedOrders);
+        } else {
+            allOrders = sampleOrders;
+            localStorage.setItem('velvoraOrders', JSON.stringify(sampleOrders));
+        }
     }
+    renderOrders();
+    renderAllOrders();
+    
+    animateValue('totalOrders', 0, allOrders.length);
+    const totalRevenue = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    animateValue('totalRevenue', 0, totalRevenue);
+    
+    const avgOrderValue = allOrders.length > 0 ? (totalRevenue / allOrders.length) : 0;
+    const avgEl = document.getElementById('avgOrderValue');
+    if (avgEl) avgEl.textContent = '$' + avgOrderValue.toFixed(2);
 }
 
-// Load Stats
-async function loadStats() {
-    try {
-        const stats = await apiCall('/orders/stats/summary');
-        
-        animateValue('totalOrders', 0, stats.totalOrders || 0);
-        animateValue('totalRevenue', 0, stats.totalRevenue || 0);
-        
-        const avgOrderValue = stats.totalOrders > 0 
-            ? (stats.totalRevenue / stats.totalOrders) 
-            : 0;
-        document.getElementById('avgOrderValue').textContent = '$' + avgOrderValue.toFixed(2);
-    } catch (error) {
-        console.error('Error loading stats:', error);
-    }
+function loadStats() {
+    const totalOrders = allOrders.length;
+    const totalRevenue = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const totalCustomers = allUsers.length || 0;
+    
+    animateValue('totalOrders', 0, totalOrders);
+    animateValue('totalRevenue', 0, totalRevenue);
+    
+    const totalCustomersEl = document.getElementById('totalCustomers');
+    if (totalCustomersEl) totalCustomersEl.textContent = totalCustomers;
 }
 
-// Load Customers
-async function loadCustomers() {
-    try {
-        const users = await apiCall('/users');
-        renderCustomers(users);
-        document.getElementById('totalCustomers').textContent = users.length;
-    } catch (error) {
-        console.error('Error loading customers:', error);
+function loadCustomers() {
+    const storedUsers = localStorage.getItem('velvoraUsers');
+    if (storedUsers) {
+        allUsers = JSON.parse(storedUsers);
+    } else {
+        allUsers = [];
     }
+    renderCustomers(allUsers);
+    const totalCustomersEl = document.getElementById('totalCustomers');
+    if (totalCustomersEl) totalCustomersEl.textContent = allUsers.length;
 }
 
 // Render Customers
@@ -495,14 +435,16 @@ async function addProduct(event) {
             method: 'POST',
             body: JSON.stringify(productData)
         });
-        
-        closeProductForm();
-        await loadProducts();
-        await loadStats();
-        alert('Product added successfully!');
-    } catch (error) {
-        alert('Error adding product: ' + error.message);
+    } catch (e) {
+        productData._id = String(Date.now());
+        allProducts.push(productData);
+        localStorage.setItem('velvoraProducts', JSON.stringify(allProducts));
     }
+    
+    closeProductForm();
+    loadProducts();
+    loadStats();
+    alert('Product added successfully!');
 }
 
 // Edit Product
@@ -577,13 +519,18 @@ async function updateProduct(event, productId) {
             method: 'PUT',
             body: JSON.stringify(productData)
         });
-        
-        closeProductForm();
-        await loadProducts();
-        alert('Product updated successfully!');
-    } catch (error) {
-        alert('Error updating product: ' + error.message);
+    } catch (e) {
+        const index = allProducts.findIndex(p => p._id === productId);
+        if (index !== -1) {
+            allProducts[index] = { ...allProducts[index], ...productData };
+            localStorage.setItem('velvoraProducts', JSON.stringify(allProducts));
+        }
     }
+
+    closeProductForm();
+    loadProducts();
+    alert('Product updated successfully!');
+}
 }
 
 // Delete Product
@@ -594,16 +541,15 @@ async function deleteProduct(index) {
     if (!confirm('Are you sure you want to delete this product?')) return;
     
     try {
-        await apiCall(`/products/${productId}`, {
-            method: 'DELETE'
-        });
-        
-        await loadProducts();
-        await loadStats();
-        alert('Product deleted successfully!');
-    } catch (error) {
-        alert('Error deleting product: ' + error.message);
+        await apiCall(`/products/${productId}`, { method: 'DELETE' });
+    } catch (e) {
+        allProducts = allProducts.filter(p => p._id !== productId);
+        localStorage.setItem('velvoraProducts', JSON.stringify(allProducts));
     }
+    
+    loadProducts();
+    loadStats();
+    alert('Product deleted successfully!');
 }
 
 // View Order Details
@@ -646,18 +592,13 @@ async function viewOrder(orderId) {
     document.getElementById('orderModal').style.display = 'flex';
 }
 
-// Update Order Status
-async function updateOrderStatus(orderId, status) {
-    try {
-        await apiCall(`/orders/${orderId}/status`, {
-            method: 'PUT',
-            body: JSON.stringify({ status })
-        });
-        
-        await loadOrders();
+function updateOrderStatus(orderId, status) {
+    const index = allOrders.findIndex(o => o._id === orderId);
+    if (index !== -1) {
+        allOrders[index].status = status;
+        localStorage.setItem('velvoraOrders', JSON.stringify(allOrders));
+        loadOrders();
         alert('Order status updated!');
-    } catch (error) {
-        alert('Error updating order: ' + error.message);
     }
 }
 
@@ -666,21 +607,14 @@ function closeOrderModal() {
     document.getElementById('orderModal').style.display = 'none';
 }
 
-// Delete Order
-async function deleteOrder(orderId) {
+function deleteOrder(orderId) {
     if (!confirm('Are you sure you want to delete this order?')) return;
     
-    try {
-        await apiCall(`/orders/${orderId}`, {
-            method: 'DELETE'
-        });
-        
-        await loadOrders();
-        await loadStats();
-        alert('Order deleted successfully!');
-    } catch (error) {
-        alert('Error deleting order: ' + error.message);
-    }
+    allOrders = allOrders.filter(o => o._id !== orderId);
+    localStorage.setItem('velvoraOrders', JSON.stringify(allOrders));
+    loadOrders();
+    loadStats();
+    alert('Order deleted successfully!');
 }
 
 // Logout
