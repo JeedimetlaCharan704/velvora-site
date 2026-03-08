@@ -26,15 +26,15 @@
             <button class="auth-tab" onclick="switchTab('register')">Create Account</button>
         </div>
 
-        <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+        <form id="loginForm" class="auth-form" onsubmit="handleLogin(event); return false;">
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" placeholder="Enter your email" required>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required>
                 <i class="fas fa-envelope"></i>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" placeholder="Enter your password" required>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required>
                 <i class="fas fa-lock"></i>
             </div>
             <div class="form-options">
@@ -47,20 +47,20 @@
             <button type="submit" class="auth-btn">Sign In</button>
         </form>
 
-        <form id="registerForm" class="auth-form" style="display:none" onsubmit="handleRegister(event)">
+        <form id="registerForm" class="auth-form" style="display:none" onsubmit="handleRegister(event); return false;">
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" placeholder="Enter your name" required>
+                <input type="text" id="regName" placeholder="Enter your name" required>
                 <i class="fas fa-user"></i>
             </div>
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" placeholder="Enter your email" required>
+                <input type="email" id="regEmail" placeholder="Enter your email" required>
                 <i class="fas fa-envelope"></i>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" placeholder="Create a password" required>
+                <input type="password" id="regPassword" placeholder="Create a password" required>
                 <i class="fas fa-lock"></i>
             </div>
             <div class="form-group">
@@ -100,8 +100,6 @@
 </div>
 
 <script>
-    const API_URL = window.location.hostname === 'localhost' ? '/api' : '/api';
-
     function getUsers() {
         return JSON.parse(localStorage.getItem('velvoraUsers')) || [];
     }
@@ -125,17 +123,16 @@
 
     async function handleLogin(e) {
         e.preventDefault();
-        const email = e.target.querySelector('input[type="email"]').value;
-        const password = e.target.querySelector('input[type="password"]').value;
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
         
-        // Always use localStorage first (works without database)
         if (email === 'admin@velvora.com' && password === 'admin123') {
             const adminUser = { id: 'admin', name: 'Admin', email: 'admin@velvora.com', role: 'admin' };
             localStorage.setItem('velvoraUser', JSON.stringify(adminUser));
             localStorage.setItem('velvoraAdminUser', JSON.stringify(adminUser));
             localStorage.setItem('velvoraAdminToken', 'demo-token');
             window.location.href = 'admin.html';
-            return;
+            return false;
         }
         
         const users = getUsers();
@@ -149,20 +146,20 @@
         } else {
             showNotification('Invalid email or password');
         }
+        return false;
     }
 
     async function handleRegister(e) {
         e.preventDefault();
-        const name = e.target.querySelector('input[type="text"]').value;
-        const email = e.target.querySelector('input[type="email"]').value;
-        const password = e.target.querySelector('input[type="password"]').value;
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
         
-        // Always use localStorage (works without database)
         const users = getUsers();
         
         if (users.find(u => u.email === email)) {
             showNotification('Email already registered');
-            return;
+            return false;
         }
         
         const newUser = { id: Date.now().toString(), name, email, password, role: 'user', createdAt: new Date().toISOString() };
@@ -173,6 +170,7 @@
         localStorage.setItem('velvoraToken', 'local-token');
         showNotification('Account created successfully!');
         setTimeout(() => window.location.href = 'index.html', 1000);
+        return false;
     }
 
     function showNotification(message) {
