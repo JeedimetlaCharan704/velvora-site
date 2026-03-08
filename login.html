@@ -128,33 +128,7 @@
         const email = e.target.querySelector('input[type="email"]').value;
         const password = e.target.querySelector('input[type="password"]').value;
         
-        try {
-            const response = await fetch(`${API_URL}/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'login', email, password })
-            });
-            
-            if (response.ok) {
-                const user = await response.json();
-                localStorage.setItem('velvoraUser', JSON.stringify(user));
-                localStorage.setItem('velvoraToken', 'online-token');
-                
-                if (user.role === 'admin') {
-                    localStorage.setItem('velvoraAdminUser', JSON.stringify(user));
-                    localStorage.setItem('velvoraAdminToken', 'online-token');
-                    window.location.href = 'admin.html';
-                } else {
-                    showNotification('Welcome back! Login successful.');
-                    setTimeout(() => window.location.href = 'index.html', 1000);
-                }
-                return;
-            }
-        } catch (err) {
-            console.log('API unavailable, using localStorage');
-        }
-        
-        // Fallback to localStorage - always works
+        // Always use localStorage first (works without database)
         if (email === 'admin@velvora.com' && password === 'admin123') {
             const adminUser = { id: 'admin', name: 'Admin', email: 'admin@velvora.com', role: 'admin' };
             localStorage.setItem('velvoraUser', JSON.stringify(adminUser));
@@ -183,30 +157,7 @@
         const email = e.target.querySelector('input[type="email"]').value;
         const password = e.target.querySelector('input[type="password"]').value;
         
-        try {
-            const response = await fetch(`${API_URL}/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'register', name, email, password })
-            });
-            
-            if (response.ok) {
-                const user = await response.json();
-                localStorage.setItem('velvoraUser', JSON.stringify(user));
-                localStorage.setItem('velvoraToken', 'online-token');
-                showNotification('Account created successfully!');
-                setTimeout(() => window.location.href = 'index.html', 1000);
-                return;
-            }
-            
-            const error = await response.json();
-            showNotification(error.error || 'Registration failed');
-            return;
-        } catch (err) {
-            console.log('API unavailable, using localStorage');
-        }
-        
-        // Fallback to localStorage
+        // Always use localStorage (works without database)
         const users = getUsers();
         
         if (users.find(u => u.email === email)) {
