@@ -1,4 +1,4 @@
-const API_URL = window.location.hostname === 'localhost' ? '/api' : '';
+const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '/api';
 let products = [];
 let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
 let wishlist = JSON.parse(localStorage.getItem('velvoraWishlist')) || [];
@@ -153,10 +153,12 @@ async function loadProducts() {
         const data = await fetch(`${API_URL}/products`).then(res => res.json());
         if (data && data.length > 0) {
             products = data;
+            localStorage.setItem('velvoraProducts', JSON.stringify(data));
         } else {
             products = sampleProducts;
         }
     } catch (e) {
+        console.log('API failed, trying localStorage');
         const storedProducts = localStorage.getItem('velvoraProducts');
         if (storedProducts) {
             products = JSON.parse(storedProducts);

@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Velvora Luxury E-commerce Store",
   "scripts": {
-    "start": "live-server --port=3000"
+    "start": "live-server --port=3000",
+    "server": "node server.js",
+    "dev": "vercel dev"
   },
   "dependencies": {
-    "mongodb": "^6.3.0"
+    "mongodb": "^6.21.0"
   },
   "devDependencies": {
     "@vercel/node": "^3.0.0"

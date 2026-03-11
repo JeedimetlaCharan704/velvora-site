@@ -1,0 +1,79 @@
+[
+  {
+    "_id": "1",
+    "orderId": "VEL-001",
+    "customer": {
+      "name": "John Doe",
+      "email": "john@example.com"
+    },
+    "createdAt": "2026-03-09T09:18:00.509Z",
+    "total": 299.99,
+    "status": "Pending",
+    "items": [
+      {
+        "name": "Silk Evening Gown",
+        "price": 299.99,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "_id": "2",
+    "orderId": "VEL-002",
+    "customer": {
+      "name": "Jane Smith",
+      "email": "jane@example.com"
+    },
+    "createdAt": "2026-03-08T09:18:00.511Z",
+    "total": 449.99,
+    "status": "Processing",
+    "items": [
+      {
+        "name": "Premium Leather Jacket",
+        "price": 449.99,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "_id": "3",
+    "orderId": "VEL-003",
+    "customer": {
+      "name": "Mike Johnson",
+      "email": "mike@example.com"
+    },
+    "createdAt": "2026-03-07T09:18:00.511Z",
+    "total": 189.99,
+    "status": "Shipped",
+    "items": [
+      {
+        "name": "Designer Sunglasses",
+        "price": 189.99,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "_id": "4",
+    "orderId": "VEL-004",
+    "customer": {
+      "name": "Sarah Wilson",
+      "email": "sarah@example.com"
+    },
+    "createdAt": "2026-03-06T09:18:00.511Z",
+    "total": 599.99,
+    "status": "Delivered",
+    "items": [
+      {
+        "name": "Cashmere Sweater",
+        "price": 199.99,
+        "quantity": 2
+      },
+      {
+        "name": "Leather Belt",
+        "price": 49.99,
+        "quantity": 1
+      }
+    ]
+  }
+]

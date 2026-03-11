@@ -1,19 +1,20 @@
-const { MongoClient } = require('mongodb');
+const fs = require('fs');
+const path = require('path');
 
-const MONGODB_URI = process.env.MONGODB_URI;
-const JWT_SECRET = process.env.JWT_SECRET || 'velvora_admin_secret_key_2024';
+const DATA_DIR = path.join(__dirname, '..', 'data');
 
-let client;
-
-async function getClient() {
-  if (!MONGODB_URI) {
-    throw new Error('MONGODB_URI not configured');
+const initData = () => {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
   }
-  if (!client) {
-    client = new MongoClient(MONGODB_URI);
+  
+  const usersPath = path.join(DATA_DIR, 'users.json');
+  if (!fs.existsSync(usersPath)) {
+    fs.writeFileSync(usersPath, JSON.stringify([], null, 2));
   }
-  return client;
-}
+};
+
+initData();
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -25,68 +26,68 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  if (!MONGODB_URI) {
-    return res.status(500).json({ error: 'Database not configured. Add MONGODB_URI to Vercel environment variables.' });
-  }
+  const usersPath = path.join(DATA_DIR, 'users.json');
 
   try {
-    const mongoClient = await getClient();
-    const db = mongoClient.db('velvora');
-    const users = db.collection('users');
-
     if (req.method === 'GET') {
-      const authHeader = req.headers.authorization;
-      const allUsers = await users.find({}).toArray();
-      const usersWithoutPassword = allUsers.map(u => ({ ...u, password: undefined }));
+      const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+      const usersWithoutPassword = users.map(u => ({ ...u, password: undefined }));
       return res.status(200).json(usersWithoutPassword);
     }
 
     if (req.method === 'POST') {
-      const { action, email, password, name, phone } = JSON.parse(req.body);
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+        const { action, email, password, name, phone } = JSON.parse(body);
 
-      if (action === 'register') {
-        const existingUser = await users.findOne({ email });
-        if (existingUser) {
-          return res.status(400).json({ error: 'Email already registered' });
-        }
-        
-        const newUser = {
-          name,
-          email,
-          password,
-          phone: phone || '',
-          role: 'user',
-          createdAt: new Date()
-        };
-        
-        const result = await users.insertOne(newUser);
-        newUser._id = result.insertedId;
-        delete newUser.password;
-        
-        return res.status(201).json(newUser);
-      }
-
-      if (action === 'login') {
-        const user = await users.findOne({ email, password });
-        
-        if (!user) {
-          return res.status(401).json({ error: 'Invalid email or password' });
+        if (action === 'register') {
+          const existingUser = users.find(u => u.email === email);
+          if (existingUser) {
+            return res.status(400).json({ error: 'Email already registered' });
+          }
+          
+          const newUser = {
+            _id: Date.now().toString(),
+            name,
+            email,
+            password,
+            phone: phone || '',
+            role: 'user',
+            createdAt: new Date().toISOString()
+          };
+          
+          users.push(newUser);
+          fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+          
+          const { password: _, ...userWithoutPassword } = newUser;
+          return res.status(201).json(userWithoutPassword);
         }
 
-        if (email === 'admin@velvora.com' && password === 'admin123') {
-          user.role = 'admin';
-        }
-        
-        delete user.password;
-        return res.status(200).json(user);
-      }
+        if (action === 'login') {
+          const user = users.find(u => u.email === email && u.password === password);
+          
+          if (!user) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+          }
 
-      return res.status(400).json({ error: 'Invalid action' });
+          if (email === 'admin@velvora.com' && password === 'admin123') {
+            user.role = 'admin';
+          }
+          
+          const { password: _, ...userWithoutPassword } = user;
+          return res.status(200).json(userWithoutPassword);
+        }
+
+        return res.status(400).json({ error: 'Invalid action' });
+      });
+      return;
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
-    console.error('Database error:', error);
+    console.error('Error:', error);
     return res.status(500).json({ error: error.message });
   }
 };

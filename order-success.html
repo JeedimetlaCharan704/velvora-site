@@ -95,9 +95,7 @@
 
 <script src="script.js"></script>
 <script>
-    const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api' 
-        : 'https://velvora-backend.onrender.com/api';
+    const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '/api';
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('orderId') || 'VEL-' + Date.now();
     
@@ -110,7 +108,7 @@
         const token = localStorage.getItem('velvoraToken');
         if (token) {
             try {
-                const response = await fetch(`${API_URL}/users/orders`, {
+                const response = await fetch(`${API_URL}/orders`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {

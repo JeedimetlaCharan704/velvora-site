@@ -1,4 +1,4 @@
-const API_URL = window.location.hostname === 'localhost' ? '/api' : '';
+const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '/api';
 let authToken = localStorage.getItem('velvoraAdminToken');
 let allProducts = [];
 let allOrders = [];
@@ -141,7 +141,7 @@ function loadStats() {
     if (totalCustomersEl) totalCustomersEl.textContent = totalCustomers;
 }
 
-function loadCustomers() {
+async function loadCustomers() {
     try {
         const data = await apiCall('/users');
         if (data && Array.isArray(data)) {
@@ -539,7 +539,6 @@ async function updateProduct(event, productId) {
     closeProductForm();
     loadProducts();
     alert('Product updated successfully!');
-}
 }
 
 // Delete Product
