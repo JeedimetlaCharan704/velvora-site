@@ -149,23 +149,12 @@ const sampleProducts = [
 ];
 
 async function loadProducts() {
-    try {
-        const data = await fetch(`${API_URL}/products`).then(res => res.json());
-        if (data && data.length > 0) {
-            products = data;
-            localStorage.setItem('velvoraProducts', JSON.stringify(data));
-        } else {
-            products = sampleProducts;
-        }
-    } catch (e) {
-        console.log('API failed, trying localStorage');
-        const storedProducts = localStorage.getItem('velvoraProducts');
-        if (storedProducts) {
-            products = JSON.parse(storedProducts);
-        } else {
-            products = sampleProducts;
-            localStorage.setItem('velvoraProducts', JSON.stringify(sampleProducts));
-        }
+    const storedProducts = localStorage.getItem('velvoraProducts');
+    if (storedProducts) {
+        products = JSON.parse(storedProducts);
+    } else {
+        products = sampleProducts;
+        localStorage.setItem('velvoraProducts', JSON.stringify(sampleProducts));
     }
     renderProducts();
     renderNewArrivals();

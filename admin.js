@@ -87,42 +87,24 @@ const sampleOrders = [
 ];
 
 async function loadProducts() {
-    try {
-        const data = await apiCall('/products');
-        if (data && Array.isArray(data)) {
-            allProducts = data;
-            useOnlineMode = true;
-        }
-    } catch (e) {
-        console.log('Using local products');
-        const storedProducts = localStorage.getItem('velvoraProducts');
-        if (storedProducts) {
-            allProducts = JSON.parse(storedProducts);
-        } else {
-            allProducts = sampleAdminProducts;
-            localStorage.setItem('velvoraProducts', JSON.stringify(sampleAdminProducts));
-        }
+    const storedProducts = localStorage.getItem('velvoraProducts');
+    if (storedProducts) {
+        allProducts = JSON.parse(storedProducts);
+    } else {
+        allProducts = sampleAdminProducts;
+        localStorage.setItem('velvoraProducts', JSON.stringify(sampleAdminProducts));
     }
     renderProducts();
     document.getElementById('totalProducts').textContent = allProducts.length;
 }
 
 async function loadOrders() {
-    try {
-        const data = await apiCall('/orders');
-        if (data && data.orders) {
-            allOrders = data.orders;
-            useOnlineMode = true;
-        }
-    } catch (e) {
-        console.log('Using local orders');
-        const storedOrders = localStorage.getItem('velvoraOrders');
-        if (storedOrders) {
-            allOrders = JSON.parse(storedOrders);
-        } else {
-            allOrders = sampleOrders;
-            localStorage.setItem('velvoraOrders', JSON.stringify(sampleOrders));
-        }
+    const storedOrders = localStorage.getItem('velvoraOrders');
+    if (storedOrders) {
+        allOrders = JSON.parse(storedOrders);
+    } else {
+        allOrders = sampleOrders;
+        localStorage.setItem('velvoraOrders', JSON.stringify(sampleOrders));
     }
     renderOrders();
     renderAllOrders();
@@ -149,20 +131,11 @@ function loadStats() {
 }
 
 async function loadCustomers() {
-    try {
-        const data = await apiCall('/users');
-        if (data && Array.isArray(data)) {
-            allUsers = data;
-            useOnlineMode = true;
-        }
-    } catch (e) {
-        console.log('Using local customers');
-        const storedUsers = localStorage.getItem('velvoraUsers');
-        if (storedUsers) {
-            allUsers = JSON.parse(storedUsers);
-        } else {
-            allUsers = [];
-        }
+    const storedUsers = localStorage.getItem('velvoraUsers');
+    if (storedUsers) {
+        allUsers = JSON.parse(storedUsers);
+    } else {
+        allUsers = [];
     }
     renderCustomers(allUsers);
     const totalCustomersEl = document.getElementById('totalCustomers');
