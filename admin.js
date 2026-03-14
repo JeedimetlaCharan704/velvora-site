@@ -613,11 +613,71 @@ async function viewOrder(orderId) {
     document.getElementById('orderModal').style.display = 'flex';
 }
 
+// Email notification functions (simulated)
+function sendEmail(to, subject, body) {
+    console.log('=== EMAIL SENT ===');
+    console.log('To:', to);
+    console.log('Subject:', subject);
+    console.log('Body:', body);
+    console.log('==================');
+    
+    const emails = JSON.parse(localStorage.getItem('velvoraEmails')) || [];
+    emails.push({
+        to: to,
+        subject: subject,
+        body: body,
+        sentAt: new Date().toISOString()
+    });
+    localStorage.setItem('velvoraEmails', JSON.stringify(emails));
+    
+    alert(`Email sent to ${to}`);
+}
+
+function sendShippingEmail(order) {
+    const subject = `Order Shipped - ${order.orderId}`;
+    const body = `Dear ${order.customerName || order.customer?.name},
+
+Great news! Your order is on its way!
+
+Order ID: ${order.orderId}
+Tracking: Available in your account
+
+Estimated delivery: 3-5 business days
+
+Thank you for shopping with Velvora Luxury!`;
+    
+    sendEmail(order.customerEmail || order.customer?.email, subject, body);
+}
+
+function sendDeliveredEmail(order) {
+    const subject = `Order Delivered - ${order.orderId}`;
+    const body = `Dear ${order.customerName || order.customer?.name},
+
+Your order has been delivered!
+
+Order ID: ${order.orderId}
+
+We hope you enjoy your purchase! Please take a moment to leave a review.
+
+Thank you for shopping with Velvora Luxury!`;
+    
+    sendEmail(order.customerEmail || order.customer?.email, subject, body);
+}
+
 function updateOrderStatus(orderId, status) {
     const index = allOrders.findIndex(o => o._id === orderId);
     if (index !== -1) {
+        const oldStatus = allOrders[index].status;
         allOrders[index].status = status;
         localStorage.setItem('velvoraOrders', JSON.stringify(allOrders));
+        
+        // Send email based on status change
+        if (status === 'Shipped' && oldStatus !== 'Shipped') {
+            sendShippingEmail(allOrders[index]);
+        } else if (status === 'Delivered' && oldStatus !== 'Delivered') {
+            sendDeliveredEmail(allOrders[index]);
+        }
+        
         loadOrders();
         alert('Order status updated!');
     }
