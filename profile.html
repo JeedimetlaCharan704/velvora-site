@@ -250,11 +250,8 @@
 
 <script src="script.js"></script>
 <script>
-    let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let addresses = JSON.parse(localStorage.getItem('velvoraAddresses')) || [];
     let orders = [];
-    let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
-    let wishlist = JSON.parse(localStorage.getItem('velvoraWishlist')) || [];
 
     if (!user) {
         window.location.href = 'login.html';

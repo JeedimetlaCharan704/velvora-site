@@ -219,10 +219,10 @@ function renderProducts(filter = 'all', searchTerm = '', limit = 4) {
     }
 
     const productsToShow = filtered.slice(0, limit);
-    grid.innerHTML = productsToShow.map(product => createProductCard(product)).join('');
-    
-    // Store all filtered products for toggle
-    grid.dataset.allProducts = JSON.stringify(filtered);
+    if (grid) {
+        grid.innerHTML = productsToShow.map(product => createProductCard(product)).join('');
+        grid.dataset.allProducts = JSON.stringify(filtered);
+    }
 }
 
 function createProductCard(product) {
@@ -601,8 +601,9 @@ resultsContainer.innerHTML = results.map(p => `
 }
 
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container')) {
-        document.getElementById('searchResults').style.display = 'none';
+    const searchResults = document.getElementById('searchResults');
+    if (!e.target.closest('.search-container') && searchResults) {
+        searchResults.style.display = 'none';
     }
 });
 
@@ -649,6 +650,7 @@ function initTestimonials() {
 
 function initSlider() {
     const slides = document.querySelectorAll('.slide');
+    if (slides.length === 0) return;
     
     function showSlide(index) {
         slides.forEach(slide => slide.classList.remove('active'));
