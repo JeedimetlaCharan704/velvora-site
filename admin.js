@@ -1,4 +1,4 @@
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '/api';
+const API_URL = '/api';
 let authToken = localStorage.getItem('velvoraAdminToken');
 let allProducts = [];
 let allOrders = [];
@@ -6,7 +6,7 @@ let allUsers = [];
 let cropper = null;
 let currentImageCallback = null;
 let isDemoMode = false;
-let useOnlineMode = true;
+let useOnlineMode = false;
 
 async function apiCall(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
@@ -35,6 +35,11 @@ function getStoredData(key, defaultValue) {
 
 function setStoredData(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
+}
+
+function getStoredProducts() {
+    const stored = localStorage.getItem('velvoraProducts');
+    return stored ? JSON.parse(stored) : sampleAdminProducts;
 }
 
 // Initialize Admin
@@ -67,10 +72,12 @@ function enableDemoMode() {
 }
 
 const sampleAdminProducts = [
-    { _id: "1", name: "Silk Evening Gown", price: 299.99, category: "women", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", stock: 15, tag: "new" },
-    { _id: "2", name: "Premium Leather Jacket", price: 449.99, category: "men", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", stock: 20, tag: "new" },
-    { _id: "3", name: "Designer Sunglasses", price: 189.99, category: "accessories", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400", stock: 50, tag: "sale" },
-    { _id: "4", name: "Kids Dress", price: 89.99, category: "kids", image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400", stock: 25, tag: "hot" }
+    { _id: "1", name: "Silk Evening Gown", description: "Elegant silk evening gown perfect for special occasions", price: 299.99, originalPrice: 399.99, category: "women", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", stock: 15, sizes: ["XS", "S", "M", "L", "XL"], tag: "new" },
+    { _id: "2", name: "Premium Leather Jacket", description: "Genuine leather jacket with modern fit", price: 449.99, originalPrice: 549.99, category: "men", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", stock: 20, sizes: ["S", "M", "L", "XL", "XXL"], tag: "new" },
+    { _id: "3", name: "Designer Sunglasses", description: "Luxury designer sunglasses with UV protection", price: 189.99, originalPrice: 249.99, category: "accessories", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400", stock: 50, sizes: [], tag: "sale" },
+    { _id: "4", name: "Cashmere Sweater", description: "100% cashmere sweater for ultimate comfort", price: 199.99, originalPrice: 279.99, category: "women", image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400", stock: 25, sizes: ["XS", "S", "M", "L", "XL"], tag: "new" },
+    { _id: "5", name: "Classic Denim Jeans", description: "Premium denim jeans with perfect fit", price: 89.99, originalPrice: 129.99, category: "men", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400", stock: 100, sizes: ["28", "30", "32", "34", "36"], tag: "sale" },
+    { _id: "6", name: "Floral Summer Dress", description: "Beautiful floral print summer dress", price: 79.99, originalPrice: 99.99, category: "women", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400", stock: 50, sizes: ["XS", "S", "M", "L"], tag: "new" }
 ];
 
 const sampleOrders = [
