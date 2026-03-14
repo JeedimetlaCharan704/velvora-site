@@ -181,6 +181,16 @@
         document.body.appendChild(notif);
         setTimeout(() => notif.remove(), 3000);
     }
+
+    // Create demo user if not exists
+    (function() {
+        const users = getUsers();
+        if (!users.find(u => u.email === 'user@velvora.com')) {
+            const demoUser = { id: 'demo1', name: 'Demo User', email: 'user@velvora.com', password: 'user123', role: 'user', createdAt: new Date().toISOString() };
+            users.push(demoUser);
+            saveUsers(users);
+        }
+    })();
 </script>
 
 </body>
