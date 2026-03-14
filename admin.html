@@ -24,19 +24,19 @@
     </div>
 
     <ul class="admin-menu">
-        <li class="active" onclick="showAdminSection('dashboard')">
+        <li class="active" onclick="showAdminSection('dashboard', event)">
             <i class="fas fa-th-large"></i> Dashboard
         </li>
-        <li onclick="showAdminSection('orders')">
+        <li onclick="showAdminSection('orders', event)">
             <i class="fas fa-shopping-bag"></i> Orders
         </li>
-        <li onclick="showAdminSection('products')">
+        <li onclick="showAdminSection('products', event)">
             <i class="fas fa-box"></i> Products
         </li>
-        <li onclick="showAdminSection('customers')">
+        <li onclick="showAdminSection('customers', event)">
             <i class="fas fa-users"></i> Customers
         </li>
-        <li onclick="showAdminSection('analytics')">
+        <li onclick="showAdminSection('analytics', event)">
             <i class="fas fa-chart-line"></i> <span>Analytics</span>
         </li>
         <li onclick="logoutAdmin()">

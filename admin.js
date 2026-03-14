@@ -688,12 +688,14 @@ function resetDemoData() {
 }
 
 // Navigation
-function showAdminSection(section) {
+function showAdminSection(section, event) {
     document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.admin-menu li').forEach(l => l.classList.remove('active'));
     
     document.getElementById(section).classList.add('active');
-    event.target.closest('li')?.classList.add('active');
+    if (event && event.target) {
+        event.target.closest('li')?.classList.add('active');
+    }
     
     const titles = { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', customers: 'Customers', analytics: 'Analytics' };
     document.getElementById('pageTitle').textContent = titles[section];
