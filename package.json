@@ -4,12 +4,14 @@
   "description": "Velvora Luxury E-commerce Store",
   "scripts": {
     "start": "live-server --port=3000",
-    "server": "node server-sql.js",
+    "server": "node server-pg.js",
+    "server-sql": "node server-sql.js",
     "dev": "vercel dev"
   },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^4.22.1",
+    "pg": "^8.11.3",
     "sql.js": "^1.14.1"
   },
   "devDependencies": {
