@@ -89,19 +89,19 @@
         </div>
         
         <ul class="profile-menu">
-            <li class="active" id="menu-dashboard" style="cursor:pointer">
+            <li class="active" id="menu-dashboard" style="cursor:pointer" onclick="showSection('dashboard')">
                 <i class="fas fa-th-large"></i> Dashboard
             </li>
-            <li id="menu-orders" style="cursor:pointer">
+            <li id="menu-orders" style="cursor:pointer" onclick="showSection('orders')">
                 <i class="fas fa-box"></i> My Orders
             </li>
-            <li id="menu-addresses" style="cursor:pointer">
+            <li id="menu-addresses" style="cursor:pointer" onclick="showSection('addresses')">
                 <i class="fas fa-map-marker-alt"></i> Addresses
             </li>
-            <li id="menu-account" style="cursor:pointer">
+            <li id="menu-account" style="cursor:pointer" onclick="showSection('account')">
                 <i class="fas fa-cog"></i> Account Settings
             </li>
-            <li class="logout" id="menu-logout" style="cursor:pointer">
+            <li class="logout" id="menu-logout" style="cursor:pointer" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </li>
         </ul>
@@ -250,11 +250,20 @@
 
 <script src="script.js"></script>
 <script>
+    let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let addresses = JSON.parse(localStorage.getItem('velvoraAddresses')) || [];
     let orders = [];
 
     if (!user) {
         window.location.href = 'login.html';
+    }
+
+    // Fix for functions that depend on cart/wishlist from script.js
+    if (typeof cart === 'undefined') {
+        var cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
+    }
+    if (typeof wishlist === 'undefined') {
+        var wishlist = JSON.parse(localStorage.getItem('velvoraWishlist')) || [];
     }
 
     function updateCartCount() {
@@ -486,13 +495,6 @@
     function clickMenu(section) {
         showSection(section);
     }
-
-    // Add click handlers 
-    document.getElementById('menu-dashboard').onclick = function() { showSection('dashboard'); };
-    document.getElementById('menu-orders').onclick = function() { showSection('orders'); };
-    document.getElementById('menu-addresses').onclick = function() { showSection('addresses'); };
-    document.getElementById('menu-account').onclick = function() { showSection('account'); };
-    document.getElementById('menu-logout').onclick = function() { logout(); };
 
     function showNotification(message) {
         const notif = document.createElement('div');
