@@ -248,18 +248,11 @@
     </div>
 </div>
 
-<script src="script.js"></script>
 <script>
-    // Initialize cart/wishlist from localStorage if not loaded from script.js
-    if (typeof cart === 'undefined') {
-        var cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
-    }
-    if (typeof wishlist === 'undefined') {
-        var wishlist = JSON.parse(localStorage.getItem('velvoraWishlist')) || [];
-    }
-    if (typeof products === 'undefined') {
-        var products = JSON.parse(localStorage.getItem('velvoraProducts')) || [];
-    }
+    // Define cart, wishlist, products locally to avoid conflicts
+    var cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
+    var wishlist = JSON.parse(localStorage.getItem('velvoraWishlist')) || [];
+    var products = JSON.parse(localStorage.getItem('velvoraProducts')) || [];
     
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let addresses = JSON.parse(localStorage.getItem('velvoraAddresses')) || [];
