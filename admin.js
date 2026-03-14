@@ -315,6 +315,39 @@ function updateOrderStatusFromCard(orderId) {
     }
 }
 
+// Filter Orders
+function filterOrders(status) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const tbody = document.getElementById('allOrdersTable');
+    if (!tbody) return;
+    
+    let filteredOrders = status === 'All' ? allOrders : allOrders.filter(o => o.status === status);
+    
+    tbody.innerHTML = filteredOrders.map(order => `
+        <tr>
+            <td>${order.orderId}</td>
+            <td>${order.customerName || order.customer?.name || 'N/A'}</td>
+            <td>${order.items?.length || 0} items</td>
+            <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+            <td>$${order.total?.toFixed(2) || '0.00'}</td>
+            <td>
+                <select onchange="updateOrderStatus('${order._id}', this.value)">
+                    <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                    <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                    <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                </select>
+            </td>
+            <td>
+                <button class="action-btn" onclick="viewOrder('${order._id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn delete" onclick="deleteOrder('${order._id}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
 // Render Products (Desktop Table + Mobile Cards)
 function renderProducts() {
     const tbody = document.getElementById('productsTableBody');
