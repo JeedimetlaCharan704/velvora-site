@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'http://localhost:3001/api';
 let products = [];
 let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
 let wishlist = JSON.parse(localStorage.getItem('velvoraWishlist')) || [];
@@ -149,12 +149,24 @@ const sampleProducts = [
 ];
 
 async function loadProducts() {
-    const storedProducts = localStorage.getItem('velvoraProducts');
-    if (storedProducts) {
-        products = JSON.parse(storedProducts);
-    } else {
-        products = sampleProducts;
-        localStorage.setItem('velvoraProducts', JSON.stringify(sampleProducts));
+    try {
+        const response = await fetch(`${API_URL}/products`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+            products = data;
+            localStorage.setItem('velvoraProducts', JSON.stringify(data));
+        } else {
+            products = sampleProducts;
+        }
+    } catch (e) {
+        console.log('API failed, trying localStorage');
+        const storedProducts = localStorage.getItem('velvoraProducts');
+        if (storedProducts) {
+            products = JSON.parse(storedProducts);
+        } else {
+            products = sampleProducts;
+            localStorage.setItem('velvoraProducts', JSON.stringify(sampleProducts));
+        }
     }
     renderProducts();
     renderNewArrivals();

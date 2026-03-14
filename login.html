@@ -135,6 +135,26 @@
             return false;
         }
         
+        // Try SQL login first
+        try {
+            const response = await fetch('http://localhost:3001/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            if (data.success) {
+                localStorage.setItem('velvoraUser', JSON.stringify(data.user));
+                localStorage.setItem('velvoraToken', 'local-token');
+                showNotification('Welcome back! Login successful.');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+                return;
+            }
+        } catch (e) {
+            console.log('SQL login failed, trying localStorage');
+        }
+        
+        // Fallback to localStorage
         const users = getUsers();
         const user = users.find(u => u.email === email && u.password === password);
         
@@ -155,6 +175,29 @@
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
         
+        // Try SQL registration first
+        try {
+            const response = await fetch('http://localhost:3001/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+            const data = await response.json();
+            if (data.success) {
+                localStorage.setItem('velvoraUser', JSON.stringify(data.user));
+                localStorage.setItem('velvoraToken', 'local-token');
+                showNotification('Account created successfully!');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+                return;
+            } else if (data.error) {
+                showNotification(data.error);
+                return;
+            }
+        } catch (e) {
+            console.log('SQL registration failed, using localStorage');
+        }
+        
+        // Fallback to localStorage
         const users = getUsers();
         
         if (users.find(u => u.email === email)) {

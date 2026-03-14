@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'http://localhost:3001/api';
 let authToken = localStorage.getItem('velvoraAdminToken');
 let allProducts = [];
 let allOrders = [];
@@ -87,24 +87,52 @@ const sampleOrders = [
 ];
 
 async function loadProducts() {
-    const storedProducts = localStorage.getItem('velvoraProducts');
-    if (storedProducts) {
-        allProducts = JSON.parse(storedProducts);
-    } else {
-        allProducts = sampleAdminProducts;
-        localStorage.setItem('velvoraProducts', JSON.stringify(sampleAdminProducts));
+    try {
+        const response = await fetch(`${API_URL}/products`);
+        const data = await response.json();
+        if (data && Array.isArray(data)) {
+            allProducts = data;
+        } else {
+            const storedProducts = localStorage.getItem('velvoraProducts');
+            if (storedProducts) {
+                allProducts = JSON.parse(storedProducts);
+            } else {
+                allProducts = sampleAdminProducts;
+            }
+        }
+    } catch (e) {
+        const storedProducts = localStorage.getItem('velvoraProducts');
+        if (storedProducts) {
+            allProducts = JSON.parse(storedProducts);
+        } else {
+            allProducts = sampleAdminProducts;
+        }
     }
     renderProducts();
     document.getElementById('totalProducts').textContent = allProducts.length;
 }
 
 async function loadOrders() {
-    const storedOrders = localStorage.getItem('velvoraOrders');
-    if (storedOrders) {
-        allOrders = JSON.parse(storedOrders);
-    } else {
-        allOrders = sampleOrders;
-        localStorage.setItem('velvoraOrders', JSON.stringify(sampleOrders));
+    try {
+        const response = await fetch(`${API_URL}/orders`);
+        const data = await response.json();
+        if (data && data.orders) {
+            allOrders = data.orders;
+        } else {
+            const storedOrders = localStorage.getItem('velvoraOrders');
+            if (storedOrders) {
+                allOrders = JSON.parse(storedOrders);
+            } else {
+                allOrders = sampleOrders;
+            }
+        }
+    } catch (e) {
+        const storedOrders = localStorage.getItem('velvoraOrders');
+        if (storedOrders) {
+            allOrders = JSON.parse(storedOrders);
+        } else {
+            allOrders = sampleOrders;
+        }
     }
     renderOrders();
     renderAllOrders();
@@ -131,11 +159,26 @@ function loadStats() {
 }
 
 async function loadCustomers() {
-    const storedUsers = localStorage.getItem('velvoraUsers');
-    if (storedUsers) {
-        allUsers = JSON.parse(storedUsers);
-    } else {
-        allUsers = [];
+    try {
+        const response = await fetch(`${API_URL}/users`);
+        const data = await response.json();
+        if (data && Array.isArray(data)) {
+            allUsers = data;
+        } else {
+            const storedUsers = localStorage.getItem('velvoraUsers');
+            if (storedUsers) {
+                allUsers = JSON.parse(storedUsers);
+            } else {
+                allUsers = [];
+            }
+        }
+    } catch (e) {
+        const storedUsers = localStorage.getItem('velvoraUsers');
+        if (storedUsers) {
+            allUsers = JSON.parse(storedUsers);
+        } else {
+            allUsers = [];
+        }
     }
     renderCustomers(allUsers);
     const totalCustomersEl = document.getElementById('totalCustomers');
@@ -453,8 +496,9 @@ async function addProduct(event) {
     };
 
     try {
-        await apiCall('/products', {
+        await fetch(`${API_URL}/products`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(productData)
         });
     } catch (e) {
@@ -537,8 +581,9 @@ async function updateProduct(event, productId) {
     };
 
     try {
-        await apiCall(`/products/${productId}`, {
+        await fetch(`${API_URL}/products/${productId}`, {
             method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(productData)
         });
     } catch (e) {
@@ -562,7 +607,7 @@ async function deleteProduct(index) {
     if (!confirm('Are you sure you want to delete this product?')) return;
     
     try {
-        await apiCall(`/products/${productId}`, { method: 'DELETE' });
+        await fetch(`${API_URL}/products/${productId}`, { method: 'DELETE' });
     } catch (e) {
         allProducts = allProducts.filter(p => p._id !== productId);
         localStorage.setItem('velvoraProducts', JSON.stringify(allProducts));
@@ -670,6 +715,17 @@ function updateOrderStatus(orderId, status) {
         const oldStatus = allOrders[index].status;
         allOrders[index].status = status;
         localStorage.setItem('velvoraOrders', JSON.stringify(allOrders));
+        
+        // Update in SQL database
+        try {
+            fetch(`${API_URL}/orders/${orderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+        } catch (e) {
+            console.log('SQL update failed, using localStorage');
+        }
         
         // Send email based on status change
         if (status === 'Shipped' && oldStatus !== 'Shipped') {
