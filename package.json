@@ -8,9 +8,9 @@
     "dev": "vercel dev"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.3",
-    "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.6",
+    "express": "^4.22.1",
+    "sql.js": "^1.14.1"
   },
   "devDependencies": {
     "@vercel/node": "^3.0.0"
