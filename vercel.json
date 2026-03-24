@@ -7,11 +7,5 @@
     { "source": "/api/payment/init", "destination": "/api/payment.js" },
     { "source": "/api/payment/verify", "destination": "/api/payment.js" },
     { "source": "/((?!api/).*)", "destination": "/$1" }
-  ],
-  "env": {
-    "PAYU_KEY": "@payu_key",
-    "PAYU_SALT": "@payu_salt",
-    "PAYU_TEST": "true",
-    "SITE_URL": "@site_url"
-  }
+  ]
 }
