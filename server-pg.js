@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const crypto = require('crypto');
 
 const app = express();
 app.use(cors());
@@ -8,17 +9,31 @@ app.use(express.json());
 
 // PostgreSQL Connection - UPDATE THESE WITH YOUR DETAILS
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'velvora',
-  user: 'postgres',
-  password: 'postgres'  // CHANGE THIS to your pgAdmin password
+  host: process.env.PGHOST || 'localhost',
+  port: process.env.PGPORT || 5432,
+  database: process.env.PGDATABASE || 'velvora',
+  user: process.env.PGUSER || 'postgres',
+  password: process.env.PGPASSWORD || 'postgres'
 });
+
+// PayU Configuration
+const PAYU_KEY = process.env.PAYU_KEY || 'gtKFFx';
+const PAYU_SALT = process.env.PAYU_SALT || 'eCwWELxi';
+const PAYU_TEST = process.env.PAYU_TEST !== 'false';
+const PAYU_URL = PAYU_TEST 
+    ? 'https://test.payu.in/_payment' 
+    : 'https://secure.payu.in/_payment';
 
 // Test connection
 pool.query('SELECT NOW()')
   .then(() => console.log('Connected to PostgreSQL'))
   .catch(err => console.error('PostgreSQL connection error:', err));
+
+// Generate PayU Hash
+function generatePayUHash(data) {
+  const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|||||||||||${PAYU_SALT}`;
+  return crypto.createHash('sha512').update(hashString).digest('hex');
+}
 
 // ============ API Routes ============
 
@@ -28,6 +43,7 @@ app.get('/api/products', async (req, res) => {
     const result = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
     res.json(result.rows);
   } catch (err) {
+    console.error('Products error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -45,11 +61,11 @@ app.get('/api/products/:id', async (req, res) => {
 // POST product
 app.post('/api/products', async (req, res) => {
   try {
-    const { name, description, price, originalPrice, category, image, stock, sizes, colors, tag } = req.body;
+    const { name, description, price, original_price, category, image, stock, sizes, colors, tag } = req.body;
     const result = await pool.query(
       `INSERT INTO products (name, description, price, original_price, category, image, stock, sizes, colors, tag) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [name, description, price, originalPrice, category, image, stock, sizes, colors, tag]
+      [name, description, price, original_price, category, image, stock, JSON.stringify(sizes), JSON.stringify(colors), tag]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -60,10 +76,10 @@ app.post('/api/products', async (req, res) => {
 // PUT product
 app.put('/api/products/:id', async (req, res) => {
   try {
-    const { name, description, price, originalPrice, category, image, stock, sizes, colors, tag } = req.body;
+    const { name, description, price, original_price, category, image, stock, sizes, colors, tag } = req.body;
     await pool.query(
       `UPDATE products SET name=$1, description=$2, price=$3, original_price=$4, category=$5, image=$6, stock=$7, sizes=$8, colors=$9, tag=$10 WHERE id=$11`,
-      [name, description, price, originalPrice, category, image, stock, sizes, colors, tag, req.params.id]
+      [name, description, price, original_price, category, image, stock, JSON.stringify(sizes), JSON.stringify(colors), tag, req.params.id]
     );
     res.json({ success: true });
   } catch (err) {
@@ -80,6 +96,8 @@ app.delete('/api/products/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ============ ORDERS ============
 
 // GET all orders
 app.get('/api/orders', async (req, res) => {
@@ -137,6 +155,8 @@ app.delete('/api/orders/:id', async (req, res) => {
   }
 });
 
+// ============ USERS ============
+
 // GET all users
 app.get('/api/users', async (req, res) => {
   try {
@@ -177,7 +197,8 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// GET addresses
+// ============ ADDRESSES ============
+
 app.get('/api/addresses', async (req, res) => {
   try {
     const userId = req.query.userId;
@@ -188,7 +209,6 @@ app.get('/api/addresses', async (req, res) => {
   }
 });
 
-// POST address
 app.post('/api/addresses', async (req, res) => {
   try {
     const { userId, label, fullAddress, city, postalCode, country } = req.body;
@@ -202,7 +222,6 @@ app.post('/api/addresses', async (req, res) => {
   }
 });
 
-// DELETE address
 app.delete('/api/addresses/:id', async (req, res) => {
   try {
     await pool.query('DELETE FROM addresses WHERE id = $1', [req.params.id]);
@@ -212,7 +231,66 @@ app.delete('/api/addresses/:id', async (req, res) => {
   }
 });
 
-// Get SQL dump for DBMS project
+// ============ PAYU PAYMENT ============
+
+// Initialize PayU Payment
+app.post('/api/payment/init', async (req, res) => {
+  try {
+    const { amount, email, firstname, phone, productinfo, items } = req.body;
+    const txnid = 'VEL' + Date.now();
+
+    const paymentData = {
+      key: PAYU_KEY,
+      txnid: txnid,
+      amount: amount.toString(),
+      productinfo: productinfo || 'Order from Velvora Luxury',
+      firstname: firstname || 'Customer',
+      email: email || 'customer@email.com',
+      phone: phone || '9999999999'
+    };
+
+    const hash = generatePayUHash(paymentData);
+
+    res.json({
+      success: true,
+      payuUrl: PAYU_URL,
+      txnid: txnid,
+      hash: hash,
+      ...paymentData
+    });
+  } catch (err) {
+    console.error('PayU init error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Verify PayU Payment
+app.post('/api/payment/verify', async (req, res) => {
+  try {
+    const { txnid, status, mihpayid, amount } = req.body;
+
+    if (status === 'success') {
+      const result = await pool.query(
+        `UPDATE orders SET payment_status = 'success', mihpayid = $1 WHERE order_id = $2 RETURNING *`,
+        [mihpayid, txnid]
+      );
+      
+      if (result.rows.length > 0) {
+        res.json({ success: true, status: 'success', order: result.rows[0] });
+      } else {
+        res.json({ success: true, status: 'success' });
+      }
+    } else {
+      res.json({ success: false, status: status });
+    }
+  } catch (err) {
+    console.error('PayU verify error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ============ DATABASE DUMP ============
+
 app.get('/api/dump', async (req, res) => {
   try {
     const users = await pool.query('SELECT * FROM users');
@@ -236,13 +314,15 @@ app.use(express.static('.'));
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`PostgreSQL Server running at http://localhost:${PORT}`);
-  console.log('Database: velvora (PostgreSQL)');
+  console.log(`PayU Environment: ${PAYU_TEST ? 'TEST' : 'PRODUCTION'}`);
   console.log('\nAPI Endpoints:');
-  console.log('  GET  /api/dump        - All SQL data');
-  console.log('  GET  /api/products   - All products');
-  console.log('  POST /api/products  - Add product');
-  console.log('  GET  /api/orders    - All orders');
-  console.log('  POST /api/orders    - Create order');
-  console.log('  GET  /api/users     - All users');
-  console.log('  POST /api/login     - User login');
+  console.log('  GET    /api/products     - All products');
+  console.log('  POST   /api/products     - Add product');
+  console.log('  GET    /api/orders       - All orders');
+  console.log('  POST   /api/orders       - Create order');
+  console.log('  GET    /api/users        - All users');
+  console.log('  POST   /api/login        - User login');
+  console.log('  POST   /api/payment/init - Initialize PayU');
+  console.log('  POST   /api/payment/verify - Verify PayU');
+  console.log('  GET    /api/dump         - All data');
 });

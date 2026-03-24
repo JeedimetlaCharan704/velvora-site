@@ -8,142 +8,226 @@ let lastScroll = 0;
 const sampleProducts = [
     {
         _id: "1",
-        name: "Silk Evening Gown",
-        description: "Elegant silk evening gown perfect for special occasions",
+        name: "Classic Wool Blend Overcoat",
+        description: "Timeless wool blend overcoat with elegant lapels. Perfect for formal occasions and everyday sophistication.",
         price: 299.99,
         originalPrice: 399.99,
         category: "women",
-        image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400",
-        stock: 15,
+        image: "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?w=400",
+        stock: 25,
         sizes: ["XS", "S", "M", "L", "XL"],
-        colors: ["Black", "Navy", "Burgundy"],
+        colors: ["Black", "Camel", "Navy"],
         tag: "new",
         rating: 5
     },
     {
         _id: "2",
-        name: "Premium Leather Jacket",
-        description: "Genuine leather jacket with modern fit",
-        price: 449.99,
-        originalPrice: 549.99,
-        category: "men",
-        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400",
-        stock: 20,
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        colors: ["Black", "Brown"],
-        tag: "new",
+        name: "Premium Italian Leather Handbag",
+        description: "Handcrafted Italian leather handbag with gold hardware. Features multiple compartments for organized storage.",
+        price: 349.99,
+        originalPrice: 449.99,
+        category: "accessories",
+        image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400",
+        stock: 15,
+        sizes: [],
+        colors: ["Tan", "Black", "Burgundy"],
+        tag: "bestseller",
         rating: 5
     },
     {
         _id: "3",
-        name: "Designer Sunglasses",
-        description: "Luxury designer sunglasses with UV protection",
-        price: 189.99,
-        originalPrice: 249.99,
-        category: "accessories",
-        image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400",
-        stock: 50,
-        sizes: [],
-        colors: ["Gold", "Silver", "Black"],
-        tag: "sale",
+        name: "Silk Blend Midi Skirt",
+        description: "Elegant silk blend midi skirt with flowing silhouette. Perfect for office or evening wear.",
+        price: 129.99,
+        originalPrice: 169.99,
+        category: "women",
+        image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=400",
+        stock: 40,
+        sizes: ["XS", "S", "M", "L", "XL"],
+        colors: ["Ivory", "Blush", "Sage"],
+        tag: "new",
         rating: 4
     },
     {
         _id: "4",
-        name: "Cashmere Sweater",
-        description: "100% cashmere sweater for ultimate comfort",
-        price: 199.99,
-        originalPrice: 279.99,
+        name: "Cashmere V-Neck Sweater",
+        description: "Luxuriously soft 100% cashmere sweater. Lightweight yet warm, perfect for layering.",
+        price: 189.99,
+        originalPrice: 249.99,
         category: "women",
         image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
-        stock: 25,
+        stock: 30,
         sizes: ["XS", "S", "M", "L", "XL"],
-        colors: ["Cream", "Gray", "Pink", "Blue"],
-        tag: "new",
+        colors: ["Cream", "Heather Gray", "Navy", "Burgundy"],
+        tag: "sale",
         rating: 5
     },
     {
         _id: "5",
-        name: "Classic Denim Jeans",
-        description: "Premium denim jeans with perfect fit",
-        price: 89.99,
-        originalPrice: 129.99,
+        name: "Tailored Wool Blazer",
+        description: "Impeccably tailored wool blazer with modern slim fit. Perfect for business meetings.",
+        price: 279.99,
+        originalPrice: 349.99,
         category: "men",
-        image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400",
-        stock: 100,
-        sizes: ["28", "30", "32", "34", "36"],
-        colors: ["Blue", "Black"],
-        tag: "sale",
-        rating: 4
+        image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400",
+        stock: 20,
+        sizes: ["S", "M", "L", "XL", "XXL"],
+        colors: ["Charcoal", "Navy", "Black"],
+        tag: "new",
+        rating: 5
     },
     {
         _id: "6",
-        name: "Floral Summer Dress",
-        description: "Beautiful floral print summer dress",
-        price: 79.99,
-        originalPrice: 99.99,
-        category: "women",
-        image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400",
+        name: "Premium Cotton Oxford Shirt",
+        description: "Crisp cotton oxford shirt with mother-of-pearl buttons. Classic American style.",
+        price: 89.99,
+        originalPrice: 119.99,
+        category: "men",
+        image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
         stock: 50,
-        sizes: ["XS", "S", "M", "L"],
-        colors: ["Pink", "Blue", "White"],
-        tag: "new",
+        sizes: ["S", "M", "L", "XL", "XXL"],
+        colors: ["White", "Light Blue", "Pink"],
+        tag: "bestseller",
         rating: 4
     },
     {
         _id: "7",
-        name: "Leather Belt",
-        description: "Genuine leather belt with silver buckle",
-        price: 49.99,
-        originalPrice: 69.99,
+        name: "Designer Aviator Sunglasses",
+        description: "Premium metal frame sunglasses with UV400 protection. Includes luxury hard case.",
+        price: 159.99,
+        originalPrice: 199.99,
         category: "accessories",
-        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400",
-        stock: 75,
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Black", "Brown"],
+        image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400",
+        stock: 35,
+        sizes: [],
+        colors: ["Gold", "Silver", "Rose Gold"],
         tag: "sale",
         rating: 4
     },
     {
         _id: "8",
-        name: "Kids Party Wear",
-        description: "Elegant party wear for kids",
-        price: 59.99,
-        originalPrice: 79.99,
+        name: "Kids Designer Party Dress",
+        description: "Adorable party dress with tulle overlay and sequin details. Perfect for special occasions.",
+        price: 79.99,
+        originalPrice: 99.99,
         category: "kids",
-        image: "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=400",
-        stock: 30,
-        sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y"],
-        colors: ["Red", "Blue", "Pink"],
+        image: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=400",
+        stock: 25,
+        sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-12Y"],
+        colors: ["Pink", "Lavender", "Red"],
         tag: "new",
         rating: 5
     },
     {
         _id: "9",
-        name: "Wool Blazer",
-        description: "Premium wool blend blazer for formal occasions",
-        price: 349.99,
-        originalPrice: 449.99,
+        name: "Slim Fit Dark Wash Jeans",
+        description: "Premium stretch denim with modern slim fit. Comfortable all-day wear.",
+        price: 99.99,
+        originalPrice: 139.99,
         category: "men",
-        image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400",
-        stock: 18,
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        colors: ["Navy", "Charcoal", "Black"],
+        image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400",
+        stock: 45,
+        sizes: ["28", "30", "32", "34", "36", "38"],
+        colors: ["Dark Blue", "Black"],
+        tag: "sale",
+        rating: 4
+    },
+    {
+        _id: "10",
+        name: "Leather Card Wallet",
+        description: "Slim genuine leather card wallet with RFID blocking. Holds up to 8 cards.",
+        price: 59.99,
+        originalPrice: 79.99,
+        category: "accessories",
+        image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400",
+        stock: 60,
+        sizes: [],
+        colors: ["Black", "Brown", "Navy"],
+        tag: "bestseller",
+        rating: 4
+    },
+    {
+        _id: "11",
+        name: "Floral Print Maxi Dress",
+        description: "Bohemian-inspired maxi dress with flattering wrap silhouette. Perfect for summer events.",
+        price: 119.99,
+        originalPrice: 159.99,
+        category: "women",
+        image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400",
+        stock: 35,
+        sizes: ["XS", "S", "M", "L", "XL"],
+        colors: ["Floral Blue", "Floral Pink", "Floral Green"],
         tag: "new",
         rating: 5
     },
     {
-        _id: "10",
-        name: "Pearl Earrings",
-        description: "Elegant freshwater pearl earrings",
+        _id: "12",
+        name: "Boys Formal Suit Set",
+        description: "Complete suit set including blazer, pants, and tie. Perfect for weddings and special events.",
+        price: 129.99,
+        originalPrice: 169.99,
+        category: "kids",
+        image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400",
+        stock: 20,
+        sizes: ["3-4Y", "5-6Y", "7-8Y", "9-10Y", "11-12Y"],
+        colors: ["Navy", "Gray", "Black"],
+        tag: "bestseller",
+        rating: 5
+    },
+    {
+        _id: "13",
+        name: "Silk Pocket Square Set",
+        description: "Set of 3 premium silk pocket squares with elegant patterns. Gift-boxed.",
+        price: 49.99,
+        originalPrice: 69.99,
+        category: "accessories",
+        image: "https://images.unsplash.com/photo-1598522325074-042db73aa4e6?w=400",
+        stock: 40,
+        sizes: [],
+        colors: ["Classic Set", "Modern Set", "Bold Set"],
+        tag: "sale",
+        rating: 4
+    },
+    {
+        _id: "14",
+        name: "Cashmere Blend Scarf",
+        description: "Luxuriously soft cashmere blend scarf. Oversized for maximum warmth and style.",
         price: 89.99,
         originalPrice: 119.99,
         category: "accessories",
-        image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400",
-        stock: 60,
+        image: "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=400",
+        stock: 50,
         sizes: [],
-        colors: ["White", "Pink", "Black"],
+        colors: ["Camel", "Gray", "Burgundy", "Navy"],
         tag: "new",
+        rating: 5
+    },
+    {
+        _id: "15",
+        name: "Premium Leather Belt",
+        description: "Handcrafted genuine leather belt with brushed silver buckle. 1.25 inch width.",
+        price: 69.99,
+        originalPrice: 89.99,
+        category: "accessories",
+        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400",
+        stock: 55,
+        sizes: ["S", "M", "L", "XL"],
+        colors: ["Black", "Brown", "Tan"],
+        tag: "bestseller",
+        rating: 4
+    },
+    {
+        _id: "16",
+        name: "Kids Knit Sweater",
+        description: "Cozy knit sweater perfect for layering. Soft cotton blend for sensitive skin.",
+        price: 49.99,
+        originalPrice: 69.99,
+        category: "kids",
+        image: "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400",
+        stock: 40,
+        sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y"],
+        colors: ["Cream", "Navy", "Sage", "Rose"],
+        tag: "sale",
         rating: 4
     }
 ];
@@ -232,6 +316,10 @@ function createProductCard(product) {
     const stars = '★'.repeat(product.rating || 0) + '☆'.repeat(5 - (product.rating || 0));
     const placeholderImg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LWZhbWlseT0iYXJpYWwiIGZvbnQtc2l6ZT0iMjAiPkltYWdlPC90ZXh0Pjwvc3ZnPg==';
     
+    const formatPrice = (price) => {
+        return '₹' + Number(price || 0).toLocaleString('en-IN');
+    };
+    
     return `
         <div class="product-card" data-category="${product.category}">
             ${product.tag ? `<span class="product-tag ${product.tag}">${product.tag.toUpperCase()}</span>` : ''}
@@ -250,8 +338,8 @@ function createProductCard(product) {
                 <h3 onclick="openProductModal('${productId}')">${product.name}</h3>
                 <div class="product-rating">${stars}</div>
                 <div class="product-price">
-                    <span class="price">$${(product.price || 0).toFixed(2)}</span>
-                    ${product.originalPrice ? `<span class="original-price">$${product.originalPrice.toFixed(2)}</span>` : ''}
+                    <span class="price">${formatPrice(product.price)}</span>
+                    ${product.originalPrice ? `<span class="original-price">${formatPrice(product.originalPrice)}</span>` : ''}
                 </div>
                 <button class="add-to-cart-btn" onclick="addToCart('${productId}')">
                     <i class="fas fa-shopping-bag"></i> Add to Bag
@@ -358,19 +446,19 @@ function renderCartItems() {
     
     if (cart.length === 0) {
         container.innerHTML = '<p class="cart-empty"><i class="fas fa-shopping-bag"></i> Your bag is empty</p>';
-        totalEl.textContent = '$0.00';
+        totalEl.textContent = '₹0';
         return;
     }
 
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    totalEl.textContent = `$${total.toFixed(2)}`;
+    totalEl.textContent = '₹' + total.toLocaleString('en-IN');
 
 container.innerHTML = cart.map(item => `
         <div class="cart-item">
             <img src="${item.image}" alt="${item.name}">
             <div class="cart-item-info">
                 <h4>${item.name}</h4>
-                <p class="cart-item-price">$${item.price.toFixed(2)}</p>
+                <p class="cart-item-price">₹${Number(item.price).toLocaleString('en-IN')}</p>
                 <div class="quantity-controls">
                     <button onclick="updateQuantity('${item._id || item.id}', -1)">-</button>
                     <span>${item.quantity}</span>
@@ -435,7 +523,7 @@ function renderWishlistItems() {
             <img src="${product.image}" alt="${product.name}">
             <div class="wishlist-item-info">
                 <h4>${product.name}</h4>
-                <p>$${product.price.toFixed(2)}</p>
+                <p>₹${Number(product.price).toLocaleString('en-IN')}</p>
                 <button onclick="addToCart('${productId}'); toggleWishlistItem('${productId}', event)">
                     <i class="fas fa-shopping-bag"></i> Add to Bag
                 </button>
@@ -461,6 +549,8 @@ function openProductModal(productId) {
     const stars = '★'.repeat(product.rating || 0) + '☆'.repeat(5 - (product.rating || 0));
     const categorySizes = getModalSizes(product);
     const hasSizes = categorySizes.length > 0;
+    
+    const formatPrice = (price) => '₹' + Number(price || 0).toLocaleString('en-IN');
     
     selectedModalSize = null;
     modalQty = 1;
@@ -491,8 +581,8 @@ function openProductModal(productId) {
             <h2>${product.name}</h2>
             <div class="modal-rating">${stars}</div>
             <p class="modal-price">
-                <span class="current-price">$${(product.price || 0).toFixed(2)}</span>
-                ${product.originalPrice ? `<span class="original-price">$${product.originalPrice.toFixed(2)}</span>` : ''}
+                <span class="current-price">${formatPrice(product.price)}</span>
+                ${product.originalPrice ? `<span class="original-price">${formatPrice(product.originalPrice)}</span>` : ''}
             </p>
             ${sizeSection}
             <p class="modal-description">Experience unparalleled luxury with this exquisite piece. Crafted from the finest materials with meticulous attention to detail.</p>
@@ -592,7 +682,7 @@ resultsContainer.innerHTML = results.map(p => `
                 <img src="${p.image}" alt="${p.name}">
                 <div>
                     <h4>${p.name}</h4>
-                    <p>$${p.price.toFixed(2)}</p>
+                    <p>₹${Number(p.price).toLocaleString('en-IN')}</p>
                 </div>
             </div>
         `).join('');
