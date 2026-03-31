@@ -114,7 +114,7 @@
                     </div>
                 </div>
 
-                <button class="place-order-btn" onclick="goToPayment()">Continue to Payment</button>
+                <button class="place-order-btn" id="continuePaymentBtn">Continue to Payment</button>
             </div>
 
             <div id="step2" class="checkout-step">
@@ -269,6 +269,11 @@
     if (user) {
         document.getElementById('checkoutEmail').value = user.email || '';
     }
+
+    // Add click handler for continue button
+    document.getElementById('continuePaymentBtn').addEventListener('click', function() {
+        goToPayment();
+    });
 
     function initPayUPayment() {
         const payuForm = document.getElementById('payuForm');
