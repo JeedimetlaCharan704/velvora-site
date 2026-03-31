@@ -277,22 +277,111 @@
     <span id="notificationText"></span>
 </div>
 
-<script src="script.js"></script>
 <script>
     const CHECKOUT_API_URL = window.API_URL || 'http://localhost:3001/api';
-    
-    // Load cart from localStorage
-    let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
-    
-    // Debug: Log cart details
-    if (cart.length > 0) {
-        console.log('Cart items:', cart.map(item => ({ 
-            name: item.name, 
-            price: item.price, 
-            quantity: item.quantity 
-        })));
-    } else {
-        console.log('Cart is empty');
+    let user = JSON.parse(localStorage.getItem('velvoraUser'));
+    let currentStep = 1;
+    let orderTotal = 0;
+    let pendingOrderData = null;
+    let qrTimerInterval = null;
+    let qrTimeLeft = 600;
+
+    function getCart() {
+        return JSON.parse(localStorage.getItem('velvoraCart')) || [];
+    }
+
+    function showNotification(message) {
+        const notif = document.createElement('div');
+        notif.className = 'notification show';
+        notif.textContent = message;
+        notif.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:15px 30px;border-radius:10px;z-index:9999;';
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 3000);
+    }
+
+    function updateStepIndicator() {
+        document.getElementById('step1-indicator').classList.toggle('active', currentStep >= 1);
+        document.getElementById('step2-indicator').classList.toggle('active', currentStep >= 2);
+        document.getElementById('step3-indicator').classList.toggle('active', currentStep >= 3);
+    }
+
+    function goToPayment() {
+        const email = document.getElementById('checkoutEmail').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const address = document.getElementById('address').value;
+        const city = document.getElementById('city').value;
+        const postalCode = document.getElementById('postalCode').value;
+
+        if (!email || !firstName || !lastName || !address || !city || !postalCode) {
+            showNotification('Please fill in all required fields!');
+            return;
+        }
+
+        document.getElementById('summaryName').textContent = firstName + ' ' + lastName;
+        document.getElementById('summaryAddress').textContent = document.getElementById('address').value;
+        document.getElementById('summaryCity').textContent = city + ', ' + postalCode + ', ' + document.getElementById('country').value;
+
+        document.getElementById('step1').classList.remove('active-step');
+        document.getElementById('step2').classList.add('active-step');
+        currentStep = 2;
+        updateStepIndicator();
+    }
+
+    function goBackToAddress() {
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('step1').classList.add('active-step');
+        currentStep = 1;
+        updateStepIndicator();
+    }
+
+    function editAddress() {
+        goBackToAddress();
+    }
+
+    function updatePaymentMethod() {}
+
+    function calculateTotals(cartItems) {
+        const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+        const tax = Math.round(subtotal * 0.18);
+        const total = subtotal + tax;
+        return { subtotal, tax, total };
+    }
+
+    function renderSummary() {
+        const container = document.getElementById('summaryItems');
+        const cart = getCart();
+        
+        console.log('Rendering summary, cart items:', cart.length);
+        
+        if (cart.length === 0) {
+            container.innerHTML = '<p class="empty-cart">Your cart is empty. Add some items first!</p><a href="index.html" class="btn" style="display:inline-block;margin-top:10px;padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">Continue Shopping</a>';
+            document.getElementById('summarySubtotal').textContent = '₹0';
+            document.getElementById('summaryTax').textContent = '₹0';
+            document.getElementById('summaryTotal').textContent = '₹0';
+            document.getElementById('continuePaymentBtn').disabled = true;
+            return;
+        }
+
+        document.getElementById('continuePaymentBtn').disabled = false;
+
+        container.innerHTML = cart.map(item => `
+            <div class="summary-item">
+                <img src="${item.image}" alt="${item.name}">
+                <div>
+                    <h4>${item.name}</h4>
+                    <p>Qty: ${item.quantity}</p>
+                </div>
+                <span>₹${(Number(item.price) * item.quantity).toLocaleString('en-IN')}</span>
+            </div>
+        `).join('');
+
+        const { subtotal, tax, total } = calculateTotals(cart);
+        orderTotal = total;
+
+        document.getElementById('summarySubtotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
+        document.getElementById('summaryTax').textContent = '₹' + tax.toLocaleString('en-IN');
+        document.getElementById('summaryTotal').textContent = '₹' + total.toLocaleString('en-IN');
     }
     
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
@@ -355,53 +444,8 @@
         // QR is default, no extra UI needed
     }
 
-    function calculateTotals() {
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = Math.round(subtotal * 0.18);
-        const total = subtotal + tax;
-        return { subtotal, tax, total };
-    }
-
     function renderSummary() {
-        const container = document.getElementById('summaryItems');
-        
-        // Check if cart is empty
-        if (cart.length === 0) {
-            // Try to load cart from storage again
-            cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
-        }
-        
-        if (cart.length === 0) {
-            container.innerHTML = '<p class="empty-cart">Your cart is empty. Add some items first!</p><a href="index.html" class="btn" style="display:inline-block;margin-top:10px;padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">Continue Shopping</a>';
-            document.getElementById('summarySubtotal').textContent = '₹0';
-            document.getElementById('summaryTax').textContent = '₹0';
-            document.getElementById('summaryTotal').textContent = '₹0';
-            // Disable continue button
-            const continueBtn = document.getElementById('continuePaymentBtn');
-            if (continueBtn) continueBtn.disabled = true;
-            return;
-        }
-
-        container.innerHTML = cart.map(item => `
-            <div class="summary-item">
-                <img src="${item.image}" alt="${item.name}">
-                <div>
-                    <h4>${item.name}</h4>
-                    <p>Qty: ${item.quantity}</p>
-                </div>
-                <span>₹${(Number(item.price) * item.quantity).toLocaleString('en-IN')}</span>
-            </div>
-        `).join('');
-
-        const { subtotal, tax, total } = calculateTotals();
-        orderTotal = total;
-
-        document.getElementById('summarySubtotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
-        document.getElementById('summaryTax').textContent = '₹' + tax.toLocaleString('en-IN');
-        document.getElementById('summaryTotal').textContent = '₹' + total.toLocaleString('en-IN');
-    }
-
-    function processPayment() {
+        const cart = getCart();
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         const email = document.getElementById('checkoutEmail').value;
         const firstName = document.getElementById('firstName').value;
@@ -413,7 +457,7 @@
             return;
         }
 
-        const { subtotal, tax, total } = calculateTotals();
+        const { subtotal, tax, total } = calculateTotals(cart);
         orderTotal = total;
 
         pendingOrderData = {
@@ -543,6 +587,7 @@
     }
 
     async function placeOrder(paymentMethod) {
+        const cart = getCart();
         const pendingOrder = JSON.parse(localStorage.getItem('velvoraPendingOrder'));
         if (!pendingOrder && !cart.length) {
             showNotification('No items in cart!');
@@ -554,8 +599,9 @@
         const lastName = pendingOrder?.customerName?.split(' ').slice(1).join(' ') || document.getElementById('lastName').value;
         const address = pendingOrder?.shippingAddress?.address || document.getElementById('address').value;
 
-        const { subtotal, tax, total } = calculateTotals();
+        const { subtotal, tax, total } = calculateTotals(cart);
         
+        const cart = getCart();
         const orderId = 'VEL-' + Date.now();
 
         const orderData = {
