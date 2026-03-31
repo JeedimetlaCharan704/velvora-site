@@ -72,18 +72,18 @@ function enableDemoMode() {
 }
 
 const sampleAdminProducts = [
-    { _id: "1", name: "Silk Evening Gown", description: "Elegant silk evening gown perfect for special occasions", price: 299.99, originalPrice: 399.99, category: "women", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", stock: 15, sizes: ["XS", "S", "M", "L", "XL"], tag: "new" },
-    { _id: "2", name: "Premium Leather Jacket", description: "Genuine leather jacket with modern fit", price: 449.99, originalPrice: 549.99, category: "men", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", stock: 20, sizes: ["S", "M", "L", "XL", "XXL"], tag: "new" },
-    { _id: "3", name: "Designer Sunglasses", description: "Luxury designer sunglasses with UV protection", price: 189.99, originalPrice: 249.99, category: "accessories", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400", stock: 50, sizes: [], tag: "sale" },
-    { _id: "4", name: "Cashmere Sweater", description: "100% cashmere sweater for ultimate comfort", price: 199.99, originalPrice: 279.99, category: "women", image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400", stock: 25, sizes: ["XS", "S", "M", "L", "XL"], tag: "new" },
-    { _id: "5", name: "Classic Denim Jeans", description: "Premium denim jeans with perfect fit", price: 89.99, originalPrice: 129.99, category: "men", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400", stock: 100, sizes: ["28", "30", "32", "34", "36"], tag: "sale" },
-    { _id: "6", name: "Floral Summer Dress", description: "Beautiful floral print summer dress", price: 79.99, originalPrice: 99.99, category: "women", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400", stock: 50, sizes: ["XS", "S", "M", "L"], tag: "new" }
+    { _id: "1", name: "Silk Evening Gown", description: "Elegant silk evening gown perfect for special occasions", price: 22499.99, originalPrice: 29999.99, category: "women", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", stock: 15, sizes: ["XS", "S", "M", "L", "XL"], tag: "new" },
+    { _id: "2", name: "Premium Leather Jacket", description: "Genuine leather jacket with modern fit", price: 37499.99, originalPrice: 44999.99, category: "men", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", stock: 20, sizes: ["S", "M", "L", "XL", "XXL"], tag: "new" },
+    { _id: "3", name: "Designer Sunglasses", description: "Luxury designer sunglasses with UV protection", price: 14999.99, originalPrice: 19999.99, category: "accessories", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400", stock: 50, sizes: [], tag: "sale" },
+    { _id: "4", name: "Cashmere Sweater", description: "100% cashmere sweater for ultimate comfort", price: 15999.99, originalPrice: 21999.99, category: "women", image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400", stock: 25, sizes: ["XS", "S", "M", "L", "XL"], tag: "new" },
+    { _id: "5", name: "Classic Denim Jeans", description: "Premium denim jeans with perfect fit", price: 6999.99, originalPrice: 9999.99, category: "men", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400", stock: 100, sizes: ["28", "30", "32", "34", "36"], tag: "sale" },
+    { _id: "6", name: "Floral Summer Dress", description: "Beautiful floral print summer dress", price: 5999.99, originalPrice: 7999.99, category: "women", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400", stock: 50, sizes: ["XS", "S", "M", "L"], tag: "new" }
 ];
 
 const sampleOrders = [
-    { _id: "1", orderId: "VEL-001", customer: { name: "John Doe", email: "john@example.com" }, createdAt: new Date(), total: 299.99, status: "Pending", items: [{ name: "Silk Evening Gown", price: 299.99, quantity: 1 }] },
-    { _id: "2", orderId: "VEL-002", customer: { name: "Jane Smith", email: "jane@example.com" }, createdAt: new Date(Date.now() - 86400000), total: 449.99, status: "Processing", items: [{ name: "Premium Leather Jacket", price: 449.99, quantity: 1 }] },
-    { _id: "3", orderId: "VEL-003", customer: { name: "Mike Johnson", email: "mike@example.com" }, createdAt: new Date(Date.now() - 172800000), total: 189.99, status: "Delivered", items: [{ name: "Designer Sunglasses", price: 189.99, quantity: 1 }] }
+    { _id: "1", orderId: "VEL-001", customer: { name: "John Doe", email: "john@example.com" }, createdAt: new Date(), total: 22499.99, status: "Pending", items: [{ name: "Silk Evening Gown", price: 22499.99, quantity: 1 }] },
+    { _id: "2", orderId: "VEL-002", customer: { name: "Jane Smith", email: "jane@example.com" }, createdAt: new Date(Date.now() - 86400000), total: 37499.99, status: "Processing", items: [{ name: "Premium Leather Jacket", price: 37499.99, quantity: 1 }] },
+    { _id: "3", orderId: "VEL-003", customer: { name: "Mike Johnson", email: "mike@example.com" }, createdAt: new Date(Date.now() - 172800000), total: 14999.99, status: "Delivered", items: [{ name: "Designer Sunglasses", price: 14999.99, quantity: 1 }] }
 ];
 
 async function loadProducts() {
@@ -143,7 +143,7 @@ async function loadOrders() {
     
     const avgOrderValue = allOrders.length > 0 ? (totalRevenue / allOrders.length) : 0;
     const avgEl = document.getElementById('avgOrderValue');
-    if (avgEl) avgEl.textContent = '$' + avgOrderValue.toFixed(2);
+    if (avgEl) avgEl.textContent = '₹' + avgOrderValue.toFixed(2);
 }
 
 function loadStats() {
@@ -229,7 +229,7 @@ function renderOrders() {
                 <td>${order.orderId}</td>
                 <td>${order.customerName || order.customer?.name || 'N/A'}</td>
                 <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                <td>$${order.total?.toFixed(2) || '0.00'}</td>
+                <td>₹${order.total?.toFixed(2) || '0.00'}</td>
                 <td><span class="status-badge ${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span></td>
                 <td><button class="action-btn" onclick="viewOrder('${order._id}')"><i class="fas fa-eye"></i></button></td>
             </tr>
@@ -252,7 +252,7 @@ function renderOrders() {
                     <span>${order.customerName || order.customer?.name || 'N/A'}</span>
                 </div>
                 <div class="recent-order-info">
-                    <span>$${order.total?.toFixed(2) || '0.00'}</span>
+                    <span>₹${order.total?.toFixed(2) || '0.00'}</span>
                     <span class="status-badge ${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span>
                 </div>
             </div>
@@ -273,7 +273,7 @@ function renderAllOrders() {
                 <td>${order.customerName || order.customer?.name || 'N/A'}</td>
                 <td>${order.items?.length || 0} items</td>
                 <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                <td>$${order.total?.toFixed(2) || '0.00'}</td>
+                <td>₹${order.total?.toFixed(2) || '0.00'}</td>
                 <td>
                     <select onchange="updateOrderStatus('${order._id}', this.value)">
                         <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -311,7 +311,7 @@ function renderAllOrders() {
                 </div>
                 <div class="order-card-total">
                     <span>Total</span>
-                    <span>$${order.total?.toFixed(2) || '0.00'}</span>
+                    <span>₹${order.total?.toFixed(2) || '0.00'}</span>
                 </div>
                 <div class="order-card-actions">
                     <button class="action-btn" onclick="viewOrder('${order._id}')"><i class="fas fa-eye"></i> View</button>
@@ -321,6 +321,271 @@ function renderAllOrders() {
             </div>
         `).join('');
     }
+}
+
+// Render Order History
+let currentPage = 1;
+const ordersPerPage = 10;
+
+function renderOrderHistory() {
+    const tbody = document.getElementById('orderHistoryTable');
+    if (!tbody) return;
+    
+    // Update history stats
+    updateHistoryStats();
+    
+    // Paginate orders
+    const startIndex = (currentPage - 1) * ordersPerPage;
+    const endIndex = startIndex + ordersPerPage;
+    const paginatedOrders = allOrders.slice(startIndex, endIndex);
+    
+    tbody.innerHTML = paginatedOrders.map(order => `
+        <tr>
+            <td><strong>${order.orderId}</strong></td>
+            <td>
+                <div class="customer-cell">
+                    <span>${order.customerName || order.customer?.name || 'N/A'}</span>
+                    <small>${order.customerEmail || order.customer?.email || ''}</small>
+                </div>
+            </td>
+            <td>${order.items?.length || 0} items</td>
+            <td>
+                <div class="date-cell">
+                    <span>${new Date(order.createdAt).toLocaleDateString()}</span>
+                    <small>${new Date(order.createdAt).toLocaleTimeString()}</small>
+                </div>
+            </td>
+            <td><strong>₹${order.total?.toFixed(2) || '0.00'}</strong></td>
+            <td>
+                <span class="payment-badge ${order.paymentMethod || 'cod'}">${getPaymentMethodLabel(order.paymentMethod)}</span>
+            </td>
+            <td>
+                <select onchange="updateOrderStatus('${order._id}', this.value)" class="status-select">
+                    <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                    <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                    <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                    <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                </select>
+            </td>
+            <td>
+                <button class="action-btn" onclick="viewOrder('${order._id}')" title="View"><i class="fas fa-eye"></i></button>
+                <button class="action-btn print" onclick="printOrder('${order._id}')" title="Print"><i class="fas fa-print"></i></button>
+                <button class="action-btn delete" onclick="deleteOrder('${order._id}')" title="Delete"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+    
+    renderPagination();
+}
+
+function getPaymentMethodLabel(method) {
+    switch(method) {
+        case 'card': return 'Card';
+        case 'upi': return 'UPI';
+        case 'paypal': return 'PayPal';
+        case 'cod': return 'COD';
+        default: return 'COD';
+    }
+}
+
+function updateHistoryStats() {
+    const totalOrders = allOrders.length;
+    const completedOrders = allOrders.filter(o => o.status === 'Delivered').length;
+    const pendingOrders = allOrders.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
+    const totalRevenue = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    document.getElementById('totalHistoryOrders').textContent = totalOrders;
+    document.getElementById('completedOrders').textContent = completedOrders;
+    document.getElementById('pendingOrders').textContent = pendingOrders;
+    document.getElementById('totalRevenueHistory').textContent = '₹' + totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function renderPagination() {
+    const pagination = document.getElementById('orderPagination');
+    if (!pagination) return;
+    
+    const totalPages = Math.ceil(allOrders.length / ordersPerPage);
+    
+    let html = '';
+    if (totalPages > 1) {
+        html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i> Prev
+        </button>`;
+        
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                html += `<span class="ellipsis">...</span>`;
+            }
+        }
+        
+        html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+            Next <i class="fas fa-chevron-right"></i>
+        </button>`;
+    }
+    
+    pagination.innerHTML = html;
+}
+
+function changePage(page) {
+    const totalPages = Math.ceil(allOrders.length / ordersPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderOrderHistory();
+}
+
+function searchOrders() {
+    const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
+    if (!searchTerm) {
+        renderAllOrders();
+        return;
+    }
+    
+    const filteredOrders = allOrders.filter(order => 
+        (order.orderId || '').toLowerCase().includes(searchTerm) ||
+        (order.customerName || order.customer?.name || '').toLowerCase().includes(searchTerm) ||
+        (order.customerEmail || order.customer?.email || '').toLowerCase().includes(searchTerm)
+    );
+    
+    const tbody = document.getElementById('allOrdersTable');
+    if (tbody) {
+        tbody.innerHTML = filteredOrders.map(order => `
+            <tr>
+                <td>${order.orderId}</td>
+                <td>${order.customerName || order.customer?.name || 'N/A'}</td>
+                <td>${order.items?.length || 0} items</td>
+                <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                <td>₹${order.total?.toFixed(2) || '0.00'}</td>
+                <td>
+                    <select onchange="updateOrderStatus('${order._id}', this.value)">
+                        <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                        <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                        <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="action-btn" onclick="viewOrder('${order._id}')"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn delete" onclick="deleteOrder('${order._id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+}
+
+function filterOrdersByDate() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (!startDate && !endDate) {
+        renderAllOrders();
+        return;
+    }
+    
+    const filteredOrders = allOrders.filter(order => {
+        const orderDate = new Date(order.createdAt);
+        const start = startDate ? new Date(startDate) : null;
+        const end = endDate ? new Date(endDate) : null;
+        
+        if (start && end) {
+            return orderDate >= start && orderDate <= end;
+        } else if (start) {
+            return orderDate >= start;
+        } else if (end) {
+            return orderDate <= end;
+        }
+        return true;
+    });
+    
+    const tbody = document.getElementById('allOrdersTable');
+    if (tbody) {
+        tbody.innerHTML = filteredOrders.map(order => `
+            <tr>
+                <td>${order.orderId}</td>
+                <td>${order.customerName || order.customer?.name || 'N/A'}</td>
+                <td>${order.items?.length || 0} items</td>
+                <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                <td>₹${order.total?.toFixed(2) || '0.00'}</td>
+                <td>
+                    <select onchange="updateOrderStatus('${order._id}', this.value)">
+                        <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                        <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                        <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="action-btn" onclick="viewOrder('${order._id}')"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn delete" onclick="deleteOrder('${order._id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+}
+
+function exportOrders() {
+    const csvContent = [
+        ['Order ID', 'Customer', 'Email', 'Items', 'Date', 'Amount', 'Payment', 'Status'].join(','),
+        ...allOrders.map(order => [
+            order.orderId,
+            order.customerName || order.customer?.name || 'N/A',
+            order.customerEmail || order.customer?.email || '',
+            order.items?.length || 0,
+            new Date(order.createdAt).toLocaleDateString(),
+            order.total?.toFixed(2) || '0.00',
+            order.paymentMethod || 'cod',
+            order.status || 'Pending'
+        ].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `velvora-orders-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function printOrder(orderId) {
+    const order = allOrders.find(o => o._id === orderId);
+    if (!order) return;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Order ${order.orderId}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h1 { color: #c8a96a; }
+                .info { margin: 10px 0; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th { background: #f5f5f5; }
+            </style>
+        </head>
+        <body>
+            <h1>Velvora Luxury - Order Details</h1>
+            <div class="info"><strong>Order ID:</strong> ${order.orderId}</div>
+            <div class="info"><strong>Customer:</strong> ${order.customerName || order.customer?.name || 'N/A'}</div>
+            <div class="info"><strong>Email:</strong> ${order.customerEmail || order.customer?.email || ''}</div>
+            <div class="info"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</div>
+            <div class="info"><strong>Status:</strong> ${order.status || 'Pending'}</div>
+            <table>
+                <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+                ${(order.items || []).map(item => `
+                    <tr><td>${item.name}</td><td>${item.quantity}</td><td>₹${(item.price * item.quantity).toFixed(2)}</td></tr>
+                `).join('')}
+            </table>
+            <h3>Total: ₹${order.total?.toFixed(2) || '0.00'}</h3>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
 }
 
 // Update order status from mobile card
@@ -347,7 +612,7 @@ function filterOrders(status) {
             <td>${order.customerName || order.customer?.name || 'N/A'}</td>
             <td>${order.items?.length || 0} items</td>
             <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-            <td>$${order.total?.toFixed(2) || '0.00'}</td>
+            <td>₹${order.total?.toFixed(2) || '0.00'}</td>
             <td>
                 <select onchange="updateOrderStatus('${order._id}', this.value)">
                     <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -377,7 +642,7 @@ function renderProducts() {
             <td>${p.name}</td>
             <td>${p.category}</td>
             <td>${p.tag ? `<span class="tag-badge tag-${p.tag}">${p.tag}</span>` : '-'}</td>
-            <td>$${p.price.toFixed(2)}</td>
+            <td>₹${p.price.toFixed(2)}</td>
             <td><span class="stock-badge ${p.stock < 20 ? 'low' : ''}">${p.stock}</span></td>
             <td>
                 <button class="action-btn" onclick="editProduct(${index})"><i class="fas fa-edit"></i></button>
@@ -407,7 +672,7 @@ function renderProducts() {
                 <img src="${p.image}" alt="${p.name}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.style.display='none'">
                 <div style="flex: 1;">
                     <strong style="font-size: 14px; color: #2b2b2b; display: block; margin-bottom: 4px;">${p.name}</strong>
-                    <p style="font-size: 13px; color: #c8a96a; font-weight: 600; margin-bottom: 8px;">$${p.price.toFixed(2)}</p>
+                    <p style="font-size: 13px; color: #c8a96a; font-weight: 600; margin-bottom: 8px;">₹${p.price.toFixed(2)}</p>
                     <span class="stock-badge ${p.stock < 20 ? 'low' : ''}" style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; background: ${p.stock < 20 ? '#fee' : '#f0f0f0'}; color: ${p.stock < 20 ? '#e74c3c' : '#666'};">${p.stock} in stock</span>
                     <div style="display: flex; gap: 8px; margin-top: 8px;">
                         <button class="action-btn" data-index="${index}" style="padding: 8px 14px; border-radius: 20px; font-size: 12px; background: #c8a96a; color: #1a1a1a; font-weight: 600; flex: 1; justify-content: center; display: flex; align-items: center; gap: 5px; border: none; cursor: pointer;"><i class="fas fa-edit"></i> Edit</button>
@@ -641,18 +906,18 @@ async function viewOrder(orderId) {
                     <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/50'">
                     <div>
                         <h4>${item.name}</h4>
-                        <p>Qty: ${item.quantity} × $${item.price}</p>
+                        <p>Qty: ${item.quantity} × ₹${item.price}</p>
                         ${item.size ? `<p>Size: ${item.size}</p>` : ''}
                     </div>
-                    <span>$${((item.quantity || 1) * (item.price || 0)).toFixed(2)}</span>
+                    <span>₹${((item.quantity || 1) * (item.price || 0)).toFixed(2)}</span>
                 </div>
             `).join('')}
         </div>
         <div class="order-total-detail">
-            <div><span>Subtotal:</span><span>$${order.subtotal?.toFixed(2) || '0.00'}</span></div>
-            <div><span>Tax:</span><span>$${order.tax?.toFixed(2) || '0.00'}</span></div>
-            <div><span>Shipping:</span><span>$${order.shipping?.toFixed(2) || '0.00'}</span></div>
-            <div class="total"><span>Total:</span><span>$${order.total?.toFixed(2) || '0.00'}</span></div>
+            <div><span>Subtotal:</span><span>₹${order.subtotal?.toFixed(2) || '0.00'}</span></div>
+            <div><span>Tax:</span><span>₹${order.tax?.toFixed(2) || '0.00'}</span></div>
+            <div><span>Shipping:</span><span>₹${order.shipping?.toFixed(2) || '0.00'}</span></div>
+            <div class="total"><span>Total:</span><span>₹${order.total?.toFixed(2) || '0.00'}</span></div>
         </div>
     `;
     document.getElementById('orderModal').style.display = 'flex';
@@ -786,12 +1051,17 @@ function showAdminSection(section, event) {
         event.target.closest('li')?.classList.add('active');
     }
     
-    const titles = { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', customers: 'Customers', analytics: 'Analytics' };
+    const titles = { dashboard: 'Dashboard', orders: 'Orders', orderHistory: 'Order History', products: 'Products', customers: 'Customers', analytics: 'Analytics' };
     document.getElementById('pageTitle').textContent = titles[section];
     
     // Load customers when clicking customers tab
     if (section === 'customers') {
         loadCustomers();
+    }
+    
+    // Load order history when clicking order history tab
+    if (section === 'orderHistory') {
+        renderOrderHistory();
     }
     
     // Close sidebar on mobile
@@ -813,8 +1083,13 @@ function showMobileNav(section, event) {
         console.log('Section activated:', section, 'active:', sectionEl.classList.contains('active'));
     }
     
-    const titles = { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', customers: 'Customers', analytics: 'Analytics' };
+    const titles = { dashboard: 'Dashboard', orders: 'Orders', orderHistory: 'Order History', products: 'Products', customers: 'Customers', analytics: 'Analytics' };
     document.getElementById('pageTitle').textContent = titles[section];
+    
+    // Load order history when clicking order history tab
+    if (section === 'orderHistory') {
+        renderOrderHistory();
+    }
     
     // Update mobile nav active state
     updateMobileNavState(section);
@@ -826,6 +1101,7 @@ function updateMobileNavState(section) {
         'dashboard': 0,
         'products': 1,
         'orders': 2,
+        'orderHistory': 2,
         'analytics': 3
     };
     if (navButtons[section] !== undefined) {
@@ -1090,7 +1366,7 @@ function renderTopProducts() {
                 <strong>${p.name}</strong>
                 <span>${p.stock} in stock</span>
             </div>
-            <span class="price">$${p.price.toFixed(2)}</span>
+            <span class="price">₹${p.price.toFixed(2)}</span>
         </div>
     `).join('');
     
@@ -1113,9 +1389,9 @@ function animateValue(elementId, start, end, duration = 1000) {
             clearInterval(timer);
         }
         if (elementId.includes('Revenue')) {
-            element.textContent = '$' + Math.floor(current).toLocaleString();
+            element.textContent = '₹' + Math.floor(current).toLocaleString();
         } else {
-            element.textContent = '$' + current.toFixed(2);
+            element.textContent = '₹' + current.toFixed(2);
         }
     }, 16);
 }

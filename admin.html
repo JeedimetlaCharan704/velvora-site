@@ -30,6 +30,9 @@
         <li onclick="showAdminSection('orders', event)">
             <i class="fas fa-shopping-bag"></i> Orders
         </li>
+        <li onclick="showAdminSection('orderHistory', event)">
+            <i class="fas fa-history"></i> Order History
+        </li>
         <li onclick="showAdminSection('products', event)">
             <i class="fas fa-box"></i> Products
         </li>
@@ -74,9 +77,13 @@
                     <i class="fas fa-arrow-up"></i> 12%
                 </div>
             </div>
-            <div class="stat-card admin-stat">
+<div class="stat-card admin-stat">
                 <div class="stat-icon">
-                    <i class="fas fa-dollar-sign"></i>
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="totalRevenue">₹0</span>
+                    <span class="stat-label">Total Revenue</span>
                 </div>
                 <div class="stat-info">
                     <span class="stat-value" id="totalRevenue">$0</span>
@@ -160,6 +167,78 @@
         </div>
     </div>
 
+    <!-- Order History Section -->
+    <div class="admin-section" id="orderHistory">
+        <div class="section-header">
+            <h3>Order History</h3>
+            <div class="header-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="orderSearch" placeholder="Search orders..." oninput="searchOrders()">
+                </div>
+                <div class="date-filter">
+                    <input type="date" id="startDate" onchange="filterOrdersByDate()">
+                    <span>to</span>
+                    <input type="date" id="endDate" onchange="filterOrdersByDate()">
+                </div>
+                <button class="export-btn" onclick="exportOrders()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+        </div>
+        
+        <div class="history-stats">
+            <div class="history-stat-card">
+                <i class="fas fa-receipt"></i>
+                <div>
+                    <span class="stat-number" id="totalHistoryOrders">0</span>
+                    <span class="stat-text">Total Orders</span>
+                </div>
+            </div>
+            <div class="history-stat-card">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <span class="stat-number" id="completedOrders">0</span>
+                    <span class="stat-text">Completed</span>
+                </div>
+            </div>
+            <div class="history-stat-card">
+                <i class="fas fa-clock"></i>
+                <div>
+                    <span class="stat-number" id="pendingOrders">0</span>
+                    <span class="stat-text">Pending</span>
+                </div>
+            </div>
+            <div class="history-stat-card revenue">
+                <i class="fas fa-rupee-sign"></i>
+                <div>
+                    <span class="stat-number" id="totalRevenueHistory">₹0</span>
+                    <span class="stat-text">Total Revenue</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="orders-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orderHistoryTable"></tbody>
+            </table>
+        </div>
+        
+        <div class="pagination" id="orderPagination"></div>
+    </div>
+
     <!-- Products Section -->
     <div class="admin-section" id="products">
         <div class="section-header">
@@ -205,10 +284,10 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-dollar-sign"></i>
+                    <i class="fas fa-rupee-sign"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-value" id="totalRevenue">$0</span>
+                    <span class="stat-value" id="totalRevenueAnalytics">₹0</span>
                     <span class="stat-label">Total Revenue</span>
                 </div>
             </div>
@@ -217,7 +296,7 @@
                     <i class="fas fa-shopping-bag"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-value" id="avgOrderValue">$0</span>
+                    <span class="stat-value" id="avgOrderValue">₹0</span>
                     <span class="stat-label">Avg Order Value</span>
                 </div>
             </div>

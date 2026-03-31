@@ -39,42 +39,96 @@
 
 <div class="success-page">
     <div class="success-container">
-        <div class="success-icon">
-            <i class="fas fa-check"></i>
+        <div class="success-animation-wrapper">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="confetti">
+                <div class="confetti-piece"></div>
+                <div class="confetti-piece"></div>
+                <div class="confetti-piece"></div>
+                <div class="confetti-piece"></div>
+                <div class="confetti-piece"></div>
+            </div>
         </div>
         
-        <h1>Thank You!</h1>
-        <p class="success-message">Your order has been placed successfully</p>
+        <h1>Thank You for Your Order!</h1>
+        <p class="success-message">Your order has been placed successfully. We're preparing it with care.</p>
         
-        <div class="order-info">
+        <div class="order-tracker">
+            <div class="tracker-step active">
+                <div class="tracker-icon"><i class="fas fa-check"></i></div>
+                <span>Order Placed</span>
+            </div>
+            <div class="tracker-line"></div>
+            <div class="tracker-step">
+                <div class="tracker-icon"><i class="fas fa-box"></i></div>
+                <span>Processing</span>
+            </div>
+            <div class="tracker-line"></div>
+            <div class="tracker-step">
+                <div class="tracker-icon"><i class="fas fa-truck"></i></div>
+                <span>Shipped</span>
+            </div>
+            <div class="tracker-line"></div>
+            <div class="tracker-step">
+                <div class="tracker-icon"><i class="fas fa-home"></i></div>
+                <span>Delivered</span>
+            </div>
+        </div>
+        
+        <div class="order-info-grid">
             <div class="info-card">
-                <span class="info-label">Order ID</span>
+                <span class="info-label"><i class="fas fa-receipt"></i> Order ID</span>
                 <span class="info-value" id="orderId">VEL-123456</span>
             </div>
             <div class="info-card">
-                <span class="info-label">Order Date</span>
+                <span class="info-label"><i class="fas fa-calendar"></i> Order Date</span>
                 <span class="info-value" id="orderDate">March 1, 2026</span>
             </div>
             <div class="info-card">
-                <span class="info-label">Estimated Delivery</span>
+                <span class="info-label"><i class="fas fa-truck"></i> Estimated Delivery</span>
                 <span class="info-value" id="deliveryDate">March 8, 2026</span>
+            </div>
+            <div class="info-card">
+                <span class="info-label"><i class="fas fa-credit-card"></i> Payment Status</span>
+                <span class="info-value payment-status">Paid</span>
             </div>
         </div>
 
-        <div class="order-summary">
-            <h3>Order Summary</h3>
-            <div class="summary-items" id="successItems"></div>
-            <div class="summary-total">
-                <span>Total Paid</span>
-                <span id="successTotal">$0.00</span>
+        <div class="order-details-section">
+            <h3><i class="fas fa-shopping-bag"></i> Order Details</h3>
+            <div class="order-summary">
+                <div class="summary-items" id="successItems"></div>
+                <div class="summary-breakdown">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="successSubtotal">₹0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (8%)</span>
+                        <span id="successTax">₹0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span class="free">FREE</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Paid</span>
+                        <span id="successTotal">₹0.00</span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="shipping-info">
-            <h3><i class="fas fa-truck"></i> Shipping Address</h3>
-            <p id="shippingName">John Doe</p>
-            <p id="shippingAddress">123 Main Street</p>
-            <p id="shippingCity">New York, NY 10001</p>
+            <h3><i class="fas fa-map-marker-alt"></i> Shipping Address</h3>
+            <div class="address-box">
+                <p id="shippingName"><i class="fas fa-user"></i> John Doe</p>
+                <p id="shippingAddress"><i class="fas fa-home"></i> 123 Main Street</p>
+                <p id="shippingCity"><i class="fas fa-city"></i> New York, NY 10001</p>
+                <p id="shippingPhone"><i class="fas fa-phone"></i> Not provided</p>
+            </div>
         </div>
 
         <div class="success-actions">
@@ -87,8 +141,23 @@
         </div>
 
         <div class="support-note">
-            <p><i class="fas fa-envelope"></i> A confirmation email has been sent to your email address</p>
-            <p>Need help? <a href="#">Contact our support team</a></p>
+            <div class="support-card">
+                <i class="fas fa-envelope"></i>
+                <p>A confirmation email has been sent to <span id="customerEmail">your email</span></p>
+            </div>
+            <div class="support-card">
+                <i class="fas fa-headset"></i>
+                <p>Need help? <a href="mailto:support@velvora.com">Contact our support team</a></p>
+            </div>
+        </div>
+        
+        <div class="share-section">
+            <p>Share your order with friends:</p>
+            <div class="share-buttons">
+                <button class="share-btn whatsapp" onclick="shareOrder('whatsapp')"><i class="fab fa-whatsapp"></i></button>
+                <button class="share-btn facebook" onclick="shareOrder('facebook')"><i class="fab fa-facebook"></i></button>
+                <button class="share-btn twitter" onclick="shareOrder('twitter')"><i class="fab fa-twitter"></i></button>
+            </div>
         </div>
     </div>
 </div>
@@ -137,26 +206,263 @@
         const items = order.items || [];
         itemsContainer.innerHTML = items.map(item => `
             <div class="success-item">
-                <img src="${item.image}" alt="${item.name}">
+                <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60'">
                 <div>
                     <h4>${item.name}</h4>
                     <p>Qty: ${item.quantity}</p>
                 </div>
-                <span>$${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
+                <span class="item-price">₹${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
             </div>
         `).join('');
 
-        document.getElementById('successTotal').textContent = `$${(order.total || 0).toFixed(2)}`;
+        // Update totals
+        const subtotal = order.subtotal || (order.total || 0) / 1.08;
+        const tax = order.tax || (order.total || 0) - subtotal;
+        
+        document.getElementById('successSubtotal').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('successTax').textContent = `₹${tax.toFixed(2)}`;
+        document.getElementById('successTotal').textContent = `₹${(order.total || 0).toFixed(2)}`;
 
         const shippingAddr = order.shippingAddress;
         if (shippingAddr) {
-            document.getElementById('shippingName').textContent = shippingAddr.name || 'Customer';
-            document.getElementById('shippingAddress').textContent = shippingAddr.address || '';
-            document.getElementById('shippingCity').textContent = 
-                `${shippingAddr.city || ''}, ${shippingAddr.postalCode || ''}, ${shippingAddr.country || ''}`;
+            document.getElementById('shippingName').innerHTML = `<i class="fas fa-user"></i> ${shippingAddr.name || 'Customer'}`;
+            document.getElementById('shippingAddress').innerHTML = `<i class="fas fa-home"></i> ${shippingAddr.address || ''}`;
+            document.getElementById('shippingCity').innerHTML = `<i class="fas fa-city"></i> ${shippingAddr.city || ''}, ${shippingAddr.postalCode || ''}, ${shippingAddr.country || ''}`;
+            if (shippingAddr.phone) {
+                document.getElementById('shippingPhone').innerHTML = `<i class="fas fa-phone"></i> ${shippingAddr.phone}`;
+            }
+        }
+        
+        // Update customer email
+        if (order.customerEmail) {
+            document.getElementById('customerEmail').textContent = order.customerEmail;
+        }
+    }
+    
+    function shareOrder(platform) {
+        const orderIdText = document.getElementById('orderId').textContent;
+        const message = `I just placed an order ${orderIdText} on Velvora Luxury! Check them out!`;
+        
+        switch(platform) {
+            case 'whatsapp':
+                window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+                break;
+            case 'facebook':
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+                break;
+            case 'twitter':
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`, '_blank');
+                break;
         }
     }
 </script>
+
+<style>
+    .success-animation-wrapper {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .order-tracker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 30px 0;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .tracker-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .tracker-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 16px;
+    }
+    
+    .tracker-step.active .tracker-icon {
+        background: linear-gradient(135deg, #c8a96a 0%, #d4b87a 100%);
+        color: white;
+    }
+    
+    .tracker-step span {
+        font-size: 12px;
+        color: #999;
+    }
+    
+    .tracker-step.active span {
+        color: #c8a96a;
+        font-weight: 600;
+    }
+    
+    .tracker-line {
+        width: 40px;
+        height: 2px;
+        background: #e0e0e0;
+        margin-bottom: 25px;
+    }
+    
+    .order-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .info-card .info-label i {
+        margin-right: 5px;
+        color: #c8a96a;
+    }
+    
+    .payment-status {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .order-details-section h3,
+    .shipping-info h3 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .order-details-section h3 i,
+    .shipping-info h3 i {
+        color: #c8a96a;
+    }
+    
+    .summary-breakdown {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px dashed #ddd;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+    
+    .summary-row.total {
+        border-top: 2px solid #c8a96a;
+        margin-top: 10px;
+        padding-top: 15px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #2b2b2b;
+    }
+    
+    .summary-row .free {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .address-box {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .address-box p {
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .address-box i {
+        color: #c8a96a;
+        width: 20px;
+    }
+    
+    .support-note {
+        margin-top: 30px;
+    }
+    
+    .support-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .support-card i {
+        color: #c8a96a;
+        font-size: 20px;
+    }
+    
+    .share-section {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .share-section p {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .share-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .share-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+    
+    .share-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .share-btn.whatsapp { background: #25D366; }
+    .share-btn.facebook { background: #1877F2; }
+    .share-btn.twitter { background: #1DA1F2; }
+    
+    .confetti {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 100px;
+        pointer-events: none;
+    }
+    
+    .confetti-piece {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        animation: confetti-fall 1s ease-out forwards;
+    }
+    
+    @keyframes confetti-fall {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+    }
+</style>
 
 </body>
 </html>

@@ -139,6 +139,13 @@
                             </div>
                         </label>
                         <label class="payment-option">
+                            <input type="radio" name="payment" value="upi" onchange="updatePaymentMethod()">
+                            <div class="payment-card">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>UPI (Google Pay, PhonePe, Paytm)</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
                             <input type="radio" name="payment" value="paypal" onchange="updatePaymentMethod()">
                             <div class="payment-card">
                                 <i class="fab fa-paypal"></i>
@@ -172,6 +179,25 @@
                         <div class="form-group">
                             <label>Name on Card</label>
                             <input type="text" id="cardName" placeholder="Name on card">
+                        </div>
+                    </div>
+                    
+                    <div class="upi-details" id="upiDetails" style="display: none;">
+                        <div class="upi-demo-box">
+                            <i class="fas fa-mobile-alt"></i>
+                            <h4>Demo UPI Payment</h4>
+                            <p>Scan QR Code or enter UPI ID</p>
+                            <div class="form-group">
+                                <label>UPI ID</label>
+                                <input type="text" id="upiId" placeholder="yourname@upi">
+                            </div>
+                            <div class="upi-qr">
+                                <p>Or scan QR code to pay</p>
+                                <div class="qr-placeholder">
+                                    <i class="fas fa-qrcode"></i>
+                                    <span>Demo QR Code</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -218,7 +244,7 @@
             <div class="summary-totals">
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span id="summarySubtotal">$0.00</span>
+                    <span id="summarySubtotal">₹0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
@@ -226,11 +252,11 @@
                 </div>
                 <div class="summary-row">
                     <span>Tax</span>
-                    <span id="summaryTax">$0.00</span>
+                    <span id="summaryTax">₹0.00</span>
                 </div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span id="summaryTotal">$0.00</span>
+                    <span id="summaryTotal">₹0.00</span>
                 </div>
             </div>
         </div>
@@ -268,7 +294,7 @@
                     <h4>${item.name}</h4>
                     <p>Qty: ${item.quantity}</p>
                 </div>
-                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                <span>₹${(item.price * item.quantity).toFixed(2)}</span>
             </div>
         `).join('');
 
@@ -276,9 +302,9 @@
         const tax = subtotal * 0.08;
         orderTotal = subtotal + tax;
 
-        document.getElementById('summarySubtotal').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('summaryTax').textContent = `$${tax.toFixed(2)}`;
-        document.getElementById('summaryTotal').textContent = `$${orderTotal.toFixed(2)}`;
+        document.getElementById('summarySubtotal').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('summaryTax').textContent = `₹${tax.toFixed(2)}`;
+        document.getElementById('summaryTotal').textContent = `₹${orderTotal.toFixed(2)}`;
     }
 
     function updateStepIndicator() {
@@ -327,11 +353,17 @@
     function updatePaymentMethod() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         const cardDetails = document.getElementById('cardDetails');
+        const upiDetails = document.getElementById('upiDetails');
         
         if (paymentMethod === 'card') {
             cardDetails.style.display = 'block';
+            upiDetails.style.display = 'none';
+        } else if (paymentMethod === 'upi') {
+            cardDetails.style.display = 'none';
+            upiDetails.style.display = 'block';
         } else {
             cardDetails.style.display = 'none';
+            upiDetails.style.display = 'none';
         }
     }
 
@@ -339,6 +371,7 @@
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         switch(paymentMethod) {
             case 'card': return 'Credit/Debit Card';
+            case 'upi': return 'UPI Payment';
             case 'paypal': return 'PayPal';
             case 'cod': return 'Cash on Delivery';
             default: return 'Credit/Debit Card';
@@ -365,14 +398,36 @@
             }
         }
 
+        if (paymentMethod === 'upi') {
+            const upiId = document.getElementById('upiId').value;
+            if (!upiId) {
+                showNotification('Please enter your UPI ID!');
+                return;
+            }
+        }
+
         document.getElementById('step2').classList.remove('active-step');
         document.getElementById('step3').classList.add('active-step');
         currentStep = 3;
         updateStepIndicator();
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Demo payment processing simulation
+        let processingTime = 2000;
+        if (paymentMethod === 'upi') {
+            processingTime = 3000; // Longer for UPI
+            showNotification('Redirecting to UPI app...');
+        }
+
+        await new Promise(resolve => setTimeout(resolve, processingTime));
+
+        // Demo: Show payment success animation
+        showPaymentSuccess(paymentMethod);
 
         await placeOrder(paymentMethod);
+    }
+    
+    function showPaymentSuccess(paymentMethod) {
+        console.log(`Demo ${paymentMethod} payment processed successfully!`);
     }
 
     async function placeOrder(paymentMethod) {
@@ -458,7 +513,7 @@
         localStorage.removeItem('velvoraCart');
         
         document.getElementById('finalOrderId').textContent = orderId;
-        document.getElementById('finalTotal').textContent = '$' + total.toFixed(2);
+        document.getElementById('finalTotal').textContent = '₹' + total.toFixed(2);
         document.getElementById('finalPaymentMethod').textContent = getPaymentMethodName();
         
         document.getElementById('step4').classList.add('active-step');
@@ -506,7 +561,7 @@
 Your order has been confirmed!
 
 Order ID: ${order.orderId}
-Total: $${order.total.toFixed(2)}
+Total: ₹${order.total.toFixed(2)}
 Payment Method: ${order.paymentMethod}
 
 We will notify you when your order is shipped.
