@@ -437,7 +437,6 @@
             default: return 'Demo Payment (Test)';
         }
     }
-    }
 
     async function processPayment() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
@@ -749,6 +748,9 @@ Thank you for shopping with Velvora Luxury!`;
     window.editAddress = editAddress;
     window.updatePaymentMethod = updatePaymentMethod;
     window.showNotification = showNotification;
+    window.placeOrder = placeOrder;
+    window.renderSummary = renderSummary;
+    window.updateStepIndicator = updateStepIndicator;
 </script>
 
 </body>
