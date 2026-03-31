@@ -1391,7 +1391,7 @@ function animateValue(elementId, start, end, duration = 1000) {
         if (elementId.includes('Revenue')) {
             element.textContent = '₹' + Math.floor(current).toLocaleString();
         } else {
-            element.textContent = '₹' + current.toFixed(2);
+            element.textContent = Math.floor(current);
         }
     }, 16);
 }
