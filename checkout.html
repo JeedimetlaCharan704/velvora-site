@@ -278,6 +278,7 @@
 </div>
 
 <script src="script.js"></script>
+<script src="email-service.js"></script>
 <script>
     const CHECKOUT_API_URL = window.API_URL || 'http://localhost:3001/api';
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
@@ -602,20 +603,64 @@
     }
 
     function sendOrderConfirmationEmail(order) {
-        const subject = `Order Confirmed - ${order.orderId}`;
-        const body = `Dear ${order.customerName},
-
-Your order has been confirmed!
-
-Order ID: ${order.orderId}
-Total: ₹${order.total.toLocaleString('en-IN')}
-Payment Method: ${getPaymentMethodName(order.paymentMethod)}
-
-We will notify you when your order is shipped.
-
-Thank you for shopping with Velvora Luxury!`;
+        const orderData = {
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            orderId: order.orderId,
+            total: order.total,
+            subtotal: order.subtotal,
+            tax: order.tax,
+            shipping: order.shipping || 0,
+            paymentMethod: order.paymentMethod,
+            shippingAddress: order.shippingAddress,
+            items: order.items.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image
+            }))
+        };
         
-        sendEmail(order.customerEmail, subject, body);
+        if (typeof emailService !== 'undefined') {
+            emailService.sendOrderConfirmation(orderData).then(result => {
+                if (result.success) {
+                    console.log('📧 Order confirmation email sent to:', order.customerEmail);
+                    showNotification(`Order confirmation email sent to ${order.customerEmail}`);
+                }
+            });
+        } else {
+            // Fallback to console log
+            console.log('📧 Order confirmation email would be sent to:', order.customerEmail);
+        }
+    }
+
+    function sendOrderProcessingEmail(order) {
+        const orderData = {
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            orderId: order.orderId,
+            total: order.total,
+            shippingAddress: order.shippingAddress,
+            items: order.items
+        };
+        
+        if (typeof emailService !== 'undefined') {
+            emailService.sendOrderProcessing(orderData);
+        }
+    }
+
+    function sendOrderShippedEmail(order, trackingInfo) {
+        const orderData = {
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            orderId: order.orderId,
+            total: order.total,
+            items: order.items
+        };
+        
+        if (typeof emailService !== 'undefined') {
+            emailService.sendOrderShipped(orderData, trackingInfo);
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
