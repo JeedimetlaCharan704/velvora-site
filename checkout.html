@@ -385,63 +385,14 @@
         document.getElementById('summaryTotal').textContent = '₹' + total.toLocaleString('en-IN');
     }
     
-    function showNotification(message) {
-        const notif = document.createElement('div');
-        notif.className = 'notification show';
-        notif.textContent = message;
-        notif.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:15px 30px;border-radius:10px;z-index:9999;';
-        document.body.appendChild(notif);
-        setTimeout(() => notif.remove(), 3000);
-    }
-
-    function updateStepIndicator() {
-        document.getElementById('step1-indicator').classList.toggle('active', currentStep >= 1);
-        document.getElementById('step2-indicator').classList.toggle('active', currentStep >= 2);
-        document.getElementById('step3-indicator').classList.toggle('active', currentStep >= 3);
-    }
-
-    function goToPayment() {
-        const email = document.getElementById('checkoutEmail').value;
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const address = document.getElementById('address').value;
-        const city = document.getElementById('city').value;
-        const postalCode = document.getElementById('postalCode').value;
-
-        if (!email || !firstName || !lastName || !address || !city || !postalCode) {
-            showNotification('Please fill in all required fields!');
-            return;
-        }
-
-        document.getElementById('summaryName').textContent = firstName + ' ' + lastName;
-        document.getElementById('summaryAddress').textContent = document.getElementById('address').value;
-        document.getElementById('summaryCity').textContent = city + ', ' + postalCode + ', ' + document.getElementById('country').value;
-
-        document.getElementById('step1').classList.remove('active-step');
-        document.getElementById('step2').classList.add('active-step');
-        currentStep = 2;
-        updateStepIndicator();
-    }
-
-    function goBackToAddress() {
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step1').classList.add('active-step');
-        currentStep = 1;
-        updateStepIndicator();
-    }
-
-    function editAddress() {
-        goBackToAddress();
-    }
-
-    function updatePaymentMethod() {
-        // QR is default, no extra UI needed
-    }
-
     function processPayment() {
+        const cart = getCart();
+        const { subtotal, tax, total } = calculateTotals(cart);
+        orderTotal = total;
+        
         document.getElementById('step2').classList.remove('active-step');
         document.getElementById('qrPaymentStep').classList.add('active-step');
-        document.getElementById('qrAmount').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
+        document.getElementById('qrAmount').textContent = '₹' + orderTotal.toLocaleString('en-IN');
         
         qrTimeLeft = 600;
         updateQrTimerDisplay();
