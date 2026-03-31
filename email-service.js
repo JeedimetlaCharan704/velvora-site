@@ -2,10 +2,9 @@
 // Free tier compatible: 1 template for all order statuses
 
 const EMAIL_CONFIG = {
-    // Get these from https://www.emailjs.com
-    publicKey: 'YOUR_PUBLIC_KEY',
-    serviceId: 'YOUR_SERVICE_ID',
-    templateId: 'YOUR_TEMPLATE_ID'
+    publicKey: 'HsWh8cFIp5_cO7qoa',
+    serviceId: 'velvora-orders',
+    templateId: 'template_xqnbpd9'
 };
 
 // Single dynamic email template for all order statuses
