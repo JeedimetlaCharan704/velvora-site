@@ -166,78 +166,102 @@
 <script>
     const API_URL = 'http://localhost:3001/api';
     const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('orderId') || 'VEL-' + Date.now();
     
-    // Try to find order in localStorage first
-    let orders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
-    let order = orders.find(o => (o.orderId || o.id) === orderId);
+    async function handlePaymentResponse() {
+        const pendingOrder = JSON.parse(localStorage.getItem('velvoraPendingOrder') || 'null');
+        const cart = JSON.parse(localStorage.getItem('velvoraCart') || '[]');
+        const txnid = urlParams.get('txnid') || urlParams.get('orderId') || 'VEL-' + Date.now();
+        const status = urlParams.get('status');
+        const mihpayid = urlParams.get('mihpayid');
 
-    // If not in localStorage, try to fetch from API
-    if (!order) {
-        const token = localStorage.getItem('velvoraToken');
-        if (token) {
-            try {
-                const response = await fetch(`${API_URL}/orders`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const apiOrders = await response.json();
-                    order = apiOrders.find(o => o.orderId === orderId);
-                }
-            } catch (e) {
-                console.log('Could not fetch order from API');
-            }
+        if (pendingOrder && cart.length > 0) {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+            
+            const existingOrders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
+            const newOrder = {
+                _id: txnid,
+                orderId: txnid,
+                customerName: pendingOrder.customerName,
+                customerEmail: pendingOrder.customerEmail,
+                customer: { 
+                    name: pendingOrder.customerName, 
+                    email: pendingOrder.customerEmail, 
+                    phone: pendingOrder.customerPhone 
+                },
+                items: cart.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image || 'https://via.placeholder.com/50'
+                })),
+                total: total,
+                status: 'Pending',
+                createdAt: new Date().toISOString(),
+                shippingAddress: pendingOrder.shippingAddress,
+                paymentMethod: 'payu',
+                subtotal: subtotal,
+                tax: tax,
+                mihpayid: mihpayid,
+                paymentStatus: status === 'success' ? 'success' : 'pending'
+            };
+            existingOrders.unshift(newOrder);
+            localStorage.setItem('velvoraOrders', JSON.stringify(existingOrders));
+            localStorage.removeItem('velvoraCart');
+            localStorage.removeItem('velvoraPendingOrder');
+            
+            return newOrder;
         }
+        return null;
     }
 
-    document.getElementById('orderId').textContent = orderId;
-    document.getElementById('orderDate').textContent = new Date().toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric'
-    });
-    
-    const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 7);
-    document.getElementById('deliveryDate').textContent = deliveryDate.toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric'
-    });
+    async function initSuccessPage() {
+        let order = await handlePaymentResponse();
+        
+        if (!order) {
+            let orders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
+            order = orders[0];
+        }
 
-    if (order) {
-        const itemsContainer = document.getElementById('successItems');
-        const items = order.items || [];
-        itemsContainer.innerHTML = items.map(item => `
-            <div class="success-item">
-                <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60'">
-                <div>
-                    <h4>${item.name}</h4>
-                    <p>Qty: ${item.quantity}</p>
+        document.getElementById('orderId').textContent = order?.orderId || 'VEL-' + Date.now();
+        document.getElementById('orderDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+        
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 7);
+        document.getElementById('deliveryDate').textContent = deliveryDate.toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        if (order) {
+            const itemsContainer = document.getElementById('successItems');
+            const items = order.items || [];
+            itemsContainer.innerHTML = items.map(item => `
+                <div class="success-item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div>
+                        <h4>${item.name}</h4>
+                        <p>Qty: ${item.quantity}</p>
+                    </div>
+                    <span>₹${((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</span>
                 </div>
-                <span class="item-price">₹${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
-            </div>
-        `).join('');
+            `).join('');
 
-        // Update totals
-        const subtotal = order.subtotal || (order.total || 0) / 1.08;
-        const tax = order.tax || (order.total || 0) - subtotal;
-        
-        document.getElementById('successSubtotal').textContent = `₹${subtotal.toFixed(2)}`;
-        document.getElementById('successTax').textContent = `₹${tax.toFixed(2)}`;
-        document.getElementById('successTotal').textContent = `₹${(order.total || 0).toFixed(2)}`;
+            document.getElementById('successTotal').textContent = `₹${(order.total || 0).toLocaleString('en-IN')}`;
 
-        const shippingAddr = order.shippingAddress;
-        if (shippingAddr) {
-            document.getElementById('shippingName').innerHTML = `<i class="fas fa-user"></i> ${shippingAddr.name || 'Customer'}`;
-            document.getElementById('shippingAddress').innerHTML = `<i class="fas fa-home"></i> ${shippingAddr.address || ''}`;
-            document.getElementById('shippingCity').innerHTML = `<i class="fas fa-city"></i> ${shippingAddr.city || ''}, ${shippingAddr.postalCode || ''}, ${shippingAddr.country || ''}`;
-            if (shippingAddr.phone) {
-                document.getElementById('shippingPhone').innerHTML = `<i class="fas fa-phone"></i> ${shippingAddr.phone}`;
+            const shippingAddr = order.shippingAddress;
+            if (shippingAddr) {
+                document.getElementById('shippingName').textContent = shippingAddr.name || order.customerName || 'Customer';
+                document.getElementById('shippingAddress').textContent = shippingAddr.address || '';
+                document.getElementById('shippingCity').textContent = 
+                    `${shippingAddr.city || ''}, ${shippingAddr.postalCode || ''}, ${shippingAddr.country || ''}`;
             }
         }
-        
-        // Update customer email
-        if (order.customerEmail) {
-            document.getElementById('customerEmail').textContent = order.customerEmail;
-        }
     }
+
+    initSuccessPage();
     
     function shareOrder(platform) {
         const orderIdText = document.getElementById('orderId').textContent;

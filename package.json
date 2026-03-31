@@ -1,11 +1,12 @@
 {
   "name": "velvora-luxury",
   "version": "1.0.0",
-  "description": "Velvora Luxury E-commerce Store",
+  "description": "Velvora Luxury E-commerce Store with PayU Payment Integration",
   "scripts": {
     "start": "live-server --port=3000",
-    "server": "node server-pg.js",
+    "server": "node server-payu.js",
     "server-sql": "node server-sql.js",
+    "server-pg": "node server-pg.js",
     "dev": "vercel dev"
   },
   "dependencies": {

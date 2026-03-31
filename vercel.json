@@ -1,9 +1,11 @@
 {
   "rewrites": [
     { "source": "/api/products", "destination": "/api/products.js" },
+    { "source": "/api/products/:id", "destination": "/api/products/[id].js" },
     { "source": "/api/orders", "destination": "/api/orders.js" },
     { "source": "/api/users", "destination": "/api/users.js" },
-    { "source": "/api/products/:id", "destination": "/api/products/[id].js" },
+    { "source": "/api/payment/init", "destination": "/api/payment.js" },
+    { "source": "/api/payment/verify", "destination": "/api/payment.js" },
     { "source": "/((?!api/).*)", "destination": "/$1" }
   ]
 }

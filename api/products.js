@@ -1,69 +1,81 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DATA_DIR = path.join(process.cwd(), 'data');
 
-const initData = () => {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  
-  const productsPath = path.join(DATA_DIR, 'products.json');
-  if (!fs.existsSync(productsPath)) {
-    const products = [
-      { _id: "1", name: "Silk Evening Gown", description: "Elegant silk evening gown perfect for special occasions", price: 299.99, originalPrice: 399.99, category: "women", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", stock: 15, sizes: ["XS", "S", "M", "L", "XL"], colors: ["Black", "Navy", "Burgundy"], tag: "new", rating: 5 },
-      { _id: "2", name: "Premium Leather Jacket", description: "Genuine leather jacket with modern fit", price: 449.99, originalPrice: 549.99, category: "men", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", stock: 20, sizes: ["S", "M", "L", "XL", "XXL"], colors: ["Black", "Brown"], tag: "new", rating: 5 },
-      { _id: "3", name: "Designer Sunglasses", description: "Luxury designer sunglasses with UV protection", price: 189.99, originalPrice: 249.99, category: "accessories", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400", stock: 50, sizes: [], colors: ["Gold", "Silver", "Black"], tag: "sale", rating: 4 },
-      { _id: "4", name: "Cashmere Sweater", description: "100% cashmere sweater for ultimate comfort", price: 199.99, originalPrice: 279.99, category: "women", image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400", stock: 25, sizes: ["XS", "S", "M", "L", "XL"], colors: ["Cream", "Gray", "Pink", "Blue"], tag: "new", rating: 5 },
-      { _id: "5", name: "Classic Denim Jeans", description: "Premium denim jeans with perfect fit", price: 89.99, originalPrice: 129.99, category: "men", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=400", stock: 100, sizes: ["28", "30", "32", "34", "36"], colors: ["Blue", "Black"], tag: "sale", rating: 4 },
-      { _id: "6", name: "Floral Summer Dress", description: "Beautiful floral print summer dress", price: 79.99, originalPrice: 99.99, category: "women", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400", stock: 50, sizes: ["XS", "S", "M", "L"], colors: ["Pink", "Blue", "White"], tag: "new", rating: 4 },
-      { _id: "7", name: "Leather Belt", description: "Genuine leather belt with silver buckle", price: 49.99, originalPrice: 69.99, category: "accessories", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400", stock: 75, sizes: ["S", "M", "L", "XL"], colors: ["Black", "Brown"], tag: "sale", rating: 4 },
-      { _id: "8", name: "Kids Party Wear", description: "Elegant party wear for kids", price: 59.99, originalPrice: 79.99, category: "kids", image: "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=400", stock: 30, sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y"], colors: ["Red", "Blue", "Pink"], tag: "new", rating: 5 },
-      { _id: "9", name: "Wool Blazer", description: "Premium wool blend blazer for formal occasions", price: 349.99, originalPrice: 449.99, category: "men", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400", stock: 18, sizes: ["S", "M", "L", "XL", "XXL"], colors: ["Navy", "Charcoal", "Black"], tag: "new", rating: 5 },
-      { _id: "10", name: "Pearl Earrings", description: "Elegant freshwater pearl earrings", price: 89.99, originalPrice: 119.99, category: "accessories", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400", stock: 60, sizes: [], colors: ["White", "Pink", "Black"], tag: "new", rating: 4 }
-    ];
-    fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
-  }
-};
+function ensureDataDir() {
+    if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+}
 
-initData();
+function ensureProductsFile() {
+    const productsPath = path.join(DATA_DIR, 'products.json');
+    if (!fs.existsSync(productsPath)) {
+        const products = [
+            { id: "1", name: "Classic Wool Blend Overcoat", description: "Timeless wool blend overcoat", price: 24999, original_price: 32999, category: "women", image: "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?w=400", stock: 25, sizes: ["XS", "S", "M", "L", "XL"], colors: ["Black", "Camel", "Navy"], tag: "new", rating: 5 },
+            { id: "2", name: "Premium Italian Leather Handbag", description: "Handcrafted Italian leather handbag", price: 28999, original_price: 37999, category: "accessories", image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400", stock: 15, sizes: [], colors: ["Tan", "Black", "Burgundy"], tag: "bestseller", rating: 5 }
+        ];
+        fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
+    }
+    return path.join(DATA_DIR, 'products.json');
+}
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    ensureDataDir();
+    
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  const productsPath = path.join(DATA_DIR, 'products.json');
-
-  try {
-    if (req.method === 'GET') {
-      const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
-      return res.status(200).json(products);
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
 
-    if (req.method === 'POST') {
-      let body = '';
-      req.on('data', chunk => body += chunk);
-      req.on('end', () => {
-        const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
-        const product = JSON.parse(body);
-        product._id = Date.now().toString();
-        product.createdAt = new Date().toISOString();
-        products.push(product);
-        fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
-        return res.status(201).json(product);
-      });
-      return;
-    }
+    const productsPath = ensureProductsFile();
 
-    return res.status(405).json({ error: 'Method not allowed' });
-  } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: error.message });
-  }
+    try {
+        if (req.method === 'GET') {
+            const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+            return res.status(200).json(products);
+        }
+
+        if (req.method === 'POST') {
+            const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+            const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+            const product = {
+                id: Date.now().toString(),
+                ...body,
+                created_at: new Date().toISOString()
+            };
+            products.push(product);
+            fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
+            return res.status(201).json(product);
+        }
+
+        if (req.method === 'PUT') {
+            const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+            const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+            const index = products.findIndex(p => p.id === req.query.id);
+            if (index !== -1) {
+                products[index] = { ...products[index], ...body, updated_at: new Date().toISOString() };
+                fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
+                return res.status(200).json(products[index]);
+            }
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        if (req.method === 'DELETE') {
+            const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+            const filtered = products.filter(p => p.id !== req.query.id);
+            fs.writeFileSync(productsPath, JSON.stringify(filtered, null, 2));
+            return res.status(200).json({ success: true });
+        }
+
+        return res.status(405).json({ error: 'Method not allowed' });
+    } catch (error) {
+        console.error('Products API Error:', error);
+        return res.status(500).json({ error: error.message });
+    }
 };

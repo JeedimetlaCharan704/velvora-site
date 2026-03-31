@@ -132,10 +132,10 @@
                     <h3><span>2</span> Payment Method</h3>
                     <div class="payment-methods">
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="card" checked onchange="updatePaymentMethod()">
+                            <input type="radio" name="payment" value="payu" checked onchange="updatePaymentMethod()">
                             <div class="payment-card">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Credit / Debit Card</span>
+                                <i class="fas fa-shield-alt"></i>
+                                <span>PayU (Cards, UPI, Net Banking)</span>
                             </div>
                         </label>
                         <label class="payment-option">
@@ -162,24 +162,9 @@
                     </div>
                     
                     <div class="card-details" id="cardDetails">
-                        <div class="form-group">
-                            <label>Card Number</label>
-                            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Expiry Date</label>
-                                <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5">
-                            </div>
-                            <div class="form-group">
-                                <label>CVV</label>
-                                <input type="text" id="cardCvv" placeholder="123" maxlength="3">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Name on Card</label>
-                            <input type="text" id="cardName" placeholder="Name on card">
-                        </div>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                            <i class="fas fa-info-circle"></i> You will be redirected to PayU's secure payment page to complete your payment.
+                        </p>
                     </div>
                     
                     <div class="upi-details" id="upiDetails" style="display: none;">
@@ -216,6 +201,7 @@
                     <h3>Processing Payment...</h3>
                     <p>Please wait while we process your payment</p>
                 </div>
+                <div id="payuContainer"></div>
             </div>
 
             <div id="step4" class="checkout-step">
@@ -274,9 +260,17 @@
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let currentStep = 1;
     let orderTotal = 0;
+    let pendingOrderData = null;
 
     if (user) {
         document.getElementById('checkoutEmail').value = user.email || '';
+    }
+
+    function initPayUPayment() {
+        const payuForm = document.getElementById('payuForm');
+        if (payuForm && pendingOrderData) {
+            payuForm.submit();
+        }
     }
 
     function renderSummary() {
@@ -294,17 +288,18 @@
                     <h4>${item.name}</h4>
                     <p>Qty: ${item.quantity}</p>
                 </div>
-                <span>₹${(item.price * item.quantity).toFixed(2)}</span>
+<<<<<<< HEAD
+                <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
             </div>
         `).join('');
 
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.08;
+        const tax = subtotal * 0.18;
         orderTotal = subtotal + tax;
 
-        document.getElementById('summarySubtotal').textContent = `₹${subtotal.toFixed(2)}`;
-        document.getElementById('summaryTax').textContent = `₹${tax.toFixed(2)}`;
-        document.getElementById('summaryTotal').textContent = `₹${orderTotal.toFixed(2)}`;
+        document.getElementById('summarySubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+        document.getElementById('summaryTax').textContent = `₹${tax.toLocaleString('en-IN')}`;
+        document.getElementById('summaryTotal').textContent = `₹${orderTotal.toLocaleString('en-IN')}`;
     }
 
     function updateStepIndicator() {
@@ -370,74 +365,145 @@
     function getPaymentMethodName() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         switch(paymentMethod) {
-            case 'card': return 'Credit/Debit Card';
-            case 'upi': return 'UPI Payment';
+            case 'payu': return 'PayU (Secure Payment)';
             case 'paypal': return 'PayPal';
             case 'cod': return 'Cash on Delivery';
-            default: return 'Credit/Debit Card';
+            default: return 'PayU (Secure Payment)';
         }
     }
 
     async function processPayment() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
 
-        if (paymentMethod === 'card') {
-            const cardNumber = document.getElementById('cardNumber').value;
-            const cardExpiry = document.getElementById('cardExpiry').value;
-            const cardCvv = document.getElementById('cardCvv').value;
-            const cardName = document.getElementById('cardName').value;
-
-            if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
-                showNotification('Please fill in all card details!');
-                return;
-            }
-
-            if (cardNumber.replace(/\s/g, '').length < 16) {
-                showNotification('Please enter a valid card number!');
-                return;
-            }
-        }
-
-        if (paymentMethod === 'upi') {
-            const upiId = document.getElementById('upiId').value;
-            if (!upiId) {
-                showNotification('Please enter your UPI ID!');
-                return;
-            }
-        }
-
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step3').classList.add('active-step');
-        currentStep = 3;
-        updateStepIndicator();
-
-        // Demo payment processing simulation
-        let processingTime = 2000;
-        if (paymentMethod === 'upi') {
-            processingTime = 3000; // Longer for UPI
-            showNotification('Redirecting to UPI app...');
-        }
-
-        await new Promise(resolve => setTimeout(resolve, processingTime));
-
-        // Demo: Show payment success animation
-        showPaymentSuccess(paymentMethod);
-
-        await placeOrder(paymentMethod);
-    }
-    
-    function showPaymentSuccess(paymentMethod) {
-        console.log(`Demo ${paymentMethod} payment processed successfully!`);
-    }
-
-    async function placeOrder(paymentMethod) {
         const email = document.getElementById('checkoutEmail').value;
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
-        const address = document.getElementById('address').value;
+        const phone = document.getElementById('checkoutPhone').value;
+
+        if (!email || !firstName || !lastName) {
+            showNotification('Please fill in required fields!');
+            return;
+        }
 
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const tax = subtotal * 0.08;
+        const total = subtotal + tax;
+        orderTotal = total;
+
+        pendingOrderData = {
+            customerEmail: email,
+            customerName: firstName + ' ' + lastName,
+            customerPhone: phone,
+            items: cart.map(item => ({
+                productId: item._id || item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image
+            })),
+            subtotal: subtotal,
+            tax: tax,
+            shipping: 0,
+            total: total,
+            paymentMethod: paymentMethod,
+            shippingAddress: {
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                postalCode: document.getElementById('postalCode').value,
+                country: document.getElementById('country').value
+            }
+        };
+
+        localStorage.setItem('velvoraPendingOrder', JSON.stringify(pendingOrderData));
+
+        if (paymentMethod === 'payu') {
+            await initiatePayUPayment(total, email, firstName, lastName, phone);
+        } else if (paymentMethod === 'cod') {
+            document.getElementById('step2').classList.remove('active-step');
+            document.getElementById('step3').classList.add('active-step');
+            currentStep = 3;
+            updateStepIndicator();
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            await placeOrder(paymentMethod);
+        } else if (paymentMethod === 'paypal') {
+            document.getElementById('step2').classList.remove('active-step');
+            document.getElementById('step3').classList.add('active-step');
+            currentStep = 3;
+            updateStepIndicator();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            await placeOrder(paymentMethod);
+        }
+    }
+
+    async function initiatePayUPayment(amount, email, firstname, lastname, phone) {
+        try {
+            showNotification('Initializing secure payment...');
+            
+            const baseUrl = window.location.origin;
+            const successUrl = `${baseUrl}/order-success.html`;
+            const failureUrl = `${baseUrl}/checkout.html?payment=failed`;
+
+            const response = await fetch(`${API_URL}/payment/init`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: amount,
+                    email: email,
+                    firstname: firstname,
+                    phone: phone,
+                    productinfo: cart.slice(0, 3).map(i => i.name).join(', ') + (cart.length > 3 ? '...' : ''),
+                    successUrl: successUrl,
+                    failureUrl: failureUrl,
+                    items: cart
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const payuContainer = document.getElementById('payuContainer');
+                payuContainer.innerHTML = `
+                    <form action="${data.payuUrl}" method="post" id="payuForm" style="display:none;">
+                        <input type="hidden" name="key" value="${data.key}">
+                        <input type="hidden" name="txnid" value="${data.txnid}">
+                        <input type="hidden" name="amount" value="${data.amount}">
+                        <input type="hidden" name="productinfo" value="${data.productinfo}">
+                        <input type="hidden" name="firstname" value="${data.firstname}">
+                        <input type="hidden" name="email" value="${data.email}">
+                        <input type="hidden" name="phone" value="${data.phone}">
+                        <input type="hidden" name="surl" value="${data.surl}">
+                        <input type="hidden" name="furl" value="${data.furl}">
+                        <input type="hidden" name="hash" value="${data.hash}">
+                    </form>
+                `;
+                
+                document.getElementById('step2').classList.remove('active-step');
+                document.getElementById('step3').classList.add('active-step');
+                document.querySelector('#step3 h3').textContent = 'Redirecting to PayU...';
+                currentStep = 3;
+                updateStepIndicator();
+
+                setTimeout(() => {
+                    document.getElementById('payuForm').submit();
+                }, 1000);
+            } else {
+                showNotification('Failed to initialize payment. Please try again.');
+            }
+        } catch (e) {
+            console.error('PayU init error:', e);
+            showNotification('Payment service unavailable. Please try Cash on Delivery.');
+        }
+    }
+
+    async function placeOrder(paymentMethod) {
+        const pendingOrder = JSON.parse(localStorage.getItem('velvoraPendingOrder'));
+        const email = pendingOrder?.customerEmail || document.getElementById('checkoutEmail').value;
+        const firstName = pendingOrder?.customerName?.split(' ')[0] || document.getElementById('firstName').value;
+        const lastName = pendingOrder?.customerName?.split(' ').slice(1).join(' ') || document.getElementById('lastName').value;
+        const address = pendingOrder?.shippingAddress?.address || document.getElementById('address').value;
+
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const tax = subtotal * 0.18;
         const total = subtotal + tax;
         
         const orderId = 'VEL-' + Date.now();
@@ -460,10 +526,10 @@
             paymentMethod: paymentMethod,
             shippingAddress: {
                 address: address,
-                city: document.getElementById('city').value,
-                postalCode: document.getElementById('postalCode').value,
-                country: document.getElementById('country').value,
-                phone: document.getElementById('checkoutPhone').value
+                city: pendingOrder?.shippingAddress?.city || document.getElementById('city').value,
+                postalCode: pendingOrder?.shippingAddress?.postalCode || document.getElementById('postalCode').value,
+                country: pendingOrder?.shippingAddress?.country || document.getElementById('country').value,
+                phone: pendingOrder?.customerPhone || document.getElementById('checkoutPhone').value
             }
         };
 
@@ -489,7 +555,7 @@
             orderId: orderId,
             customerName: firstName + ' ' + lastName,
             customerEmail: email,
-            customer: { name: firstName + ' ' + lastName, email: email, phone: document.getElementById('checkoutPhone').value },
+            customer: { name: firstName + ' ' + lastName, email: email, phone: pendingOrder?.customerPhone || document.getElementById('checkoutPhone').value },
             items: orderData.items.map(item => ({
                 name: item.name,
                 price: item.price,
@@ -507,13 +573,13 @@
         existingOrders.unshift(newOrder);
         localStorage.setItem('velvoraOrders', JSON.stringify(existingOrders));
         
-        // Send order confirmation email
         sendOrderConfirmationEmail(newOrder);
         
         localStorage.removeItem('velvoraCart');
+        localStorage.removeItem('velvoraPendingOrder');
         
         document.getElementById('finalOrderId').textContent = orderId;
-        document.getElementById('finalTotal').textContent = '₹' + total.toFixed(2);
+        document.getElementById('finalTotal').textContent = '₹' + total.toLocaleString('en-IN');
         document.getElementById('finalPaymentMethod').textContent = getPaymentMethodName();
         
         document.getElementById('step4').classList.add('active-step');
