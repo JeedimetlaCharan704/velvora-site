@@ -50,6 +50,23 @@ const initData = () => {
 
 initData();
 
+function safeReadJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+function safeWriteJson(filePath, data) {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
@@ -65,21 +82,30 @@ const server = http.createServer((req, res) => {
 
   if (url === '/api/products') {
     if (req.method === 'GET') {
-      const products = JSON.parse(fs.readFileSync('./data/products.json', 'utf8'));
+      const products = safeReadJson('./data/products.json');
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(products));
     } else if (req.method === 'POST') {
       let body = '';
       req.on('data', chunk => body += chunk);
       req.on('end', () => {
-        const products = JSON.parse(fs.readFileSync('./data/products.json', 'utf8'));
-        const product = JSON.parse(body);
-        product._id = Date.now().toString();
-        product.createdAt = new Date().toISOString();
-        products.push(product);
-        fs.writeFileSync('./data/products.json', JSON.stringify(products, null, 2));
-        res.writeHead(201, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(product));
+        try {
+          const products = safeReadJson('./data/products.json');
+          const product = JSON.parse(body);
+          if (!product.name || !product.price) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: 'Invalid product data' }));
+          }
+          product._id = Date.now().toString();
+          product.createdAt = new Date().toISOString();
+          products.push(product);
+          safeWriteJson('./data/products.json', products);
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(product));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        }
       });
     } else {
       res.writeHead(405);
@@ -90,9 +116,67 @@ const server = http.createServer((req, res) => {
 
   if (url === '/api/orders') {
     if (req.method === 'GET') {
-      const orders = JSON.parse(fs.readFileSync('./data/orders.json', 'utf8'));
+      const orders = safeReadJson('./data/orders.json');
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ orders, total: orders.length }));
+    } else if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const orders = safeReadJson('./data/orders.json');
+          const order = JSON.parse(body);
+          
+          if (!order.customerEmail || !order.items || order.items.length === 0) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: 'Invalid order data' }));
+          }
+          
+          order._id = Date.now().toString();
+          order.orderId = order.orderId || 'VEL-' + Date.now();
+          order.createdAt = new Date().toISOString();
+          order.status = order.status || 'Pending';
+          
+          orders.unshift(order);
+          safeWriteJson('./data/orders.json', orders);
+          
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, order }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        }
+      });
+    } else {
+      res.writeHead(405);
+      res.end();
+    }
+    return;
+  }
+
+  if (url === '/api/login') {
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const { email, password } = JSON.parse(body);
+          const users = safeReadJson('./data/users.json');
+          const user = users.find(u => u.email === email && u.password === password);
+          
+          if (user) {
+            const { password: _, ...userWithoutPassword } = user;
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true, user: userWithoutPassword }));
+          } else {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'Invalid credentials' }));
+          }
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        }
+      });
     } else {
       res.writeHead(405);
       res.end();
@@ -102,13 +186,53 @@ const server = http.createServer((req, res) => {
 
   if (url === '/api/users') {
     if (req.method === 'GET') {
-      const users = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
+      const users = safeReadJson('./data/users.json');
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(users));
+    } else if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const users = safeReadJson('./data/users.json');
+          const userData = JSON.parse(body);
+          
+          if (!userData.email || !userData.name || !userData.password) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: 'Missing required fields' }));
+          }
+          
+          if (users.find(u => u.email === userData.email)) {
+            res.writeHead(409, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: 'Email already exists' }));
+          }
+          
+          const user = {
+            ...userData,
+            _id: Date.now().toString(),
+            createdAt: new Date().toISOString()
+          };
+          users.push(user);
+          safeWriteJson('./data/users.json', users);
+          
+          const { password: _, ...userWithoutPassword } = user;
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, user: userWithoutPassword }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        }
+      });
     } else {
       res.writeHead(405);
       res.end();
     }
+    return;
+  }
+
+  if (url.includes('..')) {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Invalid path' }));
     return;
   }
 
@@ -122,9 +246,11 @@ const server = http.createServer((req, res) => {
     '.css': 'text/css',
     '.json': 'application/json',
     '.png': 'image/png',
-    '.jpg': 'image/jpg',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
-    '.svg': 'image/svg+xml'
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon'
   };
 
   const contentType = contentTypes[extname] || 'text/plain';
@@ -144,8 +270,11 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log('API endpoints:');
-  console.log('  GET    /api/products');
-  console.log('  POST   /api/products');
-  console.log('  GET    /api/orders');
-  console.log('  GET    /api/users');
+  console.log('  GET    /api/products - Get all products');
+  console.log('  POST   /api/products - Add new product');
+  console.log('  GET    /api/orders   - Get all orders');
+  console.log('  POST   /api/orders   - Create new order');
+  console.log('  POST   /api/login    - User login');
+  console.log('  GET    /api/users    - Get all users');
+  console.log('  POST   /api/users    - Register new user');
 });
