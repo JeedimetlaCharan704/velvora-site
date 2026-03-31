@@ -279,8 +279,22 @@
 
 <script src="script.js"></script>
 <script>
-    const CHECKOUT_API_URL = (typeof API_URL !== 'undefined') ? API_URL : '';
+    const CHECKOUT_API_URL = window.API_URL || 'http://localhost:3001/api';
+    
+    // Load cart from localStorage
     let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
+    
+    // Debug: Log cart details
+    if (cart.length > 0) {
+        console.log('Cart items:', cart.map(item => ({ 
+            name: item.name, 
+            price: item.price, 
+            quantity: item.quantity 
+        })));
+    } else {
+        console.log('Cart is empty');
+    }
+    
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let currentStep = 1;
     let orderTotal = 0;
@@ -351,11 +365,20 @@
     function renderSummary() {
         const container = document.getElementById('summaryItems');
         
+        // Check if cart is empty
         if (cart.length === 0) {
-            container.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+            // Try to load cart from storage again
+            cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
+        }
+        
+        if (cart.length === 0) {
+            container.innerHTML = '<p class="empty-cart">Your cart is empty. Add some items first!</p><a href="index.html" class="btn" style="display:inline-block;margin-top:10px;padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">Continue Shopping</a>';
             document.getElementById('summarySubtotal').textContent = '₹0';
             document.getElementById('summaryTax').textContent = '₹0';
             document.getElementById('summaryTotal').textContent = '₹0';
+            // Disable continue button
+            const continueBtn = document.getElementById('continuePaymentBtn');
+            if (continueBtn) continueBtn.disabled = true;
             return;
         }
 
@@ -366,7 +389,7 @@
                     <h4>${item.name}</h4>
                     <p>Qty: ${item.quantity}</p>
                 </div>
-                <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                <span>₹${(Number(item.price) * item.quantity).toLocaleString('en-IN')}</span>
             </div>
         `).join('');
 
