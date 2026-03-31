@@ -3,7 +3,10 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { 
+    rejectUnauthorized: false,
+    require: true 
+  }
 });
 
 module.exports = async (req, res) => {
@@ -23,6 +26,6 @@ module.exports = async (req, res) => {
     res.end(JSON.stringify(result.rows));
   } catch (e) {
     res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: e.message }));
+    res.end(JSON.stringify({ error: 'Database connection failed', details: e.message }));
   }
 };
