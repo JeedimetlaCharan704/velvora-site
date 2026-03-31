@@ -384,13 +384,6 @@
         document.getElementById('summaryTotal').textContent = '₹' + total.toLocaleString('en-IN');
     }
     
-    let user = JSON.parse(localStorage.getItem('velvoraUser'));
-    let currentStep = 1;
-    let orderTotal = 0;
-    let pendingOrderData = null;
-    let qrTimerInterval = null;
-    let qrTimeLeft = 600;
-
     function showNotification(message) {
         const notif = document.createElement('div');
         notif.className = 'notification show';
