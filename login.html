@@ -11,6 +11,32 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="auth.css">
 </head>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDNJHMCyl3T2t8MHFDkJH1IKbcJoqvMLHQ",
+        authDomain: "velvora-luxury.firebaseapp.com",
+        projectId: "velvora-luxury",
+        storageBucket: "velvora-luxury.firebasestorage.app",
+        messagingSenderId: "799404146977",
+        appId: "1:799404146977:web:4097bc4d377f7e4163be60"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+    const facebookProvider = new FacebookAuthProvider();
+
+    window.firebaseAuth = auth;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.signInWithPopup = signInWithPopup;
+    window.googleProvider = googleProvider;
+    window.facebookProvider = facebookProvider;
+    window.signOutFirebase = signOut;
+</script>
 
 <body class="auth-page">
 
@@ -76,8 +102,8 @@
         </div>
 
         <div class="social-auth">
-            <button class="social-btn"><i class="fab fa-google"></i> Google</button>
-            <button class="social-btn"><i class="fab fa-facebook-f"></i> Facebook</button>
+            <button class="social-btn" onclick="signInWithGoogle()"><i class="fab fa-google"></i> Google</button>
+            <button class="social-btn" onclick="signInWithFacebook()"><i class="fab fa-facebook-f"></i> Facebook</button>
         </div>
 
         <p class="auth-footer">
@@ -135,7 +161,26 @@
             return false;
         }
         
-        // Try SQL login first
+        if (window.auth) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(window.auth, email, password);
+                const user = {
+                    id: userCredential.user.uid,
+                    name: userCredential.user.displayName || email.split('@')[0],
+                    email: userCredential.user.email,
+                    role: email === 'admin@velvora.com' ? 'admin' : 'user'
+                };
+                localStorage.setItem('velvoraUser', JSON.stringify(user));
+                localStorage.setItem('velvoraToken', 'firebase-token');
+                localStorage.setItem('firebaseUid', userCredential.user.uid);
+                showNotification('Welcome back! Login successful.');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+                return;
+            } catch (error) {
+                console.log('Firebase login failed:', error.message);
+            }
+        }
+        
         try {
             const response = await fetch('http://localhost:3001/api/login', {
                 method: 'POST',
@@ -154,7 +199,6 @@
             console.log('SQL login failed, trying localStorage');
         }
         
-        // Fallback to localStorage
         const users = getUsers();
         const user = users.find(u => u.email === email && u.password === password);
         
@@ -175,7 +219,31 @@
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
         
-        // Try SQL registration first
+        if (window.auth) {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(window.auth, email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+                const user = {
+                    id: userCredential.user.uid,
+                    name: name,
+                    email: email,
+                    role: 'user'
+                };
+                localStorage.setItem('velvoraUser', JSON.stringify(user));
+                localStorage.setItem('velvoraToken', 'firebase-token');
+                localStorage.setItem('firebaseUid', userCredential.user.uid);
+                showNotification('Account created successfully!');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+                return;
+            } catch (error) {
+                console.log('Firebase registration failed:', error.message);
+                if (error.code === 'auth/email-already-in-use') {
+                    showNotification('Email already registered');
+                    return;
+                }
+            }
+        }
+        
         try {
             const response = await fetch('http://localhost:3001/api/users', {
                 method: 'POST',
@@ -197,7 +265,6 @@
             console.log('SQL registration failed, using localStorage');
         }
         
-        // Fallback to localStorage
         const users = getUsers();
         
         if (users.find(u => u.email === email)) {
@@ -216,6 +283,54 @@
         return false;
     }
 
+    async function signInWithGoogle() {
+        if (!window.auth) {
+            showNotification('Firebase not configured. Use email login.');
+            return;
+        }
+        
+        try {
+            const result = await signInWithPopup(window.auth, window.googleProvider);
+            const user = {
+                id: result.user.uid,
+                name: result.user.displayName,
+                email: result.user.email,
+                role: result.user.email === 'admin@velvora.com' ? 'admin' : 'user'
+            };
+            localStorage.setItem('velvoraUser', JSON.stringify(user));
+            localStorage.setItem('velvoraToken', 'firebase-token');
+            localStorage.setItem('firebaseUid', result.user.uid);
+            showNotification('Signed in with Google!');
+            setTimeout(() => window.location.href = result.user.email === 'admin@velvora.com' ? 'admin.html' : 'index.html', 1000);
+        } catch (error) {
+            showNotification('Google sign-in failed: ' + error.message);
+        }
+    }
+
+    async function signInWithFacebook() {
+        if (!window.auth) {
+            showNotification('Firebase not configured. Use email login.');
+            return;
+        }
+        
+        try {
+            const result = await signInWithPopup(window.auth, window.facebookProvider);
+            const user = {
+                id: result.user.uid,
+                name: result.user.displayName,
+                email: result.user.email,
+                role: 'user'
+            };
+            localStorage.setItem('velvoraUser', JSON.stringify(user));
+            localStorage.setItem('velvoraToken', 'firebase-token');
+            localStorage.setItem('firebaseUid', result.user.uid);
+            showNotification('Signed in with Facebook!');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        } catch (error) {
+            showNotification('Facebook sign-in failed: ' + error.message);
+        }
+    }
+
     function showNotification(message) {
         const notif = document.createElement('div');
         notif.className = 'notification show';
@@ -225,7 +340,6 @@
         setTimeout(() => notif.remove(), 3000);
     }
 
-    // Create demo user if not exists
     (function() {
         const users = getUsers();
         if (!users.find(u => u.email === 'user@velvora.com')) {

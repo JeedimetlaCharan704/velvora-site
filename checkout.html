@@ -132,24 +132,10 @@
                     <h3><span>2</span> Payment Method</h3>
                     <div class="payment-methods">
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="payu" checked onchange="updatePaymentMethod()">
+                            <input type="radio" name="payment" value="demo" checked onchange="updatePaymentMethod()">
                             <div class="payment-card">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>PayU (Cards, UPI, Net Banking)</span>
-                            </div>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="upi" onchange="updatePaymentMethod()">
-                            <div class="payment-card">
-                                <i class="fas fa-mobile-alt"></i>
-                                <span>UPI (Google Pay, PhonePe, Paytm)</span>
-                            </div>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="paypal" onchange="updatePaymentMethod()">
-                            <div class="payment-card">
-                                <i class="fab fa-paypal"></i>
-                                <span>PayPal</span>
+                                <i class="fas fa-credit-card"></i>
+                                <span>Demo Payment (Test Mode)</span>
                             </div>
                         </label>
                         <label class="payment-option">
@@ -162,27 +148,11 @@
                     </div>
                     
                     <div class="card-details" id="cardDetails">
-                        <p style="color: #666; font-size: 14px; margin-top: 10px;">
-                            <i class="fas fa-info-circle"></i> You will be redirected to PayU's secure payment page to complete your payment.
-                        </p>
-                    </div>
-                    
-                    <div class="upi-details" id="upiDetails" style="display: none;">
-                        <div class="upi-demo-box">
-                            <i class="fas fa-mobile-alt"></i>
-                            <h4>Demo UPI Payment</h4>
-                            <p>Scan QR Code or enter UPI ID</p>
-                            <div class="form-group">
-                                <label>UPI ID</label>
-                                <input type="text" id="upiId" placeholder="yourname@upi">
-                            </div>
-                            <div class="upi-qr">
-                                <p>Or scan QR code to pay</p>
-                                <div class="qr-placeholder">
-                                    <i class="fas fa-qrcode"></i>
-                                    <span>Demo QR Code</span>
-                                </div>
-                            </div>
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                            <p style="color: #2e7d32; font-size: 14px; margin: 0;">
+                                <i class="fas fa-check-circle"></i> <strong>Demo Mode Active</strong><br>
+                                <small>This is a test payment mode. No real money will be charged. Use any test card details.</small>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -230,7 +200,7 @@
             <div class="summary-totals">
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span id="summarySubtotal">₹0.00</span>
+                    <span id="summarySubtotal">$0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
@@ -238,11 +208,11 @@
                 </div>
                 <div class="summary-row">
                     <span>Tax</span>
-                    <span id="summaryTax">₹0.00</span>
+                    <span id="summaryTax">$0.00</span>
                 </div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span id="summaryTotal">₹0.00</span>
+                    <span id="summaryTotal">$0.00</span>
                 </div>
             </div>
         </div>
@@ -288,7 +258,6 @@
                     <h4>${item.name}</h4>
                     <p>Qty: ${item.quantity}</p>
                 </div>
-<<<<<<< HEAD
                 <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
             </div>
         `).join('');
@@ -348,33 +317,25 @@
     function updatePaymentMethod() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         const cardDetails = document.getElementById('cardDetails');
-        const upiDetails = document.getElementById('upiDetails');
         
         if (paymentMethod === 'card') {
             cardDetails.style.display = 'block';
-            upiDetails.style.display = 'none';
-        } else if (paymentMethod === 'upi') {
-            cardDetails.style.display = 'none';
-            upiDetails.style.display = 'block';
         } else {
             cardDetails.style.display = 'none';
-            upiDetails.style.display = 'none';
         }
     }
 
     function getPaymentMethodName() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         switch(paymentMethod) {
-            case 'payu': return 'PayU (Secure Payment)';
-            case 'paypal': return 'PayPal';
+            case 'demo': return 'Demo Payment (Test)';
             case 'cod': return 'Cash on Delivery';
-            default: return 'PayU (Secure Payment)';
+            default: return 'Demo Payment (Test)';
         }
     }
 
     async function processPayment() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-
         const email = document.getElementById('checkoutEmail').value;
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
@@ -416,8 +377,8 @@
 
         localStorage.setItem('velvoraPendingOrder', JSON.stringify(pendingOrderData));
 
-        if (paymentMethod === 'payu') {
-            await initiatePayUPayment(total, email, firstName, lastName, phone);
+        if (paymentMethod === 'demo') {
+            await processDemoPayment(total, email, firstName, lastName, phone);
         } else if (paymentMethod === 'cod') {
             document.getElementById('step2').classList.remove('active-step');
             document.getElementById('step3').classList.add('active-step');
@@ -425,25 +386,20 @@
             updateStepIndicator();
             await new Promise(resolve => setTimeout(resolve, 1500));
             await placeOrder(paymentMethod);
-        } else if (paymentMethod === 'paypal') {
-            document.getElementById('step2').classList.remove('active-step');
-            document.getElementById('step3').classList.add('active-step');
-            currentStep = 3;
-            updateStepIndicator();
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            await placeOrder(paymentMethod);
         }
     }
 
-    async function initiatePayUPayment(amount, email, firstname, lastname, phone) {
+    async function processDemoPayment(amount, email, firstname, lastname, phone) {
         try {
-            showNotification('Initializing secure payment...');
+            showNotification('Processing demo payment...');
             
-            const baseUrl = window.location.origin;
-            const successUrl = `${baseUrl}/order-success.html`;
-            const failureUrl = `${baseUrl}/checkout.html?payment=failed`;
+            document.getElementById('step2').classList.remove('active-step');
+            document.getElementById('step3').classList.add('active-step');
+            document.querySelector('#step3 h3').textContent = 'Processing Demo Payment...';
+            currentStep = 3;
+            updateStepIndicator();
 
-            const response = await fetch(`${API_URL}/payment/init`, {
+            const response = await fetch(`${API_URL}/payment/process`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -451,46 +407,24 @@
                     email: email,
                     firstname: firstname,
                     phone: phone,
-                    productinfo: cart.slice(0, 3).map(i => i.name).join(', ') + (cart.length > 3 ? '...' : ''),
-                    successUrl: successUrl,
-                    failureUrl: failureUrl,
-                    items: cart
+                    paymentMethod: 'demo'
                 })
             });
 
             const data = await response.json();
 
             if (data.success) {
-                const payuContainer = document.getElementById('payuContainer');
-                payuContainer.innerHTML = `
-                    <form action="${data.payuUrl}" method="post" id="payuForm" style="display:none;">
-                        <input type="hidden" name="key" value="${data.key}">
-                        <input type="hidden" name="txnid" value="${data.txnid}">
-                        <input type="hidden" name="amount" value="${data.amount}">
-                        <input type="hidden" name="productinfo" value="${data.productinfo}">
-                        <input type="hidden" name="firstname" value="${data.firstname}">
-                        <input type="hidden" name="email" value="${data.email}">
-                        <input type="hidden" name="phone" value="${data.phone}">
-                        <input type="hidden" name="surl" value="${data.surl}">
-                        <input type="hidden" name="furl" value="${data.furl}">
-                        <input type="hidden" name="hash" value="${data.hash}">
-                    </form>
-                `;
-                
-                document.getElementById('step2').classList.remove('active-step');
-                document.getElementById('step3').classList.add('active-step');
-                document.querySelector('#step3 h3').textContent = 'Redirecting to PayU...';
-                currentStep = 3;
-                updateStepIndicator();
-
-                setTimeout(() => {
-                    document.getElementById('payuForm').submit();
-                }, 1000);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                await placeOrder('demo');
             } else {
-                showNotification('Failed to initialize payment. Please try again.');
+                showNotification('Payment failed: ' + data.message);
+                document.getElementById('step3').classList.remove('active-step');
+                document.getElementById('step2').classList.add('active-step');
+                currentStep = 2;
+                updateStepIndicator();
             }
         } catch (e) {
-            console.error('PayU init error:', e);
+            console.error('Demo payment error:', e);
             showNotification('Payment service unavailable. Please try Cash on Delivery.');
         }
     }
@@ -627,7 +561,7 @@
 Your order has been confirmed!
 
 Order ID: ${order.orderId}
-Total: ₹${order.total.toFixed(2)}
+Total: $${order.total.toFixed(2)}
 Payment Method: ${order.paymentMethod}
 
 We will notify you when your order is shipped.
