@@ -1037,22 +1037,15 @@ function deleteOrder(orderId) {
 }
 
 // Logout
-async function logoutAdmin() {
-    try {
-        if (firebase && firebase.auth) {
-            await firebase.auth().signOut();
-        }
-    } catch (e) {
-        console.log('Firebase signout skipped');
-    }
-    
+function logoutAdmin() {
     localStorage.removeItem('velvoraAdminToken');
     localStorage.removeItem('velvoraAdminUser');
-    localStorage.removeItem('velvoraUser');
-    localStorage.removeItem('velvoraToken');
-    localStorage.removeItem('firebaseUid');
-    
-    window.location.href = 'login.html';
+    // In demo mode, just reload to reinitialize
+    if (authToken === 'demo-token') {
+        location.reload();
+    } else {
+        window.location.href = 'login.html';
+    }
 }
 
 function resetDemoData() {
