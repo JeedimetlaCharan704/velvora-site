@@ -1,7 +1,10 @@
 require('dotenv').config();
-const { neon } = require('@neondatabase/serverless');
+const { Pool } = require('pg');
 
-const sql = neon(process.env.DATABASE_URL);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,9 +19,9 @@ module.exports = async (req, res) => {
 
   if (req.method === 'GET') {
     try {
-      const result = await sql('SELECT * FROM orders ORDER BY created_at DESC');
+      const result = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ orders: result, total: result.length }));
+      res.end(JSON.stringify({ orders: result.rows, total: result.rows.length }));
     } catch (e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: e.message }));
@@ -30,13 +33,13 @@ module.exports = async (req, res) => {
       try {
         const order = JSON.parse(body);
         const orderId = 'VEL-' + Date.now();
-        const result = await sql(
+        const result = await pool.query(
           `INSERT INTO orders (order_id, customer_name, customer_email, customer_phone, items, subtotal, tax, shipping, total, status) 
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
           [orderId, order.customerName || order.customer?.name, order.customerEmail || order.customer?.email, order.customerPhone, JSON.stringify(order.items || []), order.subtotal, order.tax || 0, order.shipping || 0, order.total, 'Pending']
         );
         res.writeHead(201, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, order: result[0] }));
+        res.end(JSON.stringify({ success: true, order: result.rows[0] }));
       } catch (e) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: e.message }));

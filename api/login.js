@@ -1,7 +1,10 @@
 require('dotenv').config();
-const { neon } = require('@neondatabase/serverless');
+const { Pool } = require('pg');
 
-const sql = neon(process.env.DATABASE_URL);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,9 +23,9 @@ module.exports = async (req, res) => {
     req.on('end', async () => {
       try {
         const { email, password } = JSON.parse(body);
-        const result = await sql('SELECT * FROM users WHERE email = $1 AND password = $2', [email, password]);
-        if (result.length > 0) {
-          const user = result[0];
+        const result = await pool.query('SELECT * FROM users WHERE email = $1 AND password = $2', [email, password]);
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
           const { password, ...userWithoutPassword } = user;
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: true, user: userWithoutPassword }));

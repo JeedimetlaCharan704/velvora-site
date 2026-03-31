@@ -1,7 +1,10 @@
 require('dotenv').config();
-const { neon } = require('@neondatabase/serverless');
+const { Pool } = require('pg');
 
-const sql = neon(process.env.DATABASE_URL);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,9 +19,9 @@ module.exports = async (req, res) => {
 
   if (req.method === 'GET') {
     try {
-      const result = await sql('SELECT id, name, email, phone, role, created_at FROM users');
+      const result = await pool.query('SELECT id, name, email, phone, role, created_at FROM users');
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(result));
+      res.end(JSON.stringify(result.rows));
     } catch (e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: e.message }));
@@ -29,11 +32,11 @@ module.exports = async (req, res) => {
     req.on('end', async () => {
       try {
         const userData = JSON.parse(body);
-        const result = await sql(
+        const result = await pool.query(
           `INSERT INTO users (name, email, password, phone, role) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
           [userData.name, userData.email, userData.password, userData.phone || null, 'customer']
         );
-        const user = result[0];
+        const user = result.rows[0];
         const { password, ...userWithoutPassword } = user;
         res.writeHead(201, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, user: userWithoutPassword }));
