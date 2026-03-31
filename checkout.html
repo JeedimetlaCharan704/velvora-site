@@ -608,58 +608,38 @@
             customerEmail: order.customerEmail,
             orderId: order.orderId,
             total: order.total,
-            subtotal: order.subtotal,
-            tax: order.tax,
-            shipping: order.shipping || 0,
             paymentMethod: order.paymentMethod,
-            shippingAddress: order.shippingAddress,
-            items: order.items.map(item => ({
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                image: item.image
-            }))
+            shippingAddress: order.shippingAddress
         };
         
         if (typeof emailService !== 'undefined') {
             emailService.sendOrderConfirmation(orderData).then(result => {
                 if (result.success) {
-                    console.log('📧 Order confirmation email sent to:', order.customerEmail);
                     showNotification(`Order confirmation email sent to ${order.customerEmail}`);
                 }
             });
-        } else {
-            // Fallback to console log
-            console.log('📧 Order confirmation email would be sent to:', order.customerEmail);
         }
     }
 
     function sendOrderProcessingEmail(order) {
-        const orderData = {
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            orderId: order.orderId,
-            total: order.total,
-            shippingAddress: order.shippingAddress,
-            items: order.items
-        };
-        
         if (typeof emailService !== 'undefined') {
-            emailService.sendOrderProcessing(orderData);
+            emailService.sendOrderProcessing({
+                customerName: order.customerName,
+                customerEmail: order.customerEmail,
+                orderId: order.orderId,
+                total: order.total
+            });
         }
     }
 
     function sendOrderShippedEmail(order, trackingInfo) {
-        const orderData = {
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            orderId: order.orderId,
-            total: order.total,
-            items: order.items
-        };
-        
         if (typeof emailService !== 'undefined') {
-            emailService.sendOrderShipped(orderData, trackingInfo);
+            emailService.sendOrderShipped({
+                customerName: order.customerName,
+                customerEmail: order.customerEmail,
+                orderId: order.orderId,
+                total: order.total
+            }, trackingInfo);
         }
     }
 
