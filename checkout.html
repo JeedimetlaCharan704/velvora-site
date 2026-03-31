@@ -278,6 +278,7 @@
     }
 
     function goToPayment() {
+        console.log('goToPayment called');
         const email = document.getElementById('checkoutEmail').value;
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
@@ -298,6 +299,7 @@
         document.getElementById('step2').classList.add('active-step');
         currentStep = 2;
         updateStepIndicator();
+        console.log('Step switched to 2');
     }
 
     function goBackToAddress() {
@@ -603,6 +605,16 @@ Thank you for shopping with Velvora Luxury!`;
     }
 
     renderSummary();
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const continueBtn = document.querySelector('.place-order-btn[onclick="goToPayment()"]');
+        if (continueBtn) {
+            continueBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                goToPayment();
+            });
+        }
+    });
 </script>
 
 </body>
