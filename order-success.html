@@ -92,7 +92,7 @@
             </div>
             <div class="info-card">
                 <span class="info-label"><i class="fas fa-credit-card"></i> Payment Status</span>
-                <span class="info-value payment-status">Paid</span>
+                <span class="info-value payment-status" id="paymentStatus">Paid</span>
             </div>
         </div>
 
@@ -106,7 +106,7 @@
                         <span id="successSubtotal">₹0.00</span>
                     </div>
                     <div class="summary-row">
-                        <span>Tax (8%)</span>
+                        <span>Tax (18% GST)</span>
                         <span id="successTax">₹0.00</span>
                     </div>
                     <div class="summary-row">
@@ -164,7 +164,7 @@
 
 <script src="script.js"></script>
 <script>
-    const API_URL = 'http://localhost:3001/api';
+    const API_URL = (typeof window.API_URL !== 'undefined') ? window.API_URL : '';
     const urlParams = new URLSearchParams(window.location.search);
     
     async function handlePaymentResponse() {
@@ -174,9 +174,9 @@
         const status = urlParams.get('status');
         const mihpayid = urlParams.get('mihpayid');
 
-        if (pendingOrder && cart.length > 0) {
+        if (pendingOrder) {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = subtotal * 0.08;
+            const tax = Math.round(subtotal * 0.18);
             const total = subtotal + tax;
             
             const existingOrders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
@@ -197,14 +197,14 @@
                     image: item.image || 'https://via.placeholder.com/50'
                 })),
                 total: total,
-                status: 'Pending',
+                status: 'Confirmed',
                 createdAt: new Date().toISOString(),
                 shippingAddress: pendingOrder.shippingAddress,
-                paymentMethod: 'payu',
+                paymentMethod: pendingOrder.paymentMethod || 'qr-payment',
                 subtotal: subtotal,
                 tax: tax,
                 mihpayid: mihpayid,
-                paymentStatus: status === 'success' ? 'success' : 'pending'
+                paymentStatus: status === 'success' || !status ? 'success' : 'pending'
             };
             existingOrders.unshift(newOrder);
             localStorage.setItem('velvoraOrders', JSON.stringify(existingOrders));
@@ -220,44 +220,59 @@
         let order = await handlePaymentResponse();
         
         if (!order) {
-            let orders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
+            const orders = JSON.parse(localStorage.getItem('velvoraOrders')) || [];
             order = orders[0];
         }
 
-        document.getElementById('orderId').textContent = order?.orderId || 'VEL-' + Date.now();
-        document.getElementById('orderDate').textContent = new Date().toLocaleDateString('en-US', {
+        if (!order) {
+            console.log("No order found");
+            return;
+        }
+
+        document.getElementById('orderId').textContent = order.orderId || 'VEL-' + Date.now();
+        document.getElementById('orderDate').textContent = new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN', {
             year: 'numeric', month: 'long', day: 'numeric'
         });
         
-        const deliveryDate = new Date();
+        const deliveryDate = new Date(order.createdAt || Date.now());
         deliveryDate.setDate(deliveryDate.getDate() + 7);
-        document.getElementById('deliveryDate').textContent = deliveryDate.toLocaleDateString('en-US', {
+        document.getElementById('deliveryDate').textContent = deliveryDate.toLocaleDateString('en-IN', {
             year: 'numeric', month: 'long', day: 'numeric'
         });
 
-        if (order) {
-            const itemsContainer = document.getElementById('successItems');
-            const items = order.items || [];
-            itemsContainer.innerHTML = items.map(item => `
-                <div class="success-item">
-                    <img src="${item.image}" alt="${item.name}">
-                    <div>
-                        <h4>${item.name}</h4>
-                        <p>Qty: ${item.quantity}</p>
-                    </div>
-                    <span>₹${((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</span>
+        const itemsContainer = document.getElementById('successItems');
+        const items = order.items || [];
+        itemsContainer.innerHTML = items.map(item => `
+            <div class="success-item">
+                <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/50'">
+                <div>
+                    <h4>${item.name}</h4>
+                    <p>Qty: ${item.quantity}</p>
                 </div>
-            `).join('');
+                <span>₹${((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</span>
+            </div>
+        `).join('');
 
-            document.getElementById('successTotal').textContent = `₹${(order.total || 0).toLocaleString('en-IN')}`;
+        document.getElementById('successSubtotal').textContent = `₹${(order.subtotal || 0).toLocaleString('en-IN')}`;
+        document.getElementById('successTax').textContent = `₹${(order.tax || 0).toLocaleString('en-IN')}`;
+        document.getElementById('successTotal').textContent = `₹${(order.total || 0).toLocaleString('en-IN')}`;
+        document.getElementById('customerEmail').textContent = order.customerEmail || '';
 
-            const shippingAddr = order.shippingAddress;
-            if (shippingAddr) {
-                document.getElementById('shippingName').textContent = shippingAddr.name || order.customerName || 'Customer';
-                document.getElementById('shippingAddress').textContent = shippingAddr.address || '';
-                document.getElementById('shippingCity').textContent = 
-                    `${shippingAddr.city || ''}, ${shippingAddr.postalCode || ''}, ${shippingAddr.country || ''}`;
+        const paymentStatusEl = document.getElementById('paymentStatus');
+        if (paymentStatusEl) {
+            paymentStatusEl.textContent = order.paymentStatus === 'success' ? 'Paid' : 'Pending';
+            if (order.paymentStatus !== 'success') {
+                paymentStatusEl.style.color = '#f39c12';
             }
+        }
+
+        const shippingAddr = order.shippingAddress;
+        if (shippingAddr) {
+            document.getElementById('shippingName').textContent = shippingAddr.name || order.customerName || 'Customer';
+            document.getElementById('shippingAddress').textContent = shippingAddr.address || '';
+            document.getElementById('shippingCity').textContent = 
+                `${shippingAddr.city || ''}, ${shippingAddr.postalCode || ''}, ${shippingAddr.country || ''}`;
+            document.getElementById('shippingPhone').textContent = `Phone: ${shippingAddr.phone || 'Not provided'}`;
         }
     }
 
