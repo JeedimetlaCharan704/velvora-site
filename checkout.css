@@ -457,7 +457,113 @@
     
     .summary-coupon button{
         width: 100%;
+        padding: 10px;
+        font-size: 12px;
+        border-radius: 8px;
     }
+
+}
+
+/* PhonePe QR Section Styles */
+.phonepe-details {
+    margin-top: 20px;
+}
+
+.qr-section {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.qr-code {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.qr-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #fff 100%);
+    border: 2px dashed #c8a96a;
+    border-radius: 10px;
+}
+
+.payment-info {
+    flex: 1;
+}
+
+.payment-info p {
+    margin: 10px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.payment-info .timer {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 15px 0;
+}
+
+.payment-info .timer span {
+    color: #c8a96a;
+    font-size: 24px;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-success, .btn-failed {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+}
+
+.btn-failed {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+    color: white;
+}
+
+.btn-failed:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(220, 53, 69, 0.3);
+}
+
+.payment-methods .payment-option .payment-card span {
+    font-size: 14px;
+}
 }
 
 @media(max-width: 380px){
