@@ -26,7 +26,7 @@
     <div class="cart-footer">
         <div class="cart-total">
             <span>Total:</span>
-            <span id="cartTotal">$0.00</span>
+            <span id="cartTotal">₹0</span>
         </div>
         <button class="checkout-btn" onclick="goToCheckout()">Proceed to Checkout</button>
     </div>
@@ -71,7 +71,7 @@
 
     <div class="right-section">
         <div class="search-container">
-            <input type="text" placeholder="Search products..." class="search" id="searchInput" onkeyup="searchProducts(this.value)">
+            <input type="text" placeholder="Search products..." class="search" id="searchInput" onkeyup="searchProductsDebounced(this.value)">
             <div class="search-results" id="searchResults"></div>
         </div>
         <div class="icons">
@@ -197,42 +197,43 @@
         </button>
         
         <div class="testimonial-grid">
-        <div class="testimonial-card">
-            <div class="stars">★★★★★</div>
-            <p class="review">"Absolutely stunning quality. The fabric and finish feel truly premium. Fast delivery too!"</p>
-            <div class="client">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80" alt="">
-                <div>
-                    <h4>Emily R.</h4>
-                    <span>Fashion Blogger</span>
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="review">"Absolutely stunning quality. The fabric and finish feel truly premium. Fast delivery too!"</p>
+                <div class="client">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80" alt="">
+                    <div>
+                        <h4>Emily R.</h4>
+                        <span>Fashion Blogger</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="review">"Luxury at its finest. The attention to detail is remarkable. Highly recommended!"</p>
+                <div class="client">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80" alt="">
+                    <div>
+                        <h4>Michael T.</h4>
+                        <span>Entrepreneur</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="review">"The packaging and presentation were exquisite. Will definitely shop again!"</p>
+                <div class="client">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80" alt="">
+                    <div>
+                        <h4>Sophia L.</h4>
+                        <span>Model</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="testimonial-card">
-            <div class="stars">★★★★★</div>
-            <p class="review">"Luxury at its finest. The attention to detail is remarkable. Highly recommended!"</p>
-            <div class="client">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80" alt="">
-                <div>
-                    <h4>Michael T.</h4>
-                    <span>Entrepreneur</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="testimonial-card">
-            <div class="stars">★★★★★</div>
-            <p class="review">"The packaging and presentation were exquisite. Will definitely shop again!"</p>
-            <div class="client">
-                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80" alt="">
-                <div>
-                    <h4>Sophia L.</h4>
-                    <span>Model</span>
-                </div>
-            </div>
-        </div>
-        
         <button class="testimonial-arrow testimonial-arrow-right" onclick="nextTestimonial()">
             <i class="fas fa-chevron-right"></i>
         </button>

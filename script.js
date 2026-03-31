@@ -664,8 +664,15 @@ function filterCategory(category) {
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
 }
 
+let searchTimer;
+function searchProductsDebounced(term) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => searchProducts(term), 300);
+}
+
 function searchProducts(term) {
     const resultsContainer = document.getElementById('searchResults');
+    if (!resultsContainer) return;
     
     if (term.length < 2) {
         resultsContainer.style.display = 'none';
@@ -677,7 +684,7 @@ function searchProducts(term) {
     if (results.length === 0) {
         resultsContainer.innerHTML = '<p class="no-results">No products found</p>';
     } else {
-resultsContainer.innerHTML = results.map(p => `
+        resultsContainer.innerHTML = results.map(p => `
             <div class="search-result-item" onclick="openProductModal('${p._id || p.id}')">
                 <img src="${p.image}" alt="${p.name}">
                 <div>
