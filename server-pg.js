@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// PostgreSQL Connection - UPDATE THESE WITH YOUR DETAILS
+// PostgreSQL Connection - UPDATE THESE WITH YOUR pgAdmin DETAILS
 const pool = new Pool({
   host: process.env.PGHOST || 'localhost',
   port: process.env.PGPORT || 5432,
@@ -16,24 +16,10 @@ const pool = new Pool({
   password: process.env.PGPASSWORD || 'postgres'
 });
 
-// PayU Configuration
-const PAYU_KEY = process.env.PAYU_KEY || 'gtKFFx';
-const PAYU_SALT = process.env.PAYU_SALT || 'eCwWELxi';
-const PAYU_TEST = process.env.PAYU_TEST !== 'false';
-const PAYU_URL = PAYU_TEST 
-    ? 'https://test.payu.in/_payment' 
-    : 'https://secure.payu.in/_payment';
-
 // Test connection
 pool.query('SELECT NOW()')
   .then(() => console.log('Connected to PostgreSQL'))
   .catch(err => console.error('PostgreSQL connection error:', err));
-
-// Generate PayU Hash
-function generatePayUHash(data) {
-  const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|||||||||||${PAYU_SALT}`;
-  return crypto.createHash('sha512').update(hashString).digest('hex');
-}
 
 // ============ API Routes ============
 
@@ -231,60 +217,78 @@ app.delete('/api/addresses/:id', async (req, res) => {
   }
 });
 
-// ============ PAYU PAYMENT ============
+// ============ DEMO PAYMENT (Replaces PayU) ============
 
-// Initialize PayU Payment
+// Initialize Demo Payment
 app.post('/api/payment/init', async (req, res) => {
   try {
-    const { amount, email, firstname, phone, productinfo, items } = req.body;
-    const txnid = 'VEL' + Date.now();
+    const { amount, email, firstname, phone, productinfo, paymentMethod } = req.body;
+    const txnid = 'DEMO' + Date.now();
 
-    const paymentData = {
-      key: PAYU_KEY,
-      txnid: txnid,
-      amount: amount.toString(),
-      productinfo: productinfo || 'Order from Velvora Luxury',
-      firstname: firstname || 'Customer',
-      email: email || 'customer@email.com',
-      phone: phone || '9999999999'
-    };
-
-    const hash = generatePayUHash(paymentData);
-
-    res.json({
-      success: true,
-      payuUrl: PAYU_URL,
-      txnid: txnid,
-      hash: hash,
-      ...paymentData
-    });
+    if (paymentMethod === 'cod' || paymentMethod === 'demo') {
+      res.json({
+        success: true,
+        paymentMode: 'demo',
+        txnid: txnid,
+        amount: amount,
+        status: 'pending'
+      });
+    } else {
+      res.json({
+        success: true,
+        paymentMode: 'demo',
+        txnid: txnid,
+        amount: amount,
+        status: 'pending'
+      });
+    }
   } catch (err) {
-    console.error('PayU init error:', err);
+    console.error('Payment init error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Verify PayU Payment
-app.post('/api/payment/verify', async (req, res) => {
+// Process Demo Payment
+app.post('/api/payment/process', async (req, res) => {
   try {
-    const { txnid, status, mihpayid, amount } = req.body;
+    const { txnid, amount, cardLastFour, paymentMethod } = req.body;
+    
+    const success = Math.random() > 0.1;
 
-    if (status === 'success') {
-      const result = await pool.query(
-        `UPDATE orders SET payment_status = 'success', mihpayid = $1 WHERE order_id = $2 RETURNING *`,
-        [mihpayid, txnid]
-      );
-      
-      if (result.rows.length > 0) {
-        res.json({ success: true, status: 'success', order: result.rows[0] });
-      } else {
-        res.json({ success: true, status: 'success' });
-      }
+    if (success) {
+      res.json({
+        success: true,
+        status: 'success',
+        txnid: txnid,
+        message: 'Payment processed successfully (Demo Mode)',
+        amount: amount
+      });
     } else {
-      res.json({ success: false, status: status });
+      res.json({
+        success: false,
+        status: 'failed',
+        txnid: txnid,
+        message: 'Payment failed (Demo Mode - 10% failure rate for testing)'
+      });
     }
   } catch (err) {
-    console.error('PayU verify error:', err);
+    console.error('Payment process error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Verify Payment
+app.post('/api/payment/verify', async (req, res) => {
+  try {
+    const { txnid, status } = req.body;
+
+    res.json({
+      success: status === 'success',
+      status: status,
+      txnid: txnid
+    });
+  } catch (err) {
+    console.error('Payment verify error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -314,7 +318,7 @@ app.use(express.static('.'));
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`PostgreSQL Server running at http://localhost:${PORT}`);
-  console.log(`PayU Environment: ${PAYU_TEST ? 'TEST' : 'PRODUCTION'}`);
+  console.log(`Payment Mode: DEMO (PayU Removed)`);
   console.log('\nAPI Endpoints:');
   console.log('  GET    /api/products     - All products');
   console.log('  POST   /api/products     - Add product');
@@ -322,7 +326,8 @@ app.listen(PORT, () => {
   console.log('  POST   /api/orders       - Create order');
   console.log('  GET    /api/users        - All users');
   console.log('  POST   /api/login        - User login');
-  console.log('  POST   /api/payment/init - Initialize PayU');
-  console.log('  POST   /api/payment/verify - Verify PayU');
+  console.log('  POST   /api/payment/init - Initialize Demo Payment');
+  console.log('  POST   /api/payment/process - Process Demo Payment');
+  console.log('  POST   /api/payment/verify - Verify Payment');
   console.log('  GET    /api/dump         - All data');
 });
