@@ -202,9 +202,13 @@ function renderCustomers(users) {
             </div>
             <div class="customer-info">
                 <h4>${user.name}</h4>
-                <p>${user.email}</p>
-                <p>${user.phone || 'No phone'}</p>
-                <span class="customer-date">Joined: ${new Date(user.createdAt).toLocaleDateString()}</span>
+                <p><i class="fas fa-envelope"></i> ${user.email}</p>
+                <p><i class="fas fa-phone"></i> ${user.phone || 'Not provided'}</p>
+                <div class="customer-stats">
+                    <span><i class="fas fa-shopping-bag"></i> ${user.total_orders || 0} orders</span>
+                    <span><i class="fas fa-rupee-sign"></i> ₹${parseFloat(user.total_spent || 0).toLocaleString('en-IN')}</span>
+                </div>
+                <span class="customer-date"><i class="fas fa-calendar"></i> Joined: ${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</span>
             </div>
         </div>
     `).join('');
@@ -974,34 +978,47 @@ Thank you for shopping with Velvora Luxury!`;
     sendEmail(order.customerEmail || order.customer?.email, subject, body);
 }
 
-function updateOrderStatus(orderId, status) {
-    const index = allOrders.findIndex(o => o._id === orderId);
+async function updateOrderStatus(orderId, status) {
+    const order = allOrders.find(o => o._id === orderId || o.id === orderId);
+    if (!order) return;
+    
+    const oldStatus = order.status;
+    
+    // Update in localStorage
+    const index = allOrders.findIndex(o => o._id === orderId || o.id === orderId);
     if (index !== -1) {
-        const oldStatus = allOrders[index].status;
         allOrders[index].status = status;
         localStorage.setItem('velvoraOrders', JSON.stringify(allOrders));
-        
-        // Update in SQL database
-        try {
-            fetch(`${API_URL}/orders/${orderId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status })
-            });
-        } catch (e) {
-            console.log('SQL update failed, using localStorage');
-        }
-        
-        // Send email based on status change
-        if (status === 'Shipped' && oldStatus !== 'Shipped') {
-            sendShippingEmail(allOrders[index]);
-        } else if (status === 'Delivered' && oldStatus !== 'Delivered') {
-            sendDeliveredEmail(allOrders[index]);
-        }
-        
-        loadOrders();
-        alert('Order status updated!');
     }
+    
+    // Update in PostgreSQL database & send email
+    try {
+        const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, orderId: order.order_id || order.orderId })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            if (result.emailSent) {
+                showNotification(`Order ${order.order_id || order.orderId} updated! Email sent to customer.`);
+            } else {
+                showNotification(`Order ${order.order_id || order.orderId} updated!`);
+            }
+        }
+    } catch (e) {
+        console.log('Database update failed, using localStorage');
+        // Fallback to local email
+        if (status === 'Shipped' && oldStatus !== 'Shipped') {
+            sendShippingEmail(order);
+        } else if (status === 'Delivered' && oldStatus !== 'Delivered') {
+            sendDeliveredEmail(order);
+        }
+        showNotification('Order status updated (offline mode)');
+    }
+    
+    loadOrders();
 }
 
 // Close Order Modal
