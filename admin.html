@@ -374,9 +374,84 @@
     <i class="fas fa-plus"></i>
 </button>
 
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDNJHMCyl3T2t8MHFDkJH1IKbcJoqvMLHQ",
+        authDomain: "velvora-luxury.firebaseapp.com",
+        projectId: "velvora-luxury",
+        storageBucket: "velvora-luxury.firebasestorage.app",
+        messagingSenderId: "799404146977",
+        appId: "1:799404146977:web:4097bc4d377f7e4163be60"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.firebaseAuth = auth;
+    window.onAuthStateChangedFirebase = onAuthStateChanged;
+    window.signOutFirebase = signOut;
+
+    onAuthStateChanged(auth, (firebaseUser) => {
+        if (firebaseUser) {
+            const localUser = JSON.parse(localStorage.getItem('velvoraUser') || '{}');
+            if (!localUser.id || localUser.id === 'admin') {
+                const adminUser = {
+                    id: firebaseUser.uid,
+                    name: firebaseUser.displayName || 'Admin',
+                    email: firebaseUser.email,
+                    role: 'admin'
+                };
+                localStorage.setItem('velvoraUser', JSON.stringify(adminUser));
+                localStorage.setItem('firebaseUid', firebaseUser.uid);
+            }
+        }
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="admin.js"></script>
+<script>
+    function checkAdminAuth() {
+        const user = JSON.parse(localStorage.getItem('velvoraUser'));
+        const token = localStorage.getItem('velvoraToken');
+        const adminUser = JSON.parse(localStorage.getItem('velvoraAdminUser'));
+        const adminToken = localStorage.getItem('velvoraAdminToken');
+        
+        const isUserAdmin = user && (user.role === 'admin' || user.email === 'admin@velvora.com');
+        const isAdminLoggedIn = adminUser && adminToken;
+        
+        if (!isUserAdmin && !isAdminLoggedIn) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        
+        return true;
+    }
+    
+    async function logoutAdmin() {
+        try {
+            if (window.firebaseAuth) {
+                await signOut(window.firebaseAuth);
+            }
+        } catch (e) {
+            console.log('Firebase signout skipped');
+        }
+        
+        localStorage.removeItem('velvoraUser');
+        localStorage.removeItem('velvoraAdminUser');
+        localStorage.removeItem('velvoraAdminToken');
+        localStorage.removeItem('velvoraToken');
+        localStorage.removeItem('firebaseUid');
+        window.location.href = 'login.html';
+    }
+    
+    if (window.location.pathname.includes('admin.html')) {
+        checkAdminAuth();
+    }
+</script>
 
 </body>
 </html>
