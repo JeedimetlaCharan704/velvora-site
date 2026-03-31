@@ -114,7 +114,7 @@
                     </div>
                 </div>
 
-                <button class="place-order-btn" id="continuePaymentBtn">Continue to Payment</button>
+                <button type="button" class="place-order-btn" id="continuePaymentBtn">Continue to Payment</button>
             </div>
 
             <div id="step2" class="checkout-step">
@@ -190,7 +190,7 @@
 
                 <div class="button-group">
                     <button class="back-btn" onclick="goBackToAddress()">Back</button>
-                    <button class="place-order-btn" onclick="processPayment()">Pay Now</button>
+                    <button type="button" class="place-order-btn" id="payNowBtn">Pay Now</button>
                 </div>
             </div>
 
@@ -273,6 +273,11 @@
     // Add click handler for continue button
     document.getElementById('continuePaymentBtn').addEventListener('click', function() {
         goToPayment();
+    });
+
+    // Add click handler for Pay Now button
+    document.getElementById('payNowBtn').addEventListener('click', function() {
+        processPayment();
     });
 
     function initPayUPayment() {
