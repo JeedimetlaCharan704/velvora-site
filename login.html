@@ -282,6 +282,7 @@
                 return;
             }
         } catch (e) {
+            console.log('API Error:', e.message);
             console.log('SQL registration failed, using localStorage');
         }
         
