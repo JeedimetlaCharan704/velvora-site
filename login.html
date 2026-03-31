@@ -40,6 +40,10 @@
 
 <body class="auth-page">
 
+<div class="notification" id="notification">
+    <span id="notificationText"></span>
+</div>
+
 <div class="auth-container">
     <div class="auth-box">
         <div class="auth-header">
@@ -333,12 +337,13 @@
     }
 
     function showNotification(message) {
-        const notif = document.createElement('div');
-        notif.className = 'notification show';
-        notif.textContent = message;
-        notif.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:15px 30px;border-radius:10px;z-index:9999;';
-        document.body.appendChild(notif);
-        setTimeout(() => notif.remove(), 3000);
+        const notification = document.getElementById('notification');
+        const text = document.getElementById('notificationText');
+        if (notification && text) {
+            text.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
     }
 
     (function() {
