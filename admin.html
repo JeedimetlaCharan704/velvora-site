@@ -415,16 +415,15 @@
 <script src="admin.js"></script>
 <script>
     function checkAdminAuth() {
-        const user = JSON.parse(localStorage.getItem('velvoraUser'));
-        const token = localStorage.getItem('velvoraToken');
+        const user = JSON.parse(localStorage.getItem('velvoraUser') || 'null');
+        const adminUser = JSON.parse(localStorage.getItem('velvoraAdminUser') || 'null');
+        const adminToken = localStorage.getItem('velvoraAdminToken');
         
-        if (!user || !token) {
+        const isAdminUser = user && user.role === 'admin';
+        const isAdmin = adminUser && adminToken;
+        
+        if (!isAdminUser && !isAdmin) {
             window.location.href = 'login.html';
-            return false;
-        }
-        
-        if (user.role !== 'admin') {
-            window.location.href = 'index.html';
             return false;
         }
         
@@ -448,9 +447,7 @@
         window.location.href = 'login.html';
     }
     
-    if (window.location.pathname.includes('admin.html')) {
-        checkAdminAuth();
-    }
+    checkAdminAuth();
 </script>
 
 </body>
