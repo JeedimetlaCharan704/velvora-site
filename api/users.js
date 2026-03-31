@@ -40,6 +40,7 @@ module.exports = async (req, res) => {
     req.on('end', async () => {
       try {
         const userData = JSON.parse(body);
+        console.log('Creating user:', userData.email);
         
         // Validate required fields
         if (!userData.name || !userData.email || !userData.password) {
@@ -53,18 +54,22 @@ module.exports = async (req, res) => {
           [userData.name, userData.email, userData.password, userData.phone || null, userData.role || 'customer']
         );
         
+        console.log('User created successfully:', result.rows[0].email);
         const user = result.rows[0];
         const { password, ...userWithoutPassword } = user;
         res.writeHead(201, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, user: userWithoutPassword }));
       } catch (e) {
-        console.error('User creation error:', e.message);
+        console.error('User creation error:', e.code, e.message);
         if (e.code === '23505') {
           res.writeHead(409, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Email already exists' }));
+        } else if (e.code === '42P01') {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Database table not found. Please run init-db.js' }));
         } else {
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Failed to create user', details: e.message }));
+          res.end(JSON.stringify({ error: 'Failed to create user: ' + e.message }));
         }
       }
     });

@@ -259,14 +259,18 @@
         }
         
         const API_BASE = window.API_URL || '';
+        console.log('API_BASE:', API_BASE);
         
         try {
+            console.log('Trying to register at:', `${API_BASE}/api/users`);
             const response = await fetch(`${API_BASE}/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
             });
+            console.log('Response status:', response.status);
             const data = await response.json();
+            console.log('Response data:', data);
             if (data.success) {
                 localStorage.setItem('velvoraUser', JSON.stringify(data.user));
                 localStorage.setItem('velvoraToken', 'local-token');
