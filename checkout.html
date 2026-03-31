@@ -205,6 +205,80 @@
                 <div id="payuContainer"></div>
             </div>
 
+            <div id="qrPaymentStep" class="checkout-step">
+                <div class="qr-payment-container">
+                    <div class="qr-header">
+                        <div class="qr-logo">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <h3>Scan & Pay</h3>
+                        <p class="qr-subtitle">Scan the QR code using any UPI app</p>
+                    </div>
+
+                    <div class="qr-card">
+                        <div class="qr-amount">
+                            <span class="qr-amount-label">Amount to Pay</span>
+                            <span class="qr-amount-value" id="qrAmount">₹0</span>
+                        </div>
+
+                        <div class="qr-image-container">
+                            <div class="qr-frame">
+                                <img src="phonepay/phonepay qr.jpeg" alt="QR Code" class="qr-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="qr-placeholder" style="display: flex;">
+                                    <i class="fas fa-qrcode"></i>
+                                    <span>Add QR Image</span>
+                                </div>
+                            </div>
+                            <div class="qr-scan-line"></div>
+                        </div>
+
+                        <div class="upi-apps">
+                            <p>Scan with:</p>
+                            <div class="upi-icons">
+                                <div class="upi-icon gpay">G</div>
+                                <div class="upi-icon phonepe">P</div>
+                                <div class="upi-icon paytm">P</div>
+                                <div class="upi-icon bhim">U</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timer-section">
+                        <div class="timer-header">
+                            <i class="fas fa-clock"></i>
+                            <span>Payment Window</span>
+                        </div>
+                        <div class="timer-display" id="qrTimer">
+                            <span class="timer-minutes">10</span>
+                            <span class="timer-separator">:</span>
+                            <span class="timer-seconds">00</span>
+                        </div>
+                        <p class="timer-hint">Complete payment before time expires</p>
+                    </div>
+
+                    <div class="transaction-section">
+                        <p class="transaction-label">Or enter UPI Reference ID (optional)</p>
+                        <div class="transaction-input">
+                            <input type="text" id="upiRefId" placeholder="Enter 12-digit UPI Reference ID">
+                        </div>
+                    </div>
+
+                    <div class="qr-actions">
+                        <button class="btn-cancel-qr" onclick="cancelQrPayment()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button class="btn-confirm-payment" id="confirmPaymentBtn" onclick="confirmQrPayment()">
+                            <i class="fas fa-check-circle"></i> Payment Done
+                        </button>
+                    </div>
+
+                    <div class="qr-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>This is a demo payment. Click "Payment Done" after scanning.</span>
+                    </div>
+                </div>
+            </div>
+
             <div id="step4" class="checkout-step">
                 <div class="order-success-message">
                     <div class="success-animation">
@@ -336,29 +410,9 @@
         localStorage.setItem('velvoraPendingOrder', JSON.stringify(pendingOrderData));
 
         if (paymentMethod === 'phonepe') {
-            showNotification('Proceeding to PhonePe payment...');
-            document.getElementById('step2').classList.remove('active-step');
-            document.getElementById('step3').classList.add('active-step');
-            document.querySelector('#step3 h3').textContent = 'Scan & Pay via PhonePe';
-            currentStep = 3;
-            updateStepIndicator();
+            showNotification('Opening QR payment...');
+            startQrPayment(total);
             return;
-        } else if (paymentMethod === 'demo') {
-            showNotification('Processing demo payment...');
-            document.getElementById('step2').classList.remove('active-step');
-            document.getElementById('step3').classList.add('active-step');
-            document.querySelector('#step3 h3').textContent = 'Processing Demo Payment...';
-            currentStep = 3;
-            updateStepIndicator();
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            await placeOrder('demo');
-        } else if (paymentMethod === 'cod') {
-            document.getElementById('step2').classList.remove('active-step');
-            document.getElementById('step3').classList.add('active-step');
-            currentStep = 3;
-            updateStepIndicator();
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            await placeOrder(paymentMethod);
         }
     };
 
@@ -595,10 +649,11 @@
     function getPaymentMethodName() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         switch(paymentMethod) {
-            case 'phonepe': return 'PhonePe QR';
+            case 'phonepe': return 'UPI QR Payment';
             case 'demo': return 'Demo Payment (Test)';
             case 'cod': return 'Cash on Delivery';
-            default: return 'Demo Payment (Test)';
+            case 'qr-demo': return 'QR Demo Payment';
+            default: return 'UPI QR Payment';
         }
     }
 
@@ -744,6 +799,7 @@
         };
 
         document.getElementById('step3').classList.remove('active-step');
+        document.getElementById('qrPaymentStep').classList.remove('active-step');
         
         try {
             const response = await fetch(`${API_URL}/orders`, {
@@ -915,7 +971,84 @@ Thank you for shopping with Velvora Luxury!`;
     window.placeOrder = placeOrder;
     window.renderSummary = renderSummary;
     window.updateStepIndicator = updateStepIndicator;
+    window.startQrPayment = startQrPayment;
+    window.confirmQrPayment = confirmQrPayment;
+    window.cancelQrPayment = cancelQrPayment;
     });
+
+    let qrTimerInterval;
+    let qrTimeLeft = 600;
+
+    function startQrPayment(total) {
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('qrPaymentStep').classList.add('active-step');
+        document.getElementById('qrAmount').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
+        
+        qrTimeLeft = 600;
+        updateQrTimerDisplay();
+        
+        if (qrTimerInterval) clearInterval(qrTimerInterval);
+        qrTimerInterval = setInterval(() => {
+            qrTimeLeft--;
+            updateQrTimerDisplay();
+            
+            if (qrTimeLeft <= 0) {
+                clearInterval(qrTimerInterval);
+                showQrNotification('Payment time expired!', 'error');
+                setTimeout(() => cancelQrPayment(), 2000);
+            }
+        }, 1000);
+    }
+
+    function updateQrTimerDisplay() {
+        const minutes = Math.floor(qrTimeLeft / 60);
+        const seconds = qrTimeLeft % 60;
+        
+        const timerEl = document.getElementById('qrTimer');
+        timerEl.querySelector('.timer-minutes').textContent = minutes;
+        timerEl.querySelector('.timer-seconds').textContent = seconds.toString().padStart(2, '0');
+        
+        if (qrTimeLeft <= 60) {
+            timerEl.classList.add('urgent');
+        } else {
+            timerEl.classList.remove('urgent');
+        }
+    }
+
+    function confirmQrPayment() {
+        const btn = document.getElementById('confirmPaymentBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        clearInterval(qrTimerInterval);
+        showQrNotification('Payment Confirmed!', 'success');
+        
+        setTimeout(() => {
+            const upiRef = document.getElementById('upiRefId').value;
+            const paymentMethod = upiRef ? `qr-upi-${upiRef}` : 'qr-demo';
+            placeOrder(paymentMethod);
+        }, 1500);
+    }
+
+    function cancelQrPayment() {
+        clearInterval(qrTimerInterval);
+        document.getElementById('qrPaymentStep').classList.remove('active-step');
+        document.getElementById('step2').classList.add('active-step');
+        showNotification('Payment cancelled');
+    }
+
+    function showQrNotification(message, type = 'info') {
+        const notif = document.createElement('div');
+        notif.className = `qr-notification ${type}`;
+        notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span>${message}</span>`;
+        notif.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#333;color:white;padding:20px 40px;border-radius:15px;z-index:10000;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:500;animation:fadeInScale 0.3s ease;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+        document.body.appendChild(notif);
+        
+        setTimeout(() => {
+            notif.style.animation = 'fadeOutScale 0.3s ease forwards';
+            setTimeout(() => notif.remove(), 300);
+        }, 2000);
+    }
 </script>
 
 </body>
