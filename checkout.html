@@ -717,15 +717,38 @@ Thank you for shopping with Velvora Luxury!`;
 
     renderSummary();
     
-    document.addEventListener('DOMContentLoaded', function() {
-        const continueBtn = document.querySelector('.place-order-btn[onclick="goToPayment()"]');
-        if (continueBtn) {
-            continueBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                goToPayment();
-            });
+    window.goToPayment = function() {
+        console.log('goToPayment called');
+        const email = document.getElementById('checkoutEmail').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const address = document.getElementById('address').value;
+        const city = document.getElementById('city').value;
+        const postalCode = document.getElementById('postalCode').value;
+
+        if (!email || !firstName || !lastName || !address || !city || !postalCode) {
+            showNotification('Please fill in all required fields!');
+            return;
         }
-    });
+
+        document.getElementById('summaryName').textContent = firstName + ' ' + lastName;
+        document.getElementById('summaryAddress').textContent = document.getElementById('address').value;
+        document.getElementById('summaryCity').textContent = city + ', ' + postalCode + ', ' + document.getElementById('country').value;
+
+        document.getElementById('step1').classList.remove('active-step');
+        document.getElementById('step2').classList.add('active-step');
+        currentStep = 2;
+        updateStepIndicator();
+        console.log('Step switched to 2');
+    };
+    
+    window.processPayment = processPayment;
+    window.confirmPaymentDone = confirmPaymentDone;
+    window.confirmPaymentFailed = confirmPaymentFailed;
+    window.goBackToAddress = goBackToAddress;
+    window.editAddress = editAddress;
+    window.updatePaymentMethod = updatePaymentMethod;
+    window.showNotification = showNotification;
 </script>
 
 </body>
