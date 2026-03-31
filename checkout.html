@@ -105,11 +105,11 @@
                     <div class="form-group">
                         <label>Country</label>
                         <select id="country">
+                            <option value="IN">India</option>
                             <option value="US">United States</option>
                             <option value="UK">United Kingdom</option>
                             <option value="CA">Canada</option>
                             <option value="AU">Australia</option>
-                            <option value="IN">India</option>
                         </select>
                     </div>
                 </div>
@@ -132,17 +132,10 @@
                     <h3><span>2</span> Payment Method</h3>
                     <div class="payment-methods">
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="phonepe" checked onchange="updatePaymentMethod()">
+                            <input type="radio" name="payment" value="qr" checked onchange="updatePaymentMethod()">
                             <div class="payment-card">
-                                <i class="fas fa-mobile-alt"></i>
-                                <span>PhonePe QR Code</span>
-                            </div>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="demo" onchange="updatePaymentMethod()">
-                            <div class="payment-card">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Demo Payment (Test Mode)</span>
+                                <i class="fas fa-qrcode"></i>
+                                <span>UPI QR Code Payment</span>
                             </div>
                         </label>
                         <label class="payment-option">
@@ -153,56 +146,12 @@
                             </div>
                         </label>
                     </div>
-                    
-                    <div class="phonepe-details" id="phonepeDetails">
-                        <div class="qr-section">
-                            <div class="qr-code">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/PhonePe_Logo.svg/1200px-PhonePe_Logo.svg.png" alt="PhonePe" style="width: 80px; margin-bottom: 10px;">
-                                <div class="qr-placeholder">
-                                    <i class="fas fa-qrcode" style="font-size: 120px; color: #c8a96a;"></i>
-                                    <p style="margin-top: 10px; color: #666;">Scan to Pay via PhonePe</p>
-                                </div>
-                            </div>
-                            <div class="payment-info">
-                                <p><strong>Scan & Pay</strong> - Use any UPI app to scan the QR code</p>
-                                <p class="timer">Payment window: <span id="paymentTimer">10:00</span></p>
-                                <div class="payment-actions">
-                                    <button class="btn-success" onclick="confirmPaymentDone()">
-                                        <i class="fas fa-check-circle"></i> Payment Done
-                                    </button>
-                                    <button class="btn-failed" onclick="confirmPaymentFailed()">
-                                        <i class="fas fa-times-circle"></i> Not Done
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-details" id="cardDetails">
-                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                            <p style="color: #2e7d32; font-size: 14px; margin: 0;">
-                                <i class="fas fa-check-circle"></i> <strong>Demo Mode Active</strong><br>
-                                <small>This is a test payment mode. No real money will be charged.</small>
-                            </p>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="button-group">
                     <button class="back-btn" onclick="goBackToAddress()">Back</button>
                     <button type="button" class="place-order-btn" id="payNowBtn">Pay Now</button>
                 </div>
-            </div>
-
-            <div id="step3" class="checkout-step">
-                <div class="payment-processing">
-                    <div class="processing-icon">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </div>
-                    <h3>Processing Payment...</h3>
-                    <p>Please wait while we process your payment</p>
-                </div>
-                <div id="payuContainer"></div>
             </div>
 
             <div id="qrPaymentStep" class="checkout-step">
@@ -223,10 +172,10 @@
 
                         <div class="qr-image-container">
                             <div class="qr-frame">
-                                <img src="phonepay/phonepay qr.jpeg" alt="QR Code" class="qr-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <img src="phonepay/phonepay_qr.jpeg" alt="QR Code" class="qr-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="qr-placeholder" style="display: flex;">
                                     <i class="fas fa-qrcode"></i>
-                                    <span>Add QR Image</span>
+                                    <span>QR Image</span>
                                 </div>
                             </div>
                             <div class="qr-scan-line"></div>
@@ -305,19 +254,19 @@
             <div class="summary-totals">
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span id="summarySubtotal">$0.00</span>
+                    <span id="summarySubtotal">₹0</span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
                     <span>Free</span>
                 </div>
                 <div class="summary-row">
-                    <span>Tax</span>
-                    <span id="summaryTax">$0.00</span>
+                    <span>Tax (18% GST)</span>
+                    <span id="summaryTax">₹0</span>
                 </div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span id="summaryTotal">$0.00</span>
+                    <span id="summaryTotal">₹0</span>
                 </div>
             </div>
         </div>
@@ -330,19 +279,31 @@
 
 <script src="script.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // API_URL is already defined in script.js
+    const CHECKOUT_API_URL = (typeof API_URL !== 'undefined') ? API_URL : '';
     let cart = JSON.parse(localStorage.getItem('velvoraCart')) || [];
     let user = JSON.parse(localStorage.getItem('velvoraUser'));
     let currentStep = 1;
     let orderTotal = 0;
     let pendingOrderData = null;
-    let paymentTimerInterval = null;
-    let paymentTimeRemaining = 600;
+    let qrTimerInterval = null;
+    let qrTimeLeft = 600;
 
-    // Make functions globally accessible
-    window.goToPayment = function() {
-        console.log('goToPayment called');
+    function showNotification(message) {
+        const notif = document.createElement('div');
+        notif.className = 'notification show';
+        notif.textContent = message;
+        notif.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:15px 30px;border-radius:10px;z-index:9999;';
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 3000);
+    }
+
+    function updateStepIndicator() {
+        document.getElementById('step1-indicator').classList.toggle('active', currentStep >= 1);
+        document.getElementById('step2-indicator').classList.toggle('active', currentStep >= 2);
+        document.getElementById('step3-indicator').classList.toggle('active', currentStep >= 3);
+    }
+
+    function goToPayment() {
         const email = document.getElementById('checkoutEmail').value;
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
@@ -363,133 +324,28 @@
         document.getElementById('step2').classList.add('active-step');
         currentStep = 2;
         updateStepIndicator();
-        console.log('Step switched to 2');
-    };
+    }
 
-    window.processPayment = async function() {
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-        const email = document.getElementById('checkoutEmail').value;
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const phone = document.getElementById('checkoutPhone').value;
+    function goBackToAddress() {
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('step1').classList.add('active-step');
+        currentStep = 1;
+        updateStepIndicator();
+    }
 
-        if (!email || !firstName || !lastName) {
-            showNotification('Please fill in required fields!');
-            return;
-        }
+    function editAddress() {
+        goBackToAddress();
+    }
 
+    function updatePaymentMethod() {
+        // QR is default, no extra UI needed
+    }
+
+    function calculateTotals() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.08;
+        const tax = Math.round(subtotal * 0.18);
         const total = subtotal + tax;
-        orderTotal = total;
-
-        pendingOrderData = {
-            customerEmail: email,
-            customerName: firstName + ' ' + lastName,
-            customerPhone: phone,
-            items: cart.map(item => ({
-                productId: item._id || item.id,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                image: item.image
-            })),
-            subtotal: subtotal,
-            tax: tax,
-            shipping: 0,
-            total: total,
-            paymentMethod: paymentMethod,
-            shippingAddress: {
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postalCode: document.getElementById('postalCode').value,
-                country: document.getElementById('country').value
-            }
-        };
-
-        localStorage.setItem('velvoraPendingOrder', JSON.stringify(pendingOrderData));
-
-        if (paymentMethod === 'phonepe') {
-            showNotification('Opening QR payment...');
-            startQrPayment(total);
-            return;
-        }
-    };
-
-    window.confirmPaymentDone = function() {
-        showNotification('Payment confirmed! Processing order...');
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step3').classList.add('active-step');
-        document.querySelector('#step3 h3').textContent = 'Payment Confirmed!';
-        currentStep = 3;
-        updateStepIndicator();
-        
-        setTimeout(() => {
-            placeOrder('phonepe');
-        }, 1500);
-    };
-
-    window.confirmPaymentFailed = function() {
-        stopPaymentTimer();
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step1').classList.add('active-step');
-        currentStep = 1;
-        updateStepIndicator();
-        showNotification('Payment not completed. Please try again.');
-    };
-
-    window.goBackToAddress = function() {
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step1').classList.add('active-step');
-        currentStep = 1;
-        updateStepIndicator();
-    };
-
-    window.editAddress = function() {
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step1').classList.add('active-step');
-        currentStep = 1;
-        updateStepIndicator();
-    };
-
-    window.updatePaymentMethod = function() {
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-        const phonepeDetails = document.getElementById('phonepeDetails');
-        const cardDetails = document.getElementById('cardDetails');
-        
-        if (paymentMethod === 'phonepe') {
-            phonepeDetails.style.display = 'block';
-            cardDetails.style.display = 'none';
-            startPaymentTimer();
-        } else if (paymentMethod === 'demo') {
-            phonepeDetails.style.display = 'none';
-            cardDetails.style.display = 'block';
-            stopPaymentTimer();
-        } else {
-            phonepeDetails.style.display = 'none';
-            cardDetails.style.display = 'none';
-            stopPaymentTimer();
-        }
-    };
-
-    function showNotification(message) {
-        const notif = document.createElement('div');
-        notif.className = 'notification show';
-        notif.textContent = message;
-        notif.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:15px 30px;border-radius:10px;z-index:9999;';
-        document.body.appendChild(notif);
-        setTimeout(() => notif.remove(), 3000);
-    }
-
-    if (user) {
-        document.getElementById('checkoutEmail').value = user.email || '';
-    }
-
-    function initPayUPayment() {
-        const payuForm = document.getElementById('payuForm');
-        if (payuForm && pendingOrderData) {
-            payuForm.submit();
-        }
+        return { subtotal, tax, total };
     }
 
     function renderSummary() {
@@ -497,6 +353,9 @@
         
         if (cart.length === 0) {
             container.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+            document.getElementById('summarySubtotal').textContent = '₹0';
+            document.getElementById('summaryTax').textContent = '₹0';
+            document.getElementById('summaryTotal').textContent = '₹0';
             return;
         }
 
@@ -511,153 +370,15 @@
             </div>
         `).join('');
 
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.18;
-        orderTotal = subtotal + tax;
+        const { subtotal, tax, total } = calculateTotals();
+        orderTotal = total;
 
-        document.getElementById('summarySubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-        document.getElementById('summaryTax').textContent = `₹${tax.toLocaleString('en-IN')}`;
-        document.getElementById('summaryTotal').textContent = `₹${orderTotal.toLocaleString('en-IN')}`;
-    }
-
-    function updateStepIndicator() {
-        document.getElementById('step1-indicator').classList.toggle('active', currentStep >= 1);
-        document.getElementById('step2-indicator').classList.toggle('active', currentStep >= 2);
-        document.getElementById('step3-indicator').classList.toggle('active', currentStep >= 3);
+        document.getElementById('summarySubtotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
+        document.getElementById('summaryTax').textContent = '₹' + tax.toLocaleString('en-IN');
+        document.getElementById('summaryTotal').textContent = '₹' + total.toLocaleString('en-IN');
     }
 
-    function goToPayment() {
-        console.log('goToPayment called');
-        const email = document.getElementById('checkoutEmail').value;
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const address = document.getElementById('address').value;
-        const city = document.getElementById('city').value;
-        const postalCode = document.getElementById('postalCode').value;
-
-        if (!email || !firstName || !lastName || !address || !city || !postalCode) {
-            showNotification('Please fill in all required fields!');
-            return;
-        }
-
-        document.getElementById('summaryName').textContent = firstName + ' ' + lastName;
-        document.getElementById('summaryAddress').textContent = document.getElementById('address').value;
-        document.getElementById('summaryCity').textContent = city + ', ' + postalCode + ', ' + document.getElementById('country').value;
-
-        document.getElementById('step1').classList.remove('active-step');
-        document.getElementById('step2').classList.add('active-step');
-        currentStep = 2;
-        updateStepIndicator();
-        console.log('Step switched to 2');
-    }
-
-    function goBackToAddress() {
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step1').classList.add('active-step');
-        currentStep = 1;
-        updateStepIndicator();
-    }
-
-    function editAddress() {
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step1').classList.add('active-step');
-        currentStep = 1;
-        updateStepIndicator();
-    }
-
-    function updatePaymentMethod() {
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-        const phonepeDetails = document.getElementById('phonepeDetails');
-        const cardDetails = document.getElementById('cardDetails');
-        
-        if (paymentMethod === 'phonepe') {
-            phonepeDetails.style.display = 'block';
-            cardDetails.style.display = 'none';
-            startPaymentTimer();
-        } else if (paymentMethod === 'demo') {
-            phonepeDetails.style.display = 'none';
-            cardDetails.style.display = 'block';
-            stopPaymentTimer();
-        } else {
-            phonepeDetails.style.display = 'none';
-            cardDetails.style.display = 'none';
-            stopPaymentTimer();
-        }
-    }
-    
-    let paymentTimerInterval;
-    let paymentTimeRemaining = 600;
-    
-    function startPaymentTimer() {
-        stopPaymentTimer();
-        paymentTimeRemaining = 600;
-        updateTimerDisplay();
-        
-        paymentTimerInterval = setInterval(() => {
-            paymentTimeRemaining--;
-            updateTimerDisplay();
-            
-            if (paymentTimeRemaining <= 0) {
-                stopPaymentTimer();
-                showNotification('Payment time expired! Please try again.');
-                confirmPaymentFailed();
-            }
-        }, 1000);
-    }
-    
-    function stopPaymentTimer() {
-        if (paymentTimerInterval) {
-            clearInterval(paymentTimerInterval);
-            paymentTimerInterval = null;
-        }
-    }
-    
-    function updateTimerDisplay() {
-        const minutes = Math.floor(paymentTimeRemaining / 60);
-        const seconds = paymentTimeRemaining % 60;
-        const timerEl = document.getElementById('paymentTimer');
-        if (timerEl) {
-            timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            if (paymentTimeRemaining <= 60) {
-                timerEl.style.color = '#e53935';
-            }
-        }
-    }
-    
-    function confirmPaymentDone() {
-        showNotification('Payment confirmed! Processing order...');
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step3').classList.add('active-step');
-        document.querySelector('#step3 h3').textContent = 'Payment Confirmed!';
-        currentStep = 3;
-        updateStepIndicator();
-        
-        setTimeout(() => {
-            placeOrder('phonepe');
-        }, 1500);
-    }
-    
-    function confirmPaymentFailed() {
-        stopPaymentTimer();
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('step1').classList.add('active-step');
-        currentStep = 1;
-        updateStepIndicator();
-        showNotification('Payment not completed. Please try again.');
-    }
-
-    function getPaymentMethodName() {
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-        switch(paymentMethod) {
-            case 'phonepe': return 'UPI QR Payment';
-            case 'demo': return 'Demo Payment (Test)';
-            case 'cod': return 'Cash on Delivery';
-            case 'qr-demo': return 'QR Demo Payment';
-            default: return 'UPI QR Payment';
-        }
-    }
-
-    async function processPayment() {
+    function processPayment() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         const email = document.getElementById('checkoutEmail').value;
         const firstName = document.getElementById('firstName').value;
@@ -669,9 +390,7 @@
             return;
         }
 
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.08;
-        const total = subtotal + tax;
+        const { subtotal, tax, total } = calculateTotals();
         orderTotal = total;
 
         pendingOrderData = {
@@ -700,76 +419,119 @@
 
         localStorage.setItem('velvoraPendingOrder', JSON.stringify(pendingOrderData));
 
-        if (paymentMethod === 'phonepe') {
-            showNotification('Proceeding to PhonePe payment...');
-            document.getElementById('step2').classList.remove('active-step');
-            document.getElementById('step3').classList.add('active-step');
-            document.querySelector('#step3 h3').textContent = 'Scan & Pay via PhonePe';
-            currentStep = 3;
-            updateStepIndicator();
-            return;
-        } else if (paymentMethod === 'demo') {
-            await processDemoPayment(total, email, firstName, lastName, phone);
+        if (paymentMethod === 'qr') {
+            showNotification('Opening QR payment...');
+            startQrPayment(total);
         } else if (paymentMethod === 'cod') {
-            document.getElementById('step2').classList.remove('active-step');
-            document.getElementById('step3').classList.add('active-step');
-            currentStep = 3;
-            updateStepIndicator();
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            await placeOrder(paymentMethod);
+            placeOrder('cod');
         }
     }
 
-    async function processDemoPayment(amount, email, firstname, lastname, phone) {
-        try {
-            showNotification('Processing demo payment...');
+    function startQrPayment(total) {
+        document.getElementById('step2').classList.remove('active-step');
+        document.getElementById('qrPaymentStep').classList.add('active-step');
+        document.getElementById('qrAmount').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
+        
+        qrTimeLeft = 600;
+        updateQrTimerDisplay();
+        
+        if (qrTimerInterval) clearInterval(qrTimerInterval);
+        qrTimerInterval = setInterval(() => {
+            qrTimeLeft--;
+            updateQrTimerDisplay();
             
-            document.getElementById('step2').classList.remove('active-step');
-            document.getElementById('step3').classList.add('active-step');
-            document.querySelector('#step3 h3').textContent = 'Processing Demo Payment...';
-            currentStep = 3;
-            updateStepIndicator();
-
-            const response = await fetch(`${API_URL}/payment/process`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: amount,
-                    email: email,
-                    firstname: firstname,
-                    phone: phone,
-                    paymentMethod: 'demo'
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                await placeOrder('demo');
-            } else {
-                showNotification('Payment failed: ' + data.message);
-                document.getElementById('step3').classList.remove('active-step');
-                document.getElementById('step2').classList.add('active-step');
-                currentStep = 2;
-                updateStepIndicator();
+            if (qrTimeLeft <= 0) {
+                clearInterval(qrTimerInterval);
+                showQrNotification('Payment time expired!', 'error');
+                setTimeout(() => cancelQrPayment(), 2000);
             }
-        } catch (e) {
-            console.error('Demo payment error:', e);
-            showNotification('Payment service unavailable. Please try Cash on Delivery.');
+        }, 1000);
+    }
+
+    function updateQrTimerDisplay() {
+        const minutes = Math.floor(qrTimeLeft / 60);
+        const seconds = qrTimeLeft % 60;
+        
+        const timerEl = document.getElementById('qrTimer');
+        if (timerEl) {
+            timerEl.querySelector('.timer-minutes').textContent = minutes;
+            timerEl.querySelector('.timer-seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            if (qrTimeLeft <= 60) {
+                timerEl.classList.add('urgent');
+            } else {
+                timerEl.classList.remove('urgent');
+            }
+        }
+    }
+
+    function confirmQrPayment() {
+        const btn = document.getElementById('confirmPaymentBtn');
+        if (btn.disabled) return;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        clearInterval(qrTimerInterval);
+        showQrNotification('Payment Confirmed!', 'success');
+        
+        setTimeout(() => {
+            const upiRef = document.getElementById('upiRefId').value;
+            const paymentMethod = upiRef ? `qr-upi-${upiRef}` : 'qr-payment';
+            placeOrder(paymentMethod);
+        }, 1500);
+    }
+
+    function cancelQrPayment() {
+        clearInterval(qrTimerInterval);
+        document.getElementById('qrPaymentStep').classList.remove('active-step');
+        document.getElementById('step2').classList.add('active-step');
+        
+        const btn = document.getElementById('confirmPaymentBtn');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Payment Done';
+        }
+        
+        showNotification('Payment cancelled');
+    }
+
+    function showQrNotification(message, type = 'info') {
+        const notif = document.createElement('div');
+        notif.className = `qr-notification ${type}`;
+        const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+        notif.innerHTML = `<i class="fas fa-${iconClass}"></i><span>${message}</span>`;
+        notif.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#333;color:white;padding:20px 40px;border-radius:15px;z-index:10000;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:500;animation:fadeInScale 0.3s ease;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+        document.body.appendChild(notif);
+        
+        setTimeout(() => {
+            notif.style.animation = 'fadeOutScale 0.3s ease forwards';
+            setTimeout(() => notif.remove(), 300);
+        }, 2000);
+    }
+
+    function getPaymentMethodName(method) {
+        switch(method) {
+            case 'qr-payment': return 'UPI QR Payment';
+            case 'qr-upi': return 'UPI QR Payment';
+            case 'cod': return 'Cash on Delivery';
+            default: return 'UPI QR Payment';
         }
     }
 
     async function placeOrder(paymentMethod) {
         const pendingOrder = JSON.parse(localStorage.getItem('velvoraPendingOrder'));
+        if (!pendingOrder && !cart.length) {
+            showNotification('No items in cart!');
+            return;
+        }
+
         const email = pendingOrder?.customerEmail || document.getElementById('checkoutEmail').value;
         const firstName = pendingOrder?.customerName?.split(' ')[0] || document.getElementById('firstName').value;
         const lastName = pendingOrder?.customerName?.split(' ').slice(1).join(' ') || document.getElementById('lastName').value;
         const address = pendingOrder?.shippingAddress?.address || document.getElementById('address').value;
 
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.18;
-        const total = subtotal + tax;
+        const { subtotal, tax, total } = calculateTotals();
         
         const orderId = 'VEL-' + Date.now();
 
@@ -798,11 +560,11 @@
             }
         };
 
-        document.getElementById('step3').classList.remove('active-step');
+        document.getElementById('step2').classList.remove('active-step');
         document.getElementById('qrPaymentStep').classList.remove('active-step');
         
         try {
-            const response = await fetch(`${API_URL}/orders`, {
+            const response = await fetch(`${CHECKOUT_API_URL}/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
@@ -821,7 +583,11 @@
             orderId: orderId,
             customerName: firstName + ' ' + lastName,
             customerEmail: email,
-            customer: { name: firstName + ' ' + lastName, email: email, phone: pendingOrder?.customerPhone || document.getElementById('checkoutPhone').value },
+            customer: { 
+                name: firstName + ' ' + lastName, 
+                email: email, 
+                phone: pendingOrder?.customerPhone || document.getElementById('checkoutPhone').value 
+            },
             items: orderData.items.map(item => ({
                 name: item.name,
                 price: item.price,
@@ -846,25 +612,13 @@
         
         document.getElementById('finalOrderId').textContent = orderId;
         document.getElementById('finalTotal').textContent = '₹' + total.toLocaleString('en-IN');
-        document.getElementById('finalPaymentMethod').textContent = getPaymentMethodName();
+        document.getElementById('finalPaymentMethod').textContent = getPaymentMethodName(paymentMethod);
         
         document.getElementById('step4').classList.add('active-step');
         currentStep = 4;
         updateStepIndicator();
     }
 
-    function showNotification(message) {
-        const notification = document.getElementById('notification');
-        const text = document.getElementById('notificationText');
-        text.textContent = message;
-        notification.classList.add('show');
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 3000);
-    }
-
-    // Email notification function (simulated)
     function sendEmail(to, subject, body) {
         console.log('=== EMAIL SENT ===');
         console.log('To:', to);
@@ -872,7 +626,6 @@
         console.log('Body:', body);
         console.log('==================');
         
-        // Store email in localStorage for demo purposes
         const emails = JSON.parse(localStorage.getItem('velvoraEmails')) || [];
         emails.push({
             to: to,
@@ -882,7 +635,6 @@
         });
         localStorage.setItem('velvoraEmails', JSON.stringify(emails));
         
-        // Show notification
         showNotification(`Email sent to ${to}`);
     }
 
@@ -893,8 +645,8 @@
 Your order has been confirmed!
 
 Order ID: ${order.orderId}
-Total: $${order.total.toFixed(2)}
-Payment Method: ${order.paymentMethod}
+Total: ₹${order.total.toLocaleString('en-IN')}
+Payment Method: ${getPaymentMethodName(order.paymentMethod)}
 
 We will notify you when your order is shipped.
 
@@ -903,69 +655,20 @@ Thank you for shopping with Velvora Luxury!`;
         sendEmail(order.customerEmail, subject, body);
     }
 
-    function sendShippingEmail(order) {
-        const subject = `Order Shipped - ${order.orderId}`;
-        const body = `Dear ${order.customerName},
-
-Great news! Your order is on its way!
-
-Order ID: ${order.orderId}
-Tracking: Available in your account
-
-Estimated delivery: 3-5 business days
-
-Thank you for shopping with Velvora Luxury!`;
-        
-        sendEmail(order.customerEmail, subject, body);
-    }
-
-    function sendDeliveredEmail(order) {
-        const subject = `Order Delivered - ${order.orderId}`;
-        const body = `Dear ${order.customerName},
-
-Your order has been delivered!
-
-Order ID: ${order.orderId}
-
-We hope you enjoy your purchase! Please take a moment to leave a review.
-
-Thank you for shopping with Velvora Luxury!`;
-        
-        sendEmail(order.customerEmail, subject, body);
-    }
-
-    renderSummary();
-    
-    window.goToPayment = function() {
-        console.log('goToPayment called');
-        const email = document.getElementById('checkoutEmail').value;
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const address = document.getElementById('address').value;
-        const city = document.getElementById('city').value;
-        const postalCode = document.getElementById('postalCode').value;
-
-        if (!email || !firstName || !lastName || !address || !city || !postalCode) {
-            showNotification('Please fill in all required fields!');
-            return;
+    document.addEventListener('DOMContentLoaded', function() {
+        if (user) {
+            document.getElementById('checkoutEmail').value = user.email || '';
         }
 
-        document.getElementById('summaryName').textContent = firstName + ' ' + lastName;
-        document.getElementById('summaryAddress').textContent = document.getElementById('address').value;
-        document.getElementById('summaryCity').textContent = city + ', ' + postalCode + ', ' + document.getElementById('country').value;
+        renderSummary();
 
-        document.getElementById('step1').classList.remove('active-step');
-        document.getElementById('step2').classList.add('active-step');
-        currentStep = 2;
-        updateStepIndicator();
-        console.log('Step switched to 2');
-    };
-    
-    window.processPayment = processPayment;
-    window.confirmPaymentDone = confirmPaymentDone;
-    window.confirmPaymentFailed = confirmPaymentFailed;
-    window.goBackToAddress = goBackToAddress;
+        document.getElementById('continuePaymentBtn').addEventListener('click', goToPayment);
+        document.getElementById('payNowBtn').addEventListener('click', processPayment);
+    });
+
+    window.goToPayment = goToPayment;
     window.editAddress = editAddress;
+    window.goBackToAddress = goBackToAddress;
     window.updatePaymentMethod = updatePaymentMethod;
     window.showNotification = showNotification;
     window.placeOrder = placeOrder;
@@ -974,81 +677,6 @@ Thank you for shopping with Velvora Luxury!`;
     window.startQrPayment = startQrPayment;
     window.confirmQrPayment = confirmQrPayment;
     window.cancelQrPayment = cancelQrPayment;
-    });
-
-    let qrTimerInterval;
-    let qrTimeLeft = 600;
-
-    function startQrPayment(total) {
-        document.getElementById('step2').classList.remove('active-step');
-        document.getElementById('qrPaymentStep').classList.add('active-step');
-        document.getElementById('qrAmount').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
-        
-        qrTimeLeft = 600;
-        updateQrTimerDisplay();
-        
-        if (qrTimerInterval) clearInterval(qrTimerInterval);
-        qrTimerInterval = setInterval(() => {
-            qrTimeLeft--;
-            updateQrTimerDisplay();
-            
-            if (qrTimeLeft <= 0) {
-                clearInterval(qrTimerInterval);
-                showQrNotification('Payment time expired!', 'error');
-                setTimeout(() => cancelQrPayment(), 2000);
-            }
-        }, 1000);
-    }
-
-    function updateQrTimerDisplay() {
-        const minutes = Math.floor(qrTimeLeft / 60);
-        const seconds = qrTimeLeft % 60;
-        
-        const timerEl = document.getElementById('qrTimer');
-        timerEl.querySelector('.timer-minutes').textContent = minutes;
-        timerEl.querySelector('.timer-seconds').textContent = seconds.toString().padStart(2, '0');
-        
-        if (qrTimeLeft <= 60) {
-            timerEl.classList.add('urgent');
-        } else {
-            timerEl.classList.remove('urgent');
-        }
-    }
-
-    function confirmQrPayment() {
-        const btn = document.getElementById('confirmPaymentBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        
-        clearInterval(qrTimerInterval);
-        showQrNotification('Payment Confirmed!', 'success');
-        
-        setTimeout(() => {
-            const upiRef = document.getElementById('upiRefId').value;
-            const paymentMethod = upiRef ? `qr-upi-${upiRef}` : 'qr-demo';
-            placeOrder(paymentMethod);
-        }, 1500);
-    }
-
-    function cancelQrPayment() {
-        clearInterval(qrTimerInterval);
-        document.getElementById('qrPaymentStep').classList.remove('active-step');
-        document.getElementById('step2').classList.add('active-step');
-        showNotification('Payment cancelled');
-    }
-
-    function showQrNotification(message, type = 'info') {
-        const notif = document.createElement('div');
-        notif.className = `qr-notification ${type}`;
-        notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span>${message}</span>`;
-        notif.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#333;color:white;padding:20px 40px;border-radius:15px;z-index:10000;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:500;animation:fadeInScale 0.3s ease;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
-        document.body.appendChild(notif);
-        
-        setTimeout(() => {
-            notif.style.animation = 'fadeOutScale 0.3s ease forwards';
-            setTimeout(() => notif.remove(), 300);
-        }, 2000);
-    }
 </script>
 
 </body>
