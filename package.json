@@ -4,18 +4,32 @@
   "description": "Velvora Luxury E-commerce Store with PayU Payment Integration",
   "scripts": {
     "start": "live-server --port=3000",
-    "server": "node server-payu.js",
-    "server-sql": "node server-sql.js",
-    "server-pg": "node server-pg.js",
+    "server": "node server-pg.js",
     "dev": "vercel dev"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "@vercel/postgres": "^0.10.0",
     "cors": "^2.8.6",
+    "dotenv": "^16.3.1",
     "express": "^4.22.1",
-    "pg": "^8.11.3",
+    "pg": "^8.20.0",
     "sql.js": "^1.14.1"
   },
   "devDependencies": {
     "@vercel/node": "^3.0.0"
-  }
+  },
+  "main": "admin.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeedimetlaCharan704/velvora-site.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/JeedimetlaCharan704/velvora-site/issues"
+  },
+  "homepage": "https://github.com/JeedimetlaCharan704/velvora-site#readme"
 }

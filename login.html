@@ -138,6 +138,13 @@
         localStorage.setItem('velvoraUsers', JSON.stringify(users));
     }
 
+    function clearDemoUsers() {
+        let users = getUsers();
+        users = users.filter(u => u.email !== 'user@velvora.com');
+        saveUsers(users);
+    }
+    clearDemoUsers();
+
     function switchTab(tab) {
         document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
@@ -346,14 +353,7 @@
         }
     }
 
-    (function() {
-        const users = getUsers();
-        if (!users.find(u => u.email === 'user@velvora.com')) {
-            const demoUser = { id: 'demo1', name: 'Demo User', email: 'user@velvora.com', password: 'user123', role: 'user', createdAt: new Date().toISOString() };
-            users.push(demoUser);
-            saveUsers(users);
-        }
-    })();
+
 </script>
 
 </body>
